@@ -27,7 +27,7 @@ async function main() {
         }
         const outFile = path.join(outDir, path.basename(file))
         console.log(outFile)
-        await fse.ensureDir(outDir)
+        await fse.ensureDir(path.dirname(outFile))
         await fse.writeFile(outFile, code)
     }
 }
