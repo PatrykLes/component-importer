@@ -1,13 +1,29 @@
 import * as ts from "typescript"
 import * as fse from "fs-extra"
 import prettier from "prettier"
-
-let sourceFile: ts.SourceFile
+import glob from "glob"
+import path from "path"
 async function main() {
-    const file = process.argv[2] //"../framer-bridge-starter-kit/design-system/components/Button.tsx"
+    const pattern = process.argv[2] //"../framer-bridge-starter-kit/design-system/components/Button.tsx"
+    const outDir = process.argv[3]
+    const files = await new Promise<string[]>(resolve => glob(pattern, (err, files) => resolve(files)))
+    console.log(files)
+    for (const file of files) {
+        const code = await processFile(file)
+        if (!outDir) {
+            console.log(code)
+            continue
+        }
+        const outFile = path.join(outDir, path.basename(file))
+        console.log(outFile)
+        await fse.ensureDir(outDir)
+        await fse.writeFile(outFile, code)
+    }
+}
+async function processFile(file: string) {
     const contents = await fse.readFile(file, "utf8")
-    sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
-    const propsType = findPropsType()
+    const sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
+    const propsType = findPropsType(sourceFile)
     const propertyControls: PropertyControl[] = []
     if (propsType) {
         for (const me of propsType.members) {
@@ -30,15 +46,16 @@ async function main() {
             }
         }
     }
-    const name = findComponentName()
+    const name = findComponentName(sourceFile)
     let code = generate({ componentName: `System.${name}`, framerName: name, propertyControls })
-    console.log(await makePrettier({ file, code }))
+    const code2 = await makePrettier({ file, code })
+    return code2
 }
 
 function upperCaseFirstLetter(s: string): string {
     return s[0].toUpperCase() + s.substr(1)
 }
-function findPropsType(): ts.TypeLiteralNode {
+function findPropsType(sourceFile: ts.SourceFile): ts.TypeLiteralNode {
     for (const node of sourceFile.statements) {
         if (ts.isTypeAliasDeclaration(node)) {
             const type = node.type
@@ -47,7 +64,7 @@ function findPropsType(): ts.TypeLiteralNode {
     }
     return null
 }
-function findComponentName(): string {
+function findComponentName(sourceFile: ts.SourceFile): string {
     for (const node of sourceFile.statements) {
         if (ts.isVariableStatement(node)) {
             return node.declarationList.declarations[0].name.getText()
