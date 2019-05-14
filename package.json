@@ -6,6 +6,12 @@
   "author": "Dan-el Khen <danelkhen@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "fs-extra": "^8.0.1",
+    "prettier": "^1.17.1",
     "typescript": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^7.0.0",
+    "@types/prettier": "^1.16.3"
   }
 }
