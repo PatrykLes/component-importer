@@ -3,7 +3,18 @@ import * as fse from "fs-extra"
 import prettier from "prettier"
 import glob from "glob"
 import path from "path"
+
 async function main() {
+    if (!process.argv[2]) {
+        console.log("")
+        console.log("Usage:")
+        console.log("yarn cli [file-pattern] [out-dir]")
+        console.log("")
+        console.log("Example:")
+        console.log("yarn cli ../my-project/src/**/*.tsx ../my-project/framer")
+        console.log("")
+        return
+    }
     const pattern = process.argv[2] //"../framer-bridge-starter-kit/design-system/components/Button.tsx"
     const outDir = process.argv[3]
     const files = await new Promise<string[]>(resolve => glob(pattern, (err, files) => resolve(files)))
@@ -20,6 +31,7 @@ async function main() {
         await fse.writeFile(outFile, code)
     }
 }
+
 async function processFile(file: string) {
     const contents = await fse.readFile(file, "utf8")
     const sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
@@ -62,6 +74,7 @@ function findPropsType(sourceFile: ts.SourceFile): ts.TypeLiteralNode {
             if (ts.isTypeLiteralNode(type)) return type
         }
     }
+    console.warn("Couldn't find Props in file", sourceFile.fileName)
     return null
 }
 function findComponentName(sourceFile: ts.SourceFile): string {
@@ -70,6 +83,8 @@ function findComponentName(sourceFile: ts.SourceFile): string {
             return node.declarationList.declarations[0].name.getText()
         }
     }
+    console.warn("Couldn't find Component name in file", sourceFile.fileName)
+    return null
 }
 
 function* iterate(node: ts.Node): IterableIterator<ts.Node> {
