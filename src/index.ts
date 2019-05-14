@@ -105,7 +105,7 @@ import * as React from "react"
 import * as System from "../../design-system"
 import { ControlType, PropertyControls } from "framer"
 
-type Props = ${componentName} & {
+type Props = ${componentName}Props & {
   width: number
   height: number
 }
