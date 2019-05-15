@@ -245,11 +245,11 @@ function printExpression(node: ts.Node) {
 
 export async function makePrettier({ file, code }: { file: string; code: string }): Promise<string> {
     try {
-        const options = await prettier.resolveConfig(file)
-        if (options) {
-            //} && !options.parser) {
-            options.parser = "typescript"
-        }
+        const options = (await prettier.resolveConfig(file)) || {}
+        //if (options) {
+        //} && !options.parser) {
+        options.parser = "typescript"
+        //}
         const prettyCode = prettier.format(code, options)
         return prettyCode
     } catch (err) {
