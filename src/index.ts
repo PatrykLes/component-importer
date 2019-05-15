@@ -20,13 +20,18 @@ async function main() {
     const files = await new Promise<string[]>(resolve => glob(pattern, (err, files) => resolve(files)))
     console.log(files)
     for (const file of files) {
+        console.log("Processing", file)
         const code = await processFile(file)
+        if (!code) {
+            console.log("Skipping", file)
+            continue
+        }
         if (!outDir) {
             console.log(code)
             continue
         }
         const outFile = path.join(outDir, path.basename(file))
-        console.log(outFile)
+        console.log("Saving", outFile)
         await fse.ensureDir(path.dirname(outFile))
         await fse.writeFile(outFile, code)
     }
@@ -40,7 +45,15 @@ function getLiteralTypeText(node: ts.LiteralTypeNode) {
 async function processFile(file: string): Promise<string> {
     const contents = await fse.readFile(file, "utf8")
     const sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
+    const name = findComponentName(sourceFile)
     const propsType = findPropsType(sourceFile)
+    if (!name) {
+        console.log("Can't find component in file")
+    }
+    if (!propsType) {
+        console.log("Can't find props in file")
+    }
+    if (!name || !propsType) return null
     const propertyControls: PropertyControl[] = []
     if (propsType) {
         for (const me of propsType.members) {
@@ -72,7 +85,6 @@ async function processFile(file: string): Promise<string> {
             }
         }
     }
-    const name = findComponentName(sourceFile)
     let code = generate({ componentName: `System.${name}`, framerName: name, propertyControls })
     const code2 = await makePrettier({ file, code })
     return code2
