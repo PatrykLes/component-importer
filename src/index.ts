@@ -17,6 +17,7 @@ async function main() {
     }
     const pattern = process.argv[2]
     const outDir = process.argv[3]
+    console.log({ pattern, outDir })
     const files = await new Promise<string[]>(resolve => glob(pattern, (err, files) => resolve(files)))
     console.log(files)
     for (const file of files) {
