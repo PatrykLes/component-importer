@@ -55,15 +55,16 @@ async function processFile(file: string): Promise<string> {
                 } else if (meTypeName == "boolean") {
                     type = "ControlType.Boolean"
                 } else if (ts.isUnionTypeNode(meType)) {
-                    // console.log("UNION")
                     type = "ControlType.Enum"
-                    pc.options = meType.types.map(t =>
-                        ts.isLiteralTypeNode(t) && ts.isLiteralExpression(t.literal) ? getLiteralTypeText(t) : "",
-                    )
+                    pc.options = meType.types.map(t => (ts.isLiteralTypeNode(t) ? getLiteralTypeText(t) : ""))
                     pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(t))
-                    console.log(pc)
                 } else {
-                    console.log(me.name.getText(), me.type.getText(), ts.SyntaxKind[me.type.kind])
+                    console.log(
+                        "Skipping PropertyControl for",
+                        me.name.getText(),
+                        me.type.getText(),
+                        ts.SyntaxKind[me.type.kind],
+                    )
                 }
                 if (!type) continue
                 pc.type = type
@@ -100,7 +101,7 @@ function findComponentName(sourceFile: ts.SourceFile): string {
     return null
 }
 
-function* iterate(node: ts.Node): IterableIterator<ts.Node> {
+function* descendants(node: ts.Node): IterableIterator<ts.Node> {
     const stack = [node]
     while (stack.length) {
         const node = stack.pop()
