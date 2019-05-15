@@ -8,7 +8,7 @@
     "scripts": {
         "build": "yarn && yarn tsc",
         "cli": "node build/cli",
-        "test": "yarn cli ../framer-bridge-starter-kit/design-system/components/**/*.tsx generated"
+        "test": "yarn cli ../framer-bridge-starter-kit/design-system/components generated"
     },
     "dependencies": {
         "fs-extra": "^8.0.1",
