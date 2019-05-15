@@ -15,7 +15,7 @@ async function main() {
         console.log("")
         return
     }
-    const pattern = process.argv[2] //"../framer-bridge-starter-kit/design-system/components/Button.tsx"
+    const pattern = process.argv[2]
     const outDir = process.argv[3]
     const files = await new Promise<string[]>(resolve => glob(pattern, (err, files) => resolve(files)))
     console.log(files)
@@ -246,7 +246,8 @@ function printExpression(node: ts.Node) {
 export async function makePrettier({ file, code }: { file: string; code: string }): Promise<string> {
     try {
         const options = await prettier.resolveConfig(file)
-        if (options && !options.parser) {
+        if (options) {
+            //} && !options.parser) {
             options.parser = "typescript"
         }
         const prettyCode = prettier.format(code, options)
