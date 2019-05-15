@@ -32,7 +32,12 @@ async function main() {
     }
 }
 
-async function processFile(file: string) {
+function getLiteralTypeText(node: ts.LiteralTypeNode) {
+    const literal = node.literal
+    if (ts.isLiteralExpression(literal)) return literal.text
+    return null
+}
+async function processFile(file: string): Promise<string> {
     const contents = await fse.readFile(file, "utf8")
     const sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
     const propsType = findPropsType(sourceFile)
@@ -40,21 +45,29 @@ async function processFile(file: string) {
     if (propsType) {
         for (const me of propsType.members) {
             if (ts.isPropertySignature(me)) {
-                const meType = me.type.getText()
+                let pc = new PropertyControl({ name: me.name.getText() })
+                pc.title = upperCaseFirstLetter(pc.name)
+                const meType = me.type
+                const meTypeName = meType.getText()
                 let type: string
-                if (meType == "string") {
+                if (meTypeName == "string") {
                     type = "ControlType.String"
-                } else if (meType == "boolean") {
+                } else if (meTypeName == "boolean") {
                     type = "ControlType.Boolean"
+                } else if (ts.isUnionTypeNode(meType)) {
+                    // console.log("UNION")
+                    type = "ControlType.Enum"
+                    pc.options = meType.types.map(t =>
+                        ts.isLiteralTypeNode(t) && ts.isLiteralExpression(t.literal) ? getLiteralTypeText(t) : "",
+                    )
+                    pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(t))
+                    console.log(pc)
+                } else {
+                    console.log(me.name.getText(), me.type.getText(), ts.SyntaxKind[me.type.kind])
                 }
                 if (!type) continue
-                propertyControls.push(
-                    new PropertyControl({
-                        name: me.name.getText(),
-                        type,
-                        title: upperCaseFirstLetter(me.name.getText()),
-                    }),
-                )
+                pc.type = type
+                propertyControls.push(pc)
             }
         }
     }
@@ -161,12 +174,53 @@ class PropertyControl {
         const obj = ts.createPropertyAssignment(this.name, obj2)
         return obj
     }
+    toEntry(): [string, any] {
+        const props = { ...this }
+        delete props.name
+        return [this.name, props]
+    }
     static toJS(list: PropertyControl[]) {
+        const entries = list.map(t => t.toEntry())
+        const obj: any = {}
+        for (const entry of entries) obj[entry[0]] = entry[1]
+        const node = valueToTS(obj, (key, value) => {
+            if (key == "type") {
+                return ts.createIdentifier(value)
+            }
+        })
+        return printExpression(node)
+    }
+    static toJS2(list: PropertyControl[]) {
         const assignments = list.map(t => t.toTS())
         const obj = ts.createObjectLiteral(assignments)
         return printExpression(obj)
     }
 }
+
+function valueToTS(obj: any, replacer?: (key: string, value: any) => ts.Expression, parentKey?: string): ts.Expression {
+    if (replacer) {
+        const replaced = replacer(parentKey, obj)
+        if (replaced != null) {
+            return replaced
+        }
+    }
+    if (obj == null) return ts.createNull()
+    if (typeof obj == "object") {
+        if (obj instanceof Array) {
+            const items = obj.map(t => valueToTS(t, replacer))
+            const node = ts.createArrayLiteral(items)
+            return node
+        }
+        const items = []
+        for (const [key, value] of Object.entries(obj)) {
+            items.push(ts.createPropertyAssignment(key, valueToTS(value, replacer, key)))
+        }
+        const node = ts.createObjectLiteral(items)
+        return node
+    }
+    return ts.createLiteral(obj)
+}
+
 function printExpression(node: ts.Node) {
     const file = ts.createSourceFile("ggg", "", ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
     const printer = ts.createPrinter({
