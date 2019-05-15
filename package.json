@@ -7,7 +7,7 @@
     "license": "MIT",
     "scripts": {
         "build": "yarn && yarn tsc",
-        "cli": "node build/index",
+        "cli": "node build/cli",
         "test": "yarn cli ../framer-bridge-starter-kit/design-system/components/**/*.tsx generated"
     },
     "dependencies": {
