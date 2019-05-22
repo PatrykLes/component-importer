@@ -14,12 +14,20 @@ function analyze(file: string, contents: string): AnalyzedFile {
     const sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
     const name = findComponentName(sourceFile)
     const propsType = findPropsType(sourceFile)
+    const res: AnalyzedFile = {
+        file,
+        componentName: null,
+        framerName: null,
+        propertyControls: new PropertyControls(),
+    }
 
     if (!name) console.log("Can't find component in file")
     if (!propsType) console.log("Can't find props in file")
-    if (!name || !propsType) return null
+    if (!name || !propsType) return res
 
-    const propertyControls = new PropertyControls()
+    res.componentName = `System.${name}`
+    res.framerName = name
+
     for (const prop of propsType.members.filter(ts.isPropertySignature)) {
         let pc = new PropertyControl({ name: prop.name.getText() })
         pc.title = upperCaseFirstLetter(pc.name)
@@ -44,10 +52,9 @@ function analyze(file: string, contents: string): AnalyzedFile {
             continue
         }
         pc.type = type
-        propertyControls.add(pc)
+        res.propertyControls.add(pc)
     }
-    const analyzed: AnalyzedFile = { file, componentName: `System.${name}`, framerName: name, propertyControls }
-    return analyzed
+    return res
 }
 function generate(config: AnalyzedFile) {
     const { componentName, framerName, propertyControls } = config
