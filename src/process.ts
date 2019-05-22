@@ -49,6 +49,9 @@ export async function processFile(file: string): Promise<string> {
     }
     if (!sourceFile) return null
     const analyzed = analyze(sourceFile)
+    for (const comp of analyzed.components) {
+        convert(comp)
+    }
     let code = generate(analyzed)
     const code2 = await makePrettier({ file, code })
     return code2
@@ -61,39 +64,41 @@ function analyze(sourceFile: ts.SourceFile): AnalyzedFile {
             file: sourceFile.fileName,
             components: [],
         }
-        comp.propertyControls = new PropertyControls()
-
-        // if (!comp) console.warn("Can't find component in file")
-        // if (!propsType) console.warn("Can't find props in file")
-        // if (!comp || !propsType) return res
-
-        comp.componentName = `System.${comp.name}`
-        comp.framerName = comp.name
 
         const checker = program.getTypeChecker()
-        const propsTypeInfo = toTypeInfo(propsType, checker)
-        for (const prop of propsTypeInfo.properties) {
-            let pc = new PropertyControl({ name: prop.name })
-            pc.title = upperCaseFirstLetter(pc.name)
-            const meType = prop.type
-            let type: string
-            if (meType.isEnum) {
-                type = "ControlType.Enum"
-                pc.options = Array.from(meType.possibleValues)
-                pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
-            } else if (meType.name == "string") {
-                type = "ControlType.String"
-            } else if (meType.name == "boolean") {
-                type = "ControlType.Boolean"
-            } else {
-                console.log("Skipping PropertyControl for", prop.name)
-                continue
-            }
-            pc.type = type
-            comp.propertyControls.add(pc)
-        }
+        comp.propsTypeInfo = toTypeInfo(propsType, checker)
         res.components.push(comp)
         return res
+    }
+}
+function convert(comp: ComponentInfo) {
+    comp.propertyControls = new PropertyControls()
+
+    // if (!comp) console.warn("Can't find component in file")
+    // if (!propsType) console.warn("Can't find props in file")
+    // if (!comp || !propsType) return res
+
+    comp.componentName = `System.${comp.name}`
+    comp.framerName = comp.name
+    for (const prop of comp.propsTypeInfo.properties) {
+        let pc = new PropertyControl({ name: prop.name })
+        pc.title = upperCaseFirstLetter(pc.name)
+        const meType = prop.type
+        let type: string
+        if (meType.isEnum) {
+            type = "ControlType.Enum"
+            pc.options = meType.possibleValues
+            pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
+        } else if (meType.name == "string") {
+            type = "ControlType.String"
+        } else if (meType.name == "boolean") {
+            type = "ControlType.Boolean"
+        } else {
+            console.log("Skipping PropertyControl for", prop.name)
+            continue
+        }
+        pc.type = type
+        comp.propertyControls.add(pc)
     }
 }
 function generate(analyzedFile: AnalyzedFile) {
@@ -226,13 +231,13 @@ interface PropertyInfo {
 
 function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
     const typeInfo: TypeInfo = {}
-    if (type.isUnion()) {
-        typeInfo.isEnum = true
-        typeInfo.possibleValues = type.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
-    } else if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
+    if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
         typeInfo.name = "string"
     } else if ((type.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
         typeInfo.name = "boolean"
+    } else if (type.isUnion()) {
+        typeInfo.isEnum = true
+        typeInfo.possibleValues = type.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
     } else {
         // TODO: typeInfo.name = type.name
         typeInfo.properties = []

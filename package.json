@@ -8,7 +8,8 @@
     "scripts": {
         "build": "yarn && yarn tsc",
         "cli": "node build/cli",
-        "test": "yarn cli ../framer-bridge-starter-kit/design-system/components generated"
+        "test": "yarn cli ../framer-bridge-starter-kit/design-system/components generated",
+        "test-debug": "node --inspect-brk build/cli ../framer-bridge-starter-kit/design-system/components generated"
     },
     "dependencies": {
         "@babel/generator": "^7.4.4",
