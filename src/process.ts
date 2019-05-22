@@ -4,7 +4,15 @@ import * as ts from "typescript"
 import { makePrettier, printExpression, upperCaseFirstLetter, valueToTS } from "./utils"
 
 let program: ts.Program
-export async function processProgram(dir: string, relativeFiles: string[]) {
+export async function processProgram(dir: string, relativeFiles: string[]): Promise<ProcessedFile[]> {
+    const processed: ProcessedFile[] = relativeFiles.map(
+        t =>
+            <ProcessedFile>{
+                relativeFile: t,
+                file: path.join(dir, t),
+                generatedCode: null,
+            },
+    )
     let tsconfig: ts.CompilerOptions = {
         rootDir: dir,
         target: ts.ScriptTarget.ESNext,
@@ -13,23 +21,24 @@ export async function processProgram(dir: string, relativeFiles: string[]) {
     }
     let opts: ts.CreateProgramOptions = {
         options: tsconfig,
-        rootNames: relativeFiles.map(t => path.join(dir, t)),
+        rootNames: processed.map(t => t.file),
     }
-    console.log(opts)
     program = ts.createProgram(opts)
-    // // Get the checker, we will use it to find more about classes
-    // let checker = program.getTypeChecker()
-
-    // Visit every sourceFile in the program
     console.log(program.getSourceFiles().length)
-    for (const sourceFile of program.getSourceFiles()) {
-        if (!sourceFile.isDeclarationFile) {
-            console.log("SOURCE FILE", sourceFile.fileName)
-            // processFile(sourceFile)
-        }
+    for (const file of processed) {
+        const sourceFile = program.getSourceFile(file.file)
+        if (sourceFile.isDeclarationFile) continue
+        console.log("SOURCE FILE", sourceFile.fileName)
+        file.generatedCode = await processFile(file.file)
     }
+    return processed
 }
 
+export interface ProcessedFile {
+    relativeFile: string
+    file: string
+    generatedCode: string
+}
 export async function processFile(file: string): Promise<string> {
     let sourceFile: ts.SourceFile
     if (program) {
@@ -62,18 +71,19 @@ function analyze(sourceFile: ts.SourceFile): AnalyzedFile {
         comp.framerName = comp.name
 
         const checker = program.getTypeChecker()
-        for (const prop of propsType.getProperties()) {
+        const propsTypeInfo = toTypeInfo(propsType, checker)
+        for (const prop of propsTypeInfo.properties) {
             let pc = new PropertyControl({ name: prop.name })
             pc.title = upperCaseFirstLetter(pc.name)
-            const meType = checker.getTypeAtLocation(prop.valueDeclaration)
+            const meType = prop.type
             let type: string
-            if (meType.isUnion()) {
+            if (meType.isEnum) {
                 type = "ControlType.Enum"
-                pc.options = meType.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
+                pc.options = Array.from(meType.possibleValues)
                 pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
-            } else if ((meType.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
+            } else if (meType.name == "string") {
                 type = "ControlType.String"
-            } else if ((meType.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
+            } else if (meType.name == "boolean") {
                 type = "ControlType.Boolean"
             } else {
                 console.log("Skipping PropertyControl for", prop.name)
@@ -117,24 +127,6 @@ function generate(analyzedFile: AnalyzedFile) {
     return sb.join("")
 }
 
-function findPropsType(sourceFile: ts.SourceFile, name: string): ts.InterfaceDeclaration | ts.TypeLiteralNode {
-    const nodes = sourceFile.statements
-        .map(t => (ts.isTypeAliasDeclaration(t) || ts.isInterfaceDeclaration(t) ? t : null))
-        .filter(t => t != null)
-    for (const node of nodes) {
-        if (node.name.getText() != name) continue
-        if (ts.isTypeAliasDeclaration(node)) {
-            const type = node.type
-            if (ts.isTypeLiteralNode(type)) {
-                return type
-            }
-        }
-        if (ts.isInterfaceDeclaration(node)) {
-            return node
-        }
-    }
-    return null
-}
 function* findComponents(sourceFile: ts.SourceFile): IterableIterator<ComponentInfo> {
     for (const node of sourceFile.statements) {
         if (!ts.isVariableStatement(node)) continue
@@ -152,6 +144,7 @@ function* findComponents(sourceFile: ts.SourceFile): IterableIterator<ComponentI
         }
         yield {
             name,
+            propsTypeInfo: null,
             propsTypeNode: typeNode,
             propsType: type,
             componentName: null,
@@ -214,7 +207,60 @@ interface ComponentInfo {
     name: string
     propsTypeNode: ts.TypeNode
     propsType: ts.Type
+    propsTypeInfo: TypeInfo
     componentName: string
     framerName: string
     propertyControls: PropertyControls
 }
+
+interface TypeInfo {
+    name?: string
+    possibleValues?: any[]
+    isEnum?: boolean
+    properties?: PropertyInfo[]
+}
+interface PropertyInfo {
+    name: string
+    type: TypeInfo
+}
+
+function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
+    const typeInfo: TypeInfo = {}
+    if (type.isUnion()) {
+        typeInfo.isEnum = true
+        typeInfo.possibleValues = type.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
+    } else if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
+        typeInfo.name = "string"
+    } else if ((type.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
+        typeInfo.name = "boolean"
+    } else {
+        // TODO: typeInfo.name = type.name
+        typeInfo.properties = []
+        for (const prop of type.getProperties()) {
+            const meType = checker.getTypeAtLocation(prop.valueDeclaration)
+            let pc: PropertyInfo = { name: prop.name, type: toTypeInfo(meType, checker) }
+            typeInfo.properties.push(pc)
+        }
+    }
+    return typeInfo
+}
+/*
+function findPropsType(sourceFile: ts.SourceFile, name: string): ts.InterfaceDeclaration | ts.TypeLiteralNode {
+    const nodes = sourceFile.statements
+        .map(t => (ts.isTypeAliasDeclaration(t) || ts.isInterfaceDeclaration(t) ? t : null))
+        .filter(t => t != null)
+    for (const node of nodes) {
+        if (node.name.getText() != name) continue
+        if (ts.isTypeAliasDeclaration(node)) {
+            const type = node.type
+            if (ts.isTypeLiteralNode(type)) {
+                return type
+            }
+        }
+        if (ts.isInterfaceDeclaration(node)) {
+            return node
+        }
+    }
+    return null
+}
+*/

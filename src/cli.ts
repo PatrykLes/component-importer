@@ -21,24 +21,25 @@ async function main() {
     const relativeFiles = await new Promise<string[]>(resolve =>
         glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)),
     )
-    await processProgram(srcDir, relativeFiles)
     console.log(relativeFiles)
-    for (const relativeFile of relativeFiles) {
+    const processedFiles = await processProgram(srcDir, relativeFiles)
+    for (const file of processedFiles) {
+        const { relativeFile, generatedCode } = file
         console.log("Processing", relativeFile)
-        const srcFile = path.join(srcDir, relativeFile)
-        const code = await processFile(srcFile)
-        if (!code) {
+        // const srcFile = path.join(srcDir, relativeFile)
+        // const code = await processFile(srcFile)
+        if (!generatedCode) {
             console.log("Skipping", relativeFile)
             continue
         }
         if (!outDir) {
-            console.log(code)
+            console.log(generatedCode)
             continue
         }
         const outFile = path.join(outDir, relativeFile)
         console.log("Saving", outFile)
         await fse.ensureDir(path.dirname(outFile))
-        await fse.writeFile(outFile, code)
+        await fse.writeFile(outFile, generatedCode)
     }
 }
 main()
