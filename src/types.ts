@@ -10,8 +10,8 @@ export interface ProcessedFile {
 
 export interface ComponentInfo {
     name: string
-    propsTypeNode: ts.TypeNode
-    propsType: ts.Type
+    // propsTypeNode: ts.TypeNode
+    // propsType: ts.Type
     propsTypeInfo: TypeInfo
     componentName: string
     framerName: string

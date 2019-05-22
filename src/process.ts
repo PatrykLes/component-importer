@@ -57,10 +57,7 @@ export async function processFile(processedFile: ProcessedFile): Promise<string>
 }
 
 function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile) {
-    processedFile.components = []
-    for (const comp of findComponents(sourceFile)) {
-        processedFile.components.push(comp)
-    }
+    processedFile.components = Array.from(findComponents(sourceFile))
 }
 function convert(comp: ComponentInfo) {
     comp.propertyControls = new PropertyControls()
@@ -140,8 +137,6 @@ function* findComponents(sourceFile: ts.SourceFile): IterableIterator<ComponentI
         yield {
             name,
             propsTypeInfo: toTypeInfo(type, checker),
-            propsTypeNode: typeNode,
-            propsType: type,
             componentName: null,
             framerName: null,
             propertyControls: null,
