@@ -47,70 +47,75 @@ export async function processFile(file: string): Promise<string> {
 }
 
 function analyze(sourceFile: ts.SourceFile): AnalyzedFile {
-    const comp = findComponent(sourceFile)
-    const propsType = comp.propsType
-    const res: AnalyzedFile = {
-        file: sourceFile.fileName,
-        componentName: null,
-        framerName: null,
-        propertyControls: new PropertyControls(),
-    }
-
-    if (!comp) console.warn("Can't find component in file")
-    if (!propsType) console.warn("Can't find props in file")
-    if (!comp || !propsType) return res
-
-    res.componentName = `System.${comp.name}`
-    res.framerName = comp.name
-
-    const checker = program.getTypeChecker()
-    for (const prop of propsType.getProperties()) {
-        let pc = new PropertyControl({ name: prop.name })
-        pc.title = upperCaseFirstLetter(pc.name)
-        const meType = checker.getTypeAtLocation(prop.valueDeclaration)
-        let type: string
-        if (meType.isUnion()) {
-            type = "ControlType.Enum"
-            pc.options = meType.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
-            pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
-        } else if ((meType.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
-            type = "ControlType.String"
-        } else if ((meType.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
-            type = "ControlType.Boolean"
-        } else {
-            console.log("Skipping PropertyControl for", prop.name)
-            continue
+    for (const comp of findComponents(sourceFile)) {
+        const propsType = comp.propsType
+        const res: AnalyzedFile = {
+            file: sourceFile.fileName,
+            components: [],
         }
-        pc.type = type
-        res.propertyControls.add(pc)
+        comp.propertyControls = new PropertyControls()
+
+        // if (!comp) console.warn("Can't find component in file")
+        // if (!propsType) console.warn("Can't find props in file")
+        // if (!comp || !propsType) return res
+
+        comp.componentName = `System.${comp.name}`
+        comp.framerName = comp.name
+
+        const checker = program.getTypeChecker()
+        for (const prop of propsType.getProperties()) {
+            let pc = new PropertyControl({ name: prop.name })
+            pc.title = upperCaseFirstLetter(pc.name)
+            const meType = checker.getTypeAtLocation(prop.valueDeclaration)
+            let type: string
+            if (meType.isUnion()) {
+                type = "ControlType.Enum"
+                pc.options = meType.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
+                pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
+            } else if ((meType.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
+                type = "ControlType.String"
+            } else if ((meType.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
+                type = "ControlType.Boolean"
+            } else {
+                console.log("Skipping PropertyControl for", prop.name)
+                continue
+            }
+            pc.type = type
+            comp.propertyControls.add(pc)
+        }
+        res.components.push(comp)
+        return res
     }
-    return res
 }
-function generate(config: AnalyzedFile) {
-    const { componentName, framerName, propertyControls } = config
-    return `
-import * as React from "react"
-import * as System from "../../design-system"
-import { ControlType, PropertyControls } from "framer"
-
-type Props = ${componentName}Props & {
-  width: number
-  height: number
-}
-
-export class ${framerName} extends React.Component<Props> {
-  render() {
-    return <${componentName} {...this.props} />
-  }
-
-  static defaultProps: Props = {
-    width: 150,
-    height: 50,
-  }
-
-  static propertyControls: PropertyControls<Props> = ${propertyControls.toJS()}
-}
-`
+function generate(analyzedFile: AnalyzedFile) {
+    const sb = []
+    for (const comp of analyzedFile.components) {
+        const { componentName, framerName, propertyControls } = comp
+        sb.push(`
+    import * as React from "react"
+    import * as System from "../../design-system"
+    import { ControlType, PropertyControls } from "framer"
+    
+    type Props = ${componentName}Props & {
+      width: number
+      height: number
+    }
+    
+    export class ${framerName} extends React.Component<Props> {
+      render() {
+        return <${componentName} {...this.props} />
+      }
+    
+      static defaultProps: Props = {
+        width: 150,
+        height: 50,
+      }
+    
+      static propertyControls: PropertyControls<Props> = ${propertyControls.toJS()}
+    }
+    `)
+    }
+    return sb.join("")
 }
 
 function findPropsType(sourceFile: ts.SourceFile, name: string): ts.InterfaceDeclaration | ts.TypeLiteralNode {
@@ -131,7 +136,7 @@ function findPropsType(sourceFile: ts.SourceFile, name: string): ts.InterfaceDec
     }
     return null
 }
-function findComponent(sourceFile: ts.SourceFile): ComponentInfo {
+function* findComponents(sourceFile: ts.SourceFile): IterableIterator<ComponentInfo> {
     for (const node of sourceFile.statements) {
         if (!ts.isVariableStatement(node)) continue
         //const node = sourceFile.statements.find(ts.isVariableStatement)
@@ -146,7 +151,14 @@ function findComponent(sourceFile: ts.SourceFile): ComponentInfo {
             const checker = program.getTypeChecker()
             type = checker.getTypeFromTypeNode(getFirstGenericArgument(decl.type))
         }
-        return { name, propsTypeNode: typeNode, propsType: type }
+        yield {
+            name,
+            propsTypeNode: typeNode,
+            propsType: type,
+            componentName: null,
+            framerName: null,
+            propertyControls: null,
+        }
     }
 }
 
@@ -196,13 +208,14 @@ class PropertyControl {
 
 interface AnalyzedFile {
     file: string
-    componentName: string
-    framerName: string
-    propertyControls: PropertyControls
+    components: ComponentInfo[]
 }
 
 interface ComponentInfo {
     name: string
     propsTypeNode: ts.TypeNode
     propsType: ts.Type
+    componentName: string
+    framerName: string
+    propertyControls: PropertyControls
 }
