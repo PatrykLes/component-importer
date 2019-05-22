@@ -1,7 +1,16 @@
 import * as fse from "fs-extra"
 import path from "path"
 import * as ts from "typescript"
-import { makePrettier, printExpression, upperCaseFirstLetter, valueToTS } from "./utils"
+import {
+    AnalyzedFile,
+    ComponentInfo,
+    ProcessedFile,
+    PropertyControl,
+    PropertyControls,
+    PropertyInfo,
+    TypeInfo,
+} from "./types"
+import { makePrettier, upperCaseFirstLetter } from "./utils"
 
 let program: ts.Program
 export async function processProgram(dir: string, relativeFiles: string[]): Promise<ProcessedFile[]> {
@@ -34,11 +43,6 @@ export async function processProgram(dir: string, relativeFiles: string[]): Prom
     return processed
 }
 
-export interface ProcessedFile {
-    relativeFile: string
-    file: string
-    generatedCode: string
-}
 export async function processFile(file: string): Promise<string> {
     let sourceFile: ts.SourceFile
     if (program) {
@@ -58,18 +62,14 @@ export async function processFile(file: string): Promise<string> {
 }
 
 function analyze(sourceFile: ts.SourceFile): AnalyzedFile {
-    for (const comp of findComponents(sourceFile)) {
-        const propsType = comp.propsType
-        const res: AnalyzedFile = {
-            file: sourceFile.fileName,
-            components: [],
-        }
-
-        const checker = program.getTypeChecker()
-        comp.propsTypeInfo = toTypeInfo(propsType, checker)
-        res.components.push(comp)
-        return res
+    const res: AnalyzedFile = {
+        file: sourceFile.fileName,
+        components: [],
     }
+    for (const comp of findComponents(sourceFile)) {
+        res.components.push(comp)
+    }
+    return res
 }
 function convert(comp: ComponentInfo) {
     comp.propertyControls = new PropertyControls()
@@ -135,21 +135,20 @@ function generate(analyzedFile: AnalyzedFile) {
 function* findComponents(sourceFile: ts.SourceFile): IterableIterator<ComponentInfo> {
     for (const node of sourceFile.statements) {
         if (!ts.isVariableStatement(node)) continue
-        //const node = sourceFile.statements.find(ts.isVariableStatement)
-        // if (!node) return null
         const decl = node.declarationList.declarations[0]
         if (!decl) continue
-        // console.log(decl.getText())
         const name = (decl.name as ts.Identifier).text
         const typeNode = decl.type
+        if (!typeNode) continue
         let type: ts.Type
         if (program) {
             const checker = program.getTypeChecker()
             type = checker.getTypeFromTypeNode(getFirstGenericArgument(decl.type))
         }
+        const checker = program.getTypeChecker()
         yield {
             name,
-            propsTypeInfo: null,
+            propsTypeInfo: toTypeInfo(type, checker),
             propsTypeNode: typeNode,
             propsType: type,
             componentName: null,
@@ -165,68 +164,6 @@ function getFirstGenericArgument(type: ts.TypeNode): ts.TypeNode {
         return genericArgType
     }
     return null
-}
-
-class PropertyControls {
-    add(pc: PropertyControl) {
-        this.items.push(pc)
-    }
-    toJS() {
-        return PropertyControl.toJS(this.items)
-    }
-    items: PropertyControl[] = []
-}
-class PropertyControl {
-    constructor(opts?: Partial<PropertyControl>) {
-        opts && Object.assign(this, opts)
-    }
-    name: string
-    type: string
-    options: (string | number)[]
-    optionTitles: string[]
-    title: string
-    toEntry(): [string, any] {
-        const props = { ...this }
-        delete props.name
-        return [this.name, props]
-    }
-    static toJS(list: PropertyControl[]) {
-        const entries = list.map(t => t.toEntry())
-        const obj: any = {}
-        for (const entry of entries) obj[entry[0]] = entry[1]
-        const node = valueToTS(obj, (key, value) => {
-            if (key == "type") {
-                return ts.createIdentifier(value)
-            }
-        })
-        return printExpression(node)
-    }
-}
-
-interface AnalyzedFile {
-    file: string
-    components: ComponentInfo[]
-}
-
-interface ComponentInfo {
-    name: string
-    propsTypeNode: ts.TypeNode
-    propsType: ts.Type
-    propsTypeInfo: TypeInfo
-    componentName: string
-    framerName: string
-    propertyControls: PropertyControls
-}
-
-interface TypeInfo {
-    name?: string
-    possibleValues?: any[]
-    isEnum?: boolean
-    properties?: PropertyInfo[]
-}
-interface PropertyInfo {
-    name: string
-    type: TypeInfo
 }
 
 function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
