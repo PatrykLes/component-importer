@@ -16,7 +16,7 @@ async function main() {
     }
     const srcDir = process.argv[2]
     const outDir = process.argv[3]
-    const pattern = "**/*.tsx"
+    const pattern = "**/*.{tsx,ts,js,jsx}"
     console.log({ pattern, outDir })
     const relativeFiles = await new Promise<string[]>(resolve =>
         glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)),

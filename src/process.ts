@@ -1,7 +1,7 @@
 import * as fse from "fs-extra"
-import * as ts from "typescript"
 import path from "path"
-import { getLiteralTypeText, makePrettier, printExpression, upperCaseFirstLetter, valueToTS } from "./utils"
+import * as ts from "typescript"
+import { makePrettier, printExpression, upperCaseFirstLetter, valueToTS } from "./utils"
 
 let program: ts.Program
 export async function processProgram(dir: string, relativeFiles: string[]) {
@@ -26,8 +26,6 @@ export async function processProgram(dir: string, relativeFiles: string[]) {
         if (!sourceFile.isDeclarationFile) {
             console.log("SOURCE FILE", sourceFile.fileName)
             // processFile(sourceFile)
-        } else {
-            // console.log("DECL FILE", sourceFile.fileName)
         }
     }
 }
@@ -40,6 +38,7 @@ export async function processFile(file: string): Promise<string> {
         const contents = await fse.readFile(file, "utf8")
         sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
     }
+    if (!sourceFile) return null
     const analyzed = analyze(sourceFile)
     let code = generate(analyzed)
     const code2 = await makePrettier({ file, code })
