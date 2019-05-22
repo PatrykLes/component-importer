@@ -36,7 +36,7 @@ export async function processProgram(dir: string, relativeFiles: string[]): Prom
     console.log(program.getSourceFiles().length)
     for (const file of processed) {
         const sourceFile = program.getSourceFile(file.file)
-        if (sourceFile.isDeclarationFile) continue
+        if (!sourceFile || sourceFile.isDeclarationFile) continue
         console.log("SOURCE FILE", sourceFile.fileName)
         file.generatedCode = await processFile(file.file)
     }
