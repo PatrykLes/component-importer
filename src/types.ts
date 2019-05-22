@@ -5,9 +5,6 @@ export interface ProcessedFile {
     relativeFile: string
     file: string
     generatedCode: string
-}
-export interface AnalyzedFile {
-    file: string
     components: ComponentInfo[]
 }
 

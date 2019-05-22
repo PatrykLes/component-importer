@@ -1,15 +1,7 @@
 import * as fse from "fs-extra"
 import path from "path"
 import * as ts from "typescript"
-import {
-    AnalyzedFile,
-    ComponentInfo,
-    ProcessedFile,
-    PropertyControl,
-    PropertyControls,
-    PropertyInfo,
-    TypeInfo,
-} from "./types"
+import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls, PropertyInfo, TypeInfo } from "./types"
 import { makePrettier, upperCaseFirstLetter } from "./utils"
 
 let program: ts.Program
@@ -38,12 +30,13 @@ export async function processProgram(dir: string, relativeFiles: string[]): Prom
         const sourceFile = program.getSourceFile(file.file)
         if (!sourceFile || sourceFile.isDeclarationFile) continue
         console.log("SOURCE FILE", sourceFile.fileName)
-        file.generatedCode = await processFile(file.file)
+        await processFile(file)
     }
     return processed
 }
 
-export async function processFile(file: string): Promise<string> {
+export async function processFile(processedFile: ProcessedFile): Promise<string> {
+    const file = processedFile.file
     let sourceFile: ts.SourceFile
     if (program) {
         sourceFile = program.getSourceFile(file)
@@ -52,24 +45,22 @@ export async function processFile(file: string): Promise<string> {
         sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
     }
     if (!sourceFile) return null
-    const analyzed = analyze(sourceFile)
+    analyze(sourceFile, processedFile)
+    const analyzed = processedFile
     for (const comp of analyzed.components) {
         convert(comp)
     }
     let code = generate(analyzed)
     const code2 = await makePrettier({ file, code })
+    processedFile.generatedCode = code2
     return code2
 }
 
-function analyze(sourceFile: ts.SourceFile): AnalyzedFile {
-    const res: AnalyzedFile = {
-        file: sourceFile.fileName,
-        components: [],
-    }
+function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile) {
+    processedFile.components = []
     for (const comp of findComponents(sourceFile)) {
-        res.components.push(comp)
+        processedFile.components.push(comp)
     }
-    return res
 }
 function convert(comp: ComponentInfo) {
     comp.propertyControls = new PropertyControls()
@@ -101,7 +92,7 @@ function convert(comp: ComponentInfo) {
         comp.propertyControls.add(pc)
     }
 }
-function generate(analyzedFile: AnalyzedFile) {
+function generate(analyzedFile: ProcessedFile) {
     const sb = []
     for (const comp of analyzedFile.components) {
         const { componentName, framerName, propertyControls } = comp
