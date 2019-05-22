@@ -1,7 +1,7 @@
 import * as fse from "fs-extra"
 import glob from "glob"
 import path from "path"
-import { processFile } from "./process"
+import { processFile, processProgram } from "./process"
 
 async function main() {
     if (!process.argv[2]) {
@@ -21,6 +21,7 @@ async function main() {
     const relativeFiles = await new Promise<string[]>(resolve =>
         glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)),
     )
+    await processProgram(srcDir, relativeFiles)
     console.log(relativeFiles)
     for (const relativeFile of relativeFiles) {
         console.log("Processing", relativeFile)

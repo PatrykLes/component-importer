@@ -57,7 +57,7 @@ export function getLiteralTypeText(node: ts.LiteralTypeNode) {
 }
 
 export function upperCaseFirstLetter(s: string): string {
-    return s[0].toUpperCase() + s.substr(1)
+    return (s && s[0].toUpperCase() + s.substr(1)) || ""
 }
 
 export function* descendants(node: ts.Node): IterableIterator<ts.Node> {
