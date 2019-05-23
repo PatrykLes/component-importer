@@ -3,39 +3,6 @@ import * as ts from "typescript"
 import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls, PropertyInfo, TypeInfo } from "./types"
 import { upperCaseFirstLetter } from "./utils"
 
-let program: ts.Program
-export async function processProgram(dir: string, relativeFiles: string[]): Promise<ProcessedFile[]> {
-    const processed: ProcessedFile[] = relativeFiles.map(
-        t =>
-            <ProcessedFile>{
-                relativeFile: t,
-                file: path.join(dir, t),
-            },
-    )
-    let tsconfig: ts.CompilerOptions = {
-        rootDir: dir,
-        target: ts.ScriptTarget.ESNext,
-        jsx: ts.JsxEmit.React,
-        typeRoots: [],
-    }
-    let opts: ts.CreateProgramOptions = {
-        options: tsconfig,
-        rootNames: processed.map(t => t.file),
-    }
-    program = ts.createProgram(opts)
-    console.log(program.getSourceFiles().length)
-    for (const file of processed) {
-        const sourceFile = program.getSourceFile(file.file)
-        if (!sourceFile || sourceFile.isDeclarationFile) continue
-        console.log("SOURCE FILE", sourceFile.fileName)
-        await analyze(sourceFile, file)
-    }
-    return processed
-}
-
-function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile) {
-    processedFile.components = Array.from(findComponents(sourceFile))
-}
 export function convert(comp: ComponentInfo) {
     comp.propertyControls = new PropertyControls()
 
@@ -95,57 +62,4 @@ export function generate(analyzedFile: ProcessedFile) {
     `)
     }
     return sb.join("")
-}
-
-function* findComponents(sourceFile: ts.SourceFile): IterableIterator<ComponentInfo> {
-    for (const node of sourceFile.statements) {
-        if (!ts.isVariableStatement(node)) continue
-        const decl = node.declarationList.declarations[0]
-        if (!decl) continue
-        const name = (decl.name as ts.Identifier).text
-        const typeNode = decl.type
-        if (!typeNode) continue
-        let type: ts.Type
-        if (program) {
-            const checker = program.getTypeChecker()
-            type = checker.getTypeFromTypeNode(getFirstGenericArgument(decl.type))
-        }
-        const checker = program.getTypeChecker()
-        yield {
-            name,
-            propsTypeInfo: toTypeInfo(type, checker),
-            componentName: null,
-            framerName: null,
-            propertyControls: null,
-        }
-    }
-}
-
-function getFirstGenericArgument(type: ts.TypeNode): ts.TypeNode {
-    if (ts.isTypeReferenceNode(type)) {
-        const genericArgType = type.typeArguments[0]
-        return genericArgType
-    }
-    return null
-}
-
-function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
-    const typeInfo: TypeInfo = {}
-    if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
-        typeInfo.name = "string"
-    } else if ((type.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
-        typeInfo.name = "boolean"
-    } else if (type.isUnion()) {
-        typeInfo.isEnum = true
-        typeInfo.possibleValues = type.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
-    } else {
-        // TODO: typeInfo.name = type.name
-        typeInfo.properties = []
-        for (const prop of type.getProperties()) {
-            const meType = checker.getTypeAtLocation(prop.valueDeclaration)
-            let pc: PropertyInfo = { name: prop.name, type: toTypeInfo(meType, checker) }
-            typeInfo.properties.push(pc)
-        }
-    }
-    return typeInfo
 }

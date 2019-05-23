@@ -1,8 +1,9 @@
 import * as fse from "fs-extra"
 import glob from "glob"
 import path from "path"
-import { convert, generate, processProgram } from "./process"
+import { convert, generate } from "./process"
 import { makePrettier } from "./utils"
+import { analyzeTypeScript } from "./typescript"
 
 async function main() {
     if (!process.argv[2]) {
@@ -23,7 +24,7 @@ async function main() {
         glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)),
     )
     console.log(relativeFiles)
-    const processedFiles = await processProgram(srcDir, relativeFiles)
+    const processedFiles = await analyzeTypeScript(srcDir, relativeFiles)
     for (const file of processedFiles) {
         const { relativeFile } = file
         for (const comp of file.components) {
