@@ -51,10 +51,14 @@ async function main() {
     }
     for (const file of processedFiles) {
         const { relativeFile } = file
+        console.log("Processing", relativeFile)
+        if (!file.components || !file.components.length) {
+            console.log("Skipping", relativeFile)
+            continue
+        }
         for (const comp of file.components) {
             convert(comp)
         }
-        console.log("Processing", relativeFile)
         const generatedCode = generate(file)
         if (!generatedCode) {
             console.log("Skipping", relativeFile)
