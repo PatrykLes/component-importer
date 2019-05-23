@@ -1,15 +1,13 @@
 {
     "name": "component-importer",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "build/cli.js",
     "repository": "git@github.com:framer/ComponentImporter.git",
     "author": "Dan-el Khen <danelkhen@gmail.com>",
     "license": "MIT",
     "scripts": {
         "build": "yarn && yarn tsc",
-        "cli": "node build/cli",
-        "test": "yarn cli ../framer-bridge-starter-kit/design-system/components generated",
-        "test-debug": "node --inspect-brk build/cli ../framer-bridge-starter-kit/design-system/components generated"
+        "cli": "node build/cli"
     },
     "dependencies": {
         "@babel/generator": "^7.4.4",

@@ -27,7 +27,7 @@ async function main() {
     if (!args.dirs || args.dirs.length != 2) {
         console.log("")
         console.log("Usage:")
-        console.log("yarn cli [src-dir] [out-dir] [--lang [typescript/flow]] [--pattern '**/*.{tsx,ts,js,jsx}]'")
+        console.log("yarn cli [src-dir] [out-dir] [--lang [typescript/flow]] [--pattern '**/*.{tsx,ts,js,jsx}']")
         console.log("")
         console.log("Example:")
         console.log("yarn cli ../my-project/src ../my-project/framer")
