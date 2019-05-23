@@ -49,9 +49,6 @@ function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): Iterab
         yield {
             name,
             propsTypeInfo: toTypeInfo(type, checker),
-            componentName: null,
-            framerName: null,
-            propertyControls: null,
         }
     }
 }

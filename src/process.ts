@@ -1,17 +1,11 @@
-import path from "path"
-import * as ts from "typescript"
-import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls, PropertyInfo, TypeInfo } from "./types"
+import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls } from "./types"
 import { upperCaseFirstLetter } from "./utils"
 
 export function convert(comp: ComponentInfo) {
-    comp.propertyControls = new PropertyControls()
-
-    // if (!comp) console.warn("Can't find component in file")
-    // if (!propsType) console.warn("Can't find props in file")
-    // if (!comp || !propsType) return res
-
     comp.componentName = `System.${comp.name}`
     comp.framerName = comp.name
+
+    comp.propertyControls = new PropertyControls()
     if (comp.propsTypeInfo && comp.propsTypeInfo.properties) {
         for (const prop of comp.propsTypeInfo.properties) {
             let pc = new PropertyControl({ name: prop.name })

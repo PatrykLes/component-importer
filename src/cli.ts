@@ -1,13 +1,12 @@
-import * as fse from "fs-extra"
+import commandLineArgs, { OptionDefinition } from "command-line-args"
+import fse from "fs-extra"
 import glob from "glob"
 import path from "path"
-import { convert, generate } from "./process"
-import { makePrettier, changeExtension } from "./utils"
-import { analyzeTypeScript } from "./typescript"
 import { analyzeBabel } from "./babel"
+import { convert, generate } from "./process"
 import { ProcessedFile } from "./types"
-import { OptionDefinition } from "command-line-args"
-import commandLineArgs = require("command-line-args")
+import { analyzeTypeScript } from "./typescript"
+import { changeExtension, makePrettier } from "./utils"
 
 const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] = [
     { name: "dirs", type: String, defaultOption: true, multiple: true },

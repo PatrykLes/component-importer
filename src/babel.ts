@@ -63,9 +63,6 @@ export async function analyzeBabel(dir: string, relativeFiles: string[]): Promis
                 const comp: ComponentInfo = {
                     name: decl.id.name,
                     propsTypeInfo: typeAliasToTypeInfo(propsTypeDecl),
-                    propertyControls: null,
-                    componentName: null,
-                    framerName: null,
                 }
                 file.components.push(comp)
                 break

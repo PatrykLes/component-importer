@@ -9,10 +9,10 @@ export interface ProcessedFile {
 
 export interface ComponentInfo {
     name: string
-    propsTypeInfo: TypeInfo
-    componentName: string
-    framerName: string
-    propertyControls: PropertyControls
+    propsTypeInfo?: TypeInfo
+    componentName?: string
+    framerName?: string
+    propertyControls?: PropertyControls
 }
 
 export interface TypeInfo {
