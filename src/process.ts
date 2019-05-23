@@ -1,8 +1,7 @@
-import * as fse from "fs-extra"
 import path from "path"
 import * as ts from "typescript"
 import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls, PropertyInfo, TypeInfo } from "./types"
-import { makePrettier, upperCaseFirstLetter } from "./utils"
+import { upperCaseFirstLetter } from "./utils"
 
 let program: ts.Program
 export async function processProgram(dir: string, relativeFiles: string[]): Promise<ProcessedFile[]> {
@@ -11,14 +10,13 @@ export async function processProgram(dir: string, relativeFiles: string[]): Prom
             <ProcessedFile>{
                 relativeFile: t,
                 file: path.join(dir, t),
-                generatedCode: null,
             },
     )
     let tsconfig: ts.CompilerOptions = {
         rootDir: dir,
         target: ts.ScriptTarget.ESNext,
         jsx: ts.JsxEmit.React,
-        typeRoots: [], //[path.join(dir, "node_modules")],
+        typeRoots: [],
     }
     let opts: ts.CreateProgramOptions = {
         options: tsconfig,
@@ -30,36 +28,15 @@ export async function processProgram(dir: string, relativeFiles: string[]): Prom
         const sourceFile = program.getSourceFile(file.file)
         if (!sourceFile || sourceFile.isDeclarationFile) continue
         console.log("SOURCE FILE", sourceFile.fileName)
-        await processFile(file)
+        await analyze(sourceFile, file)
     }
     return processed
-}
-
-export async function processFile(processedFile: ProcessedFile): Promise<string> {
-    const file = processedFile.file
-    let sourceFile: ts.SourceFile
-    if (program) {
-        sourceFile = program.getSourceFile(file)
-    } else {
-        const contents = await fse.readFile(file, "utf8")
-        sourceFile = ts.createSourceFile(file, contents, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
-    }
-    if (!sourceFile) return null
-    analyze(sourceFile, processedFile)
-    const analyzed = processedFile
-    for (const comp of analyzed.components) {
-        convert(comp)
-    }
-    let code = generate(analyzed)
-    const code2 = await makePrettier({ file, code })
-    processedFile.generatedCode = code2
-    return code2
 }
 
 function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile) {
     processedFile.components = Array.from(findComponents(sourceFile))
 }
-function convert(comp: ComponentInfo) {
+export function convert(comp: ComponentInfo) {
     comp.propertyControls = new PropertyControls()
 
     // if (!comp) console.warn("Can't find component in file")
@@ -89,7 +66,7 @@ function convert(comp: ComponentInfo) {
         comp.propertyControls.add(pc)
     }
 }
-function generate(analyzedFile: ProcessedFile) {
+export function generate(analyzedFile: ProcessedFile) {
     const sb = []
     for (const comp of analyzedFile.components) {
         const { componentName, framerName, propertyControls } = comp
@@ -172,23 +149,3 @@ function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
     }
     return typeInfo
 }
-/*
-function findPropsType(sourceFile: ts.SourceFile, name: string): ts.InterfaceDeclaration | ts.TypeLiteralNode {
-    const nodes = sourceFile.statements
-        .map(t => (ts.isTypeAliasDeclaration(t) || ts.isInterfaceDeclaration(t) ? t : null))
-        .filter(t => t != null)
-    for (const node of nodes) {
-        if (node.name.getText() != name) continue
-        if (ts.isTypeAliasDeclaration(node)) {
-            const type = node.type
-            if (ts.isTypeLiteralNode(type)) {
-                return type
-            }
-        }
-        if (ts.isInterfaceDeclaration(node)) {
-            return node
-        }
-    }
-    return null
-}
-*/

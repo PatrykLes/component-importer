@@ -1,7 +1,8 @@
 import * as fse from "fs-extra"
 import glob from "glob"
 import path from "path"
-import { processFile, processProgram } from "./process"
+import { convert, generate, processProgram } from "./process"
+import { makePrettier } from "./utils"
 
 async function main() {
     if (!process.argv[2]) {
@@ -24,10 +25,13 @@ async function main() {
     console.log(relativeFiles)
     const processedFiles = await processProgram(srcDir, relativeFiles)
     for (const file of processedFiles) {
-        const { relativeFile, generatedCode } = file
+        const { relativeFile } = file
+        for (const comp of file.components) {
+            convert(comp)
+        }
+
         console.log("Processing", relativeFile)
-        // const srcFile = path.join(srcDir, relativeFile)
-        // const code = await processFile(srcFile)
+        const generatedCode = generate(file)
         if (!generatedCode) {
             console.log("Skipping", relativeFile)
             continue
@@ -36,10 +40,11 @@ async function main() {
             console.log(generatedCode)
             continue
         }
+        const prettierCode = await makePrettier({ file: file.file, code: generatedCode })
         const outFile = path.join(outDir, relativeFile)
         console.log("Saving", outFile)
         await fse.ensureDir(path.dirname(outFile))
-        await fse.writeFile(outFile, generatedCode)
+        await fse.writeFile(outFile, prettierCode)
     }
 }
 main()

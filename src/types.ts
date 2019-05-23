@@ -4,7 +4,6 @@ import * as ts from "typescript"
 export interface ProcessedFile {
     relativeFile: string
     file: string
-    generatedCode: string
     components: ComponentInfo[]
 }
 
