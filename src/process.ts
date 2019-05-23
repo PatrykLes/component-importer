@@ -12,25 +12,31 @@ export function convert(comp: ComponentInfo) {
 
     comp.componentName = `System.${comp.name}`
     comp.framerName = comp.name
-    for (const prop of comp.propsTypeInfo.properties) {
-        let pc = new PropertyControl({ name: prop.name })
-        pc.title = upperCaseFirstLetter(pc.name)
-        const meType = prop.type
-        let type: string
-        if (meType.isEnum) {
-            type = "ControlType.Enum"
-            pc.options = meType.possibleValues
-            pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
-        } else if (meType.name == "string") {
-            type = "ControlType.String"
-        } else if (meType.name == "boolean") {
-            type = "ControlType.Boolean"
-        } else {
-            console.log("Skipping PropertyControl for", prop.name)
-            continue
+    if (comp.propsTypeInfo && comp.propsTypeInfo.properties) {
+        for (const prop of comp.propsTypeInfo.properties) {
+            let pc = new PropertyControl({ name: prop.name })
+            pc.title = upperCaseFirstLetter(pc.name)
+            const meType = prop.type
+            if (!meType) {
+                console.log("Skipping PropertyControl for", prop.name)
+                continue
+            }
+            let type: string
+            if (meType.isEnum) {
+                type = "ControlType.Enum"
+                pc.options = meType.possibleValues
+                pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
+            } else if (meType.name == "string") {
+                type = "ControlType.String"
+            } else if (meType.name == "boolean") {
+                type = "ControlType.Boolean"
+            } else {
+                console.log("Skipping PropertyControl for", prop.name)
+                continue
+            }
+            pc.type = type
+            comp.propertyControls.add(pc)
         }
-        pc.type = type
-        comp.propertyControls.add(pc)
     }
 }
 export function generate(analyzedFile: ProcessedFile) {

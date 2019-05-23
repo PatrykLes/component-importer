@@ -68,3 +68,9 @@ export function* descendants(node: ts.Node): IterableIterator<ts.Node> {
         stack.push(...node.getChildren())
     }
 }
+
+export function changeExtension(file: string, ext: string): string {
+    var pos = file.lastIndexOf(".")
+    file = file.substr(0, pos < 0 ? file.length : pos) + ext
+    return file
+}
