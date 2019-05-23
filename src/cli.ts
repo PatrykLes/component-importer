@@ -25,7 +25,7 @@ export interface CLIArguments {
 async function main() {
     console.log(process.argv)
     args = commandLineArgs(argumentDefinitions) as CLIArguments
-    if (!process.argv[2]) {
+    if (!args.dirs || args.dirs.length != 2) {
         console.log("")
         console.log("Usage:")
         console.log("yarn cli [src-dir] [out-dir] [--lang [typescript/flow]] [--pattern '**/*.{tsx,ts,js,jsx}]'")
