@@ -6,30 +6,46 @@ import { makePrettier, changeExtension } from "./utils"
 import { analyzeTypeScript } from "./typescript"
 import { analyzeBabel } from "./babel"
 import { ProcessedFile } from "./types"
+import { OptionDefinition } from "command-line-args"
+import commandLineArgs = require("command-line-args")
+
+const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] = [
+    { name: "dirs", type: String, defaultOption: true, multiple: true },
+    { name: "pattern", type: String },
+    { name: "lang", type: String },
+]
+
+let args: CLIArguments
+export interface CLIArguments {
+    dirs?: string[]
+    pattern?: string
+    lang?: "typescript" | "flow"
+}
 
 async function main() {
     console.log(process.argv)
+    args = commandLineArgs(argumentDefinitions) as CLIArguments
     if (!process.argv[2]) {
         console.log("")
         console.log("Usage:")
-        console.log("yarn cli [src-dir] [out-dir]")
+        console.log("yarn cli [src-dir] [out-dir] [--lang [typescript/flow]] [--pattern '**/*.{tsx,ts,js,jsx}]'")
         console.log("")
         console.log("Example:")
         console.log("yarn cli ../my-project/src ../my-project/framer")
         console.log("")
         return
     }
-    const srcDir = process.argv[2]
-    const outDir = process.argv[3]
-    const babel = process.argv[4] == "--babel"
-    const pattern = "**/*.{tsx,ts,js,jsx}"
-    console.log({ pattern, outDir, babel })
+    const srcDir = args.dirs[0]
+    const outDir = args.dirs[1]
+    const lang = args.lang || "typescript"
+    const pattern = args.pattern || "**/*.{tsx,ts,js,jsx}"
+    console.log({ pattern, outDir, lang })
     const relativeFiles = await new Promise<string[]>(resolve =>
         glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)),
     )
     // console.log(relativeFiles)
     let processedFiles: ProcessedFile[]
-    if (babel) {
+    if (lang == "flow") {
         processedFiles = await analyzeBabel(srcDir, relativeFiles)
     } else {
         processedFiles = await analyzeTypeScript(srcDir, relativeFiles)
@@ -39,7 +55,6 @@ async function main() {
         for (const comp of file.components) {
             convert(comp)
         }
-
         console.log("Processing", relativeFile)
         const generatedCode = generate(file)
         if (!generatedCode) {
