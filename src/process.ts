@@ -1,7 +1,7 @@
 import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls } from "./types"
 import { upperCaseFirstLetter } from "./utils"
 
-/** Generates a component name and property controls */
+/** Converts a component info into a framer component by generated names and property controls */
 export function convert(comp: ComponentInfo) {
     comp.componentName = `System.${comp.name}`
     comp.framerName = comp.name
