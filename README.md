@@ -48,3 +48,5 @@ async function main() {
 
 main()
 ```
+
+Another example can be found in `src/cli.ts`
