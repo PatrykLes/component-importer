@@ -1,17 +1,7 @@
 import commandLineArgs, { OptionDefinition } from "command-line-args"
 import fse from "fs-extra"
 import path from "path"
-import {
-    analyzeBabel,
-    convert,
-    generate,
-    ProcessedFile,
-    analyzeTypeScript,
-    changeExtension,
-    globAsync,
-    makePrettier,
-    analyze,
-} from "./index"
+import { analyze, changeExtension, convert, generate, globAsync, makePrettier } from "./index"
 
 const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] = [
     { name: "dirs", type: String, defaultOption: true, multiple: true },
