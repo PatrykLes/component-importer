@@ -3,7 +3,7 @@ import fse from "fs-extra"
 import glob from "glob"
 import path from "path"
 import { analyzeBabel } from "./babel"
-import { convert, generate } from "./process"
+import { convert, generateFile } from "./process"
 import { ProcessedFile } from "./types"
 import { analyzeTypeScript } from "./typescript"
 import { changeExtension, makePrettier, globAsync } from "./utils"
@@ -58,7 +58,7 @@ async function main() {
         for (const comp of file.components) {
             convert(comp)
         }
-        const generatedCode = generate(file)
+        const generatedCode = generateFile(file)
         if (!generatedCode) {
             console.log("Skipping", relativeFile)
             continue

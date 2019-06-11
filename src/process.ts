@@ -1,6 +1,7 @@
 import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls } from "./types"
 import { upperCaseFirstLetter } from "./utils"
 
+/** Generates a component name and property controls */
 export function convert(comp: ComponentInfo) {
     comp.componentName = `System.${comp.name}`
     comp.framerName = comp.name
@@ -34,15 +35,18 @@ export function convert(comp: ComponentInfo) {
         }
     }
 }
-export function generate(analyzedFile: ProcessedFile) {
+
+/** Emits the code of all components found in a processed file */
+export function generateFile(analyzedFile: ProcessedFile): string {
     const sb = []
     for (const comp of analyzedFile.components) {
-        sb.push(generateComponent(comp))
+        sb.push(generate(comp))
     }
     return sb.join("")
 }
 
-export function generateComponent(comp: ComponentInfo) {
+/** Emits the code for a framer component */
+export function generate(comp: ComponentInfo): string {
     const sb = []
     const { componentName, framerName, propertyControls } = comp
     sb.push(`
