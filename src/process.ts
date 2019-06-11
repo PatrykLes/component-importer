@@ -9,6 +9,7 @@ export function convert(comp: ComponentInfo) {
     if (comp.propsTypeInfo && comp.propsTypeInfo.properties) {
         for (const prop of comp.propsTypeInfo.properties) {
             let pc = new PropertyControl({ name: prop.name })
+            pc.doc = prop.doc
             pc.title = upperCaseFirstLetter(pc.name)
             const meType = prop.type
             if (!meType) {

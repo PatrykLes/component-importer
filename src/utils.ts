@@ -21,7 +21,8 @@ export function valueToTS(
         }
         const items = []
         for (const [key, value] of Object.entries(obj)) {
-            items.push(ts.createPropertyAssignment(key, valueToTS(value, replacer, key)))
+            const prop = ts.createPropertyAssignment(key, valueToTS(value, replacer, key))
+            items.push(prop)
         }
         const node = ts.createObjectLiteral(items)
         return node

@@ -22,6 +22,7 @@ export async function analyzeTypeScript(dir: string, relativeFiles: string[]): P
     }
     const program = ts.createProgram(opts)
     console.log(program.getSourceFiles().length)
+    program.getTypeChecker() // to make sure the parent nodes are set
     for (const file of processed) {
         const sourceFile = program.getSourceFile(file.file)
         if (!sourceFile || sourceFile.isDeclarationFile) continue
@@ -75,7 +76,11 @@ function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
         typeInfo.properties = []
         for (const prop of type.getProperties()) {
             const meType = checker.getTypeAtLocation(prop.valueDeclaration)
-            let pc: PropertyInfo = { name: prop.name, type: toTypeInfo(meType, checker) }
+            let pc: PropertyInfo = {
+                name: prop.name,
+                type: toTypeInfo(meType, checker),
+                doc: ts.displayPartsToString(prop.getDocumentationComment(checker)),
+            }
             typeInfo.properties.push(pc)
         }
     }

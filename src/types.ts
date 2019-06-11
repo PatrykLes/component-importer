@@ -24,6 +24,7 @@ export interface TypeInfo {
 export interface PropertyInfo {
     name: string
     type: TypeInfo
+    doc: string
 }
 
 export class PropertyControls {
@@ -36,6 +37,7 @@ export class PropertyControls {
     items: PropertyControl[] = []
 }
 export class PropertyControl {
+    doc: string
     constructor(opts?: Partial<PropertyControl>) {
         opts && Object.assign(this, opts)
     }
@@ -58,6 +60,25 @@ export class PropertyControl {
                 return ts.createIdentifier(value)
             }
         })
+        if (ts.isObjectLiteralExpression(node)) {
+            for (const prop of node.properties) {
+                if (ts.isPropertyAssignment(prop)) {
+                    const identifier = prop.name
+                    if (ts.isIdentifier(identifier)) {
+                        const propName = identifier.text
+                        const pc = list.find(t => t.name == propName)
+                        if (!pc || !pc.doc) continue
+                        ts.addSyntheticLeadingComment(
+                            prop.initializer,
+                            ts.SyntaxKind.MultiLineCommentTrivia,
+                            //"*\n* " + pc.doc + "\n *",
+                            "* " + pc.doc + " ",
+                            true,
+                        )
+                    }
+                }
+            }
+        }
         return printExpression(node)
     }
 }
