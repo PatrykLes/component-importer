@@ -63,7 +63,7 @@ function getFirstGenericArgument(type: ts.TypeNode): ts.TypeNode {
 }
 
 function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
-    const typeInfo: TypeInfo = {}
+    const typeInfo: TypeInfo = { rawType: type }
     if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
         typeInfo.name = "string"
     } else if ((type.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {

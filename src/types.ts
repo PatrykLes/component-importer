@@ -1,5 +1,6 @@
 import { printExpression, valueToTS } from "./utils"
 import * as ts from "typescript"
+import * as babel from "@babel/types"
 
 export interface ProcessedFile {
     srcFile: string
@@ -19,6 +20,7 @@ export interface TypeInfo {
     possibleValues?: any[]
     isEnum?: boolean
     properties?: PropertyInfo[]
+    rawType?: ts.Type | babel.FlowType
 }
 export interface PropertyInfo {
     name: string

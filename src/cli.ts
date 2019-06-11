@@ -1,12 +1,17 @@
 import commandLineArgs, { OptionDefinition } from "command-line-args"
 import fse from "fs-extra"
-import glob from "glob"
 import path from "path"
-import { analyzeBabel } from "./babel"
-import { convert, generateFile } from "./process"
-import { ProcessedFile } from "./types"
-import { analyzeTypeScript } from "./typescript"
-import { changeExtension, makePrettier, globAsync } from "./utils"
+import {
+    analyzeBabel,
+    convert,
+    generate,
+    ProcessedFile,
+    analyzeTypeScript,
+    changeExtension,
+    globAsync,
+    makePrettier,
+    analyze,
+} from "./index"
 
 const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] = [
     { name: "dirs", type: String, defaultOption: true, multiple: true },
@@ -41,12 +46,7 @@ async function main() {
     console.log({ pattern, outDir, lang })
     const relativeFiles = await globAsync(pattern, srcDir)
     const srcFiles = relativeFiles.map(t => path.join(srcDir, t))
-    let processedFiles: ProcessedFile[]
-    if (lang == "flow") {
-        processedFiles = await analyzeBabel(srcFiles)
-    } else {
-        processedFiles = await analyzeTypeScript(srcFiles)
-    }
+    const processedFiles = await analyze(srcFiles, lang)
     for (const file of processedFiles) {
         const srcFile = file.srcFile
         const relativeFile = path.relative(srcDir, srcFile)
@@ -58,7 +58,11 @@ async function main() {
         for (const comp of file.components) {
             convert(comp)
         }
-        const generatedCode = generateFile(file)
+        const sb: string[] = []
+        for (const comp of file.components) {
+            sb.push(generate(comp))
+        }
+        const generatedCode = sb.join("")
         if (!generatedCode) {
             console.log("Skipping", relativeFile)
             continue
@@ -67,7 +71,7 @@ async function main() {
             console.log(generatedCode)
             continue
         }
-        const prettierCode = await makePrettier({ file: file.srcFile, code: generatedCode })
+        const prettierCode = await makePrettier(generatedCode, file.srcFile)
         let outFile = path.join(outDir, relativeFile)
         outFile = changeExtension(outFile, ".tsx")
         console.log("Saving", outFile)

@@ -2,24 +2,23 @@ import * as generator from "@babel/generator"
 import * as parser from "@babel/parser"
 import {
     ClassDeclaration,
+    FlowType,
+    isBooleanTypeAnnotation,
     isClassDeclaration,
     isExportDefaultDeclaration,
+    isExportNamedDeclaration,
+    isGenericTypeAnnotation,
+    isNullableTypeAnnotation,
+    isNumberTypeAnnotation,
+    isObjectTypeAnnotation,
+    isObjectTypeProperty,
+    isStringTypeAnnotation,
     isTypeAlias,
     Node,
     TypeAlias,
-    isExportNamedDeclaration,
-    isObjectTypeAnnotation,
-    isObjectTypeProperty,
-    FlowType,
-    isGenericTypeAnnotation,
-    isBooleanTypeAnnotation,
-    isStringTypeAnnotation,
-    isNumberTypeAnnotation,
-    isNullableTypeAnnotation,
 } from "@babel/types"
 import fse from "fs-extra"
-import * as path from "path"
-import { ProcessedFile, ComponentInfo, TypeInfo } from "./types"
+import { ComponentInfo, ProcessedFile, TypeInfo } from "./types"
 
 export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[]> {
     const processed: BabelProcessedFile[] = []
@@ -80,37 +79,38 @@ function toJS(node: Node): string {
 
 function typeAliasToTypeInfo(node: TypeAlias | ClassDeclaration): TypeInfo {
     if (!isTypeAlias(node)) return null
-    // console.log(node.right)
-    const typeInfo: TypeInfo = {
-        name: node.id.name,
-    }
     const right = node.right
     return toTypeInfo(right)
 }
 function toTypeInfo(type: FlowType): TypeInfo {
     if (!type) return null
-    const typeInfo: TypeInfo = {}
     if (isObjectTypeAnnotation(type)) {
-        typeInfo.properties = []
+        const typeInfo: TypeInfo = { rawType: type, properties: [] }
         for (const prop of type.properties) {
             if (!isObjectTypeProperty(prop)) continue
             typeInfo.properties.push({ name: toJS(prop.key), type: toTypeInfo(prop.value), doc: null })
         }
-    } else if (isGenericTypeAnnotation(type)) {
-        return { name: toJS(type.id) }
-    } else if (isBooleanTypeAnnotation(type)) {
-        return { name: "boolean" }
-    } else if (isStringTypeAnnotation(type)) {
-        return { name: "string" }
-    } else if (isNumberTypeAnnotation(type)) {
-        return { name: "number" }
-    } else if (isNullableTypeAnnotation(type)) {
-        return toTypeInfo(type.typeAnnotation)
-    } else {
-        console.log("unknown type", type.type)
-        return null
+        return typeInfo
     }
-    return typeInfo
+    if (isGenericTypeAnnotation(type)) {
+        return { name: toJS(type.id), rawType: type }
+    }
+    if (isBooleanTypeAnnotation(type)) {
+        return { name: "boolean", rawType: type }
+    }
+    if (isStringTypeAnnotation(type)) {
+        return { name: "string", rawType: type }
+    }
+    if (isNumberTypeAnnotation(type)) {
+        return { name: "number", rawType: type }
+    }
+    if (isNullableTypeAnnotation(type)) {
+        const typeInfo = toTypeInfo(type.typeAnnotation)
+        typeInfo.rawType = type
+        return typeInfo
+    }
+    console.log("unknown type", type.type)
+    return null
 }
 
 export interface BabelProcessedFile extends ProcessedFile {

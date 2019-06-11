@@ -40,9 +40,10 @@ export function printExpression(node: ts.Node) {
     return result
 }
 
-export async function makePrettier({ file, code }: { file: string; code: string }): Promise<string> {
+/** Formats the given code using prettier, if an optional file is sent, the config for prettier will be resolved from there */
+export async function makePrettier(code: string, file?: string): Promise<string> {
     try {
-        const options = (await prettier.resolveConfig(file)) || {}
+        const options = (file && (await prettier.resolveConfig(file))) || {}
         options.parser = "typescript"
         const prettyCode = prettier.format(code, options)
         return prettyCode
