@@ -6,7 +6,7 @@ import { analyzeBabel } from "./babel"
 import { convert, generate } from "./process"
 import { ProcessedFile } from "./types"
 import { analyzeTypeScript } from "./typescript"
-import { changeExtension, makePrettier } from "./utils"
+import { changeExtension, makePrettier, globAsync } from "./utils"
 
 const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] = [
     { name: "dirs", type: String, defaultOption: true, multiple: true },
@@ -39,18 +39,17 @@ async function main() {
     const lang = args.lang || "typescript"
     const pattern = args.pattern || "**/*.{tsx,ts,js,jsx}"
     console.log({ pattern, outDir, lang })
-    const relativeFiles = await new Promise<string[]>(resolve =>
-        glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)),
-    )
-    // console.log(relativeFiles)
+    const relativeFiles = await globAsync(pattern, srcDir)
+    const srcFiles = relativeFiles.map(t => path.join(srcDir, t))
     let processedFiles: ProcessedFile[]
     if (lang == "flow") {
-        processedFiles = await analyzeBabel(srcDir, relativeFiles)
+        processedFiles = await analyzeBabel(srcFiles)
     } else {
-        processedFiles = await analyzeTypeScript(srcDir, relativeFiles)
+        processedFiles = await analyzeTypeScript(srcFiles)
     }
     for (const file of processedFiles) {
-        const { relativeFile } = file
+        const srcFile = file.srcFile
+        const relativeFile = path.relative(srcDir, srcFile)
         console.log("Processing", relativeFile)
         if (!file.components || !file.components.length) {
             console.log("Skipping", relativeFile)
@@ -68,7 +67,7 @@ async function main() {
             console.log(generatedCode)
             continue
         }
-        const prettierCode = await makePrettier({ file: file.file, code: generatedCode })
+        const prettierCode = await makePrettier({ file: file.srcFile, code: generatedCode })
         let outFile = path.join(outDir, relativeFile)
         outFile = changeExtension(outFile, ".tsx")
         console.log("Saving", outFile)

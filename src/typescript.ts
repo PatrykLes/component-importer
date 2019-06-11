@@ -2,29 +2,29 @@ import path from "path"
 import * as ts from "typescript"
 import { ComponentInfo, ProcessedFile, PropertyInfo, TypeInfo } from "./types"
 
-export async function analyzeTypeScript(dir: string, relativeFiles: string[]): Promise<ProcessedFile[]> {
-    const processed: ProcessedFile[] = relativeFiles.map(
+export async function analyzeTypeScript(files: string[]): Promise<ProcessedFile[]> {
+    const processed: ProcessedFile[] = files.map(
         t =>
             <ProcessedFile>{
-                relativeFile: t,
-                file: path.join(dir, t),
+                // relativeFile: t,
+                srcFile: t,
             },
     )
     let tsconfig: ts.CompilerOptions = {
-        rootDir: dir,
+        //rootDir: dir,
         target: ts.ScriptTarget.ESNext,
         jsx: ts.JsxEmit.React,
         typeRoots: [],
     }
     let opts: ts.CreateProgramOptions = {
         options: tsconfig,
-        rootNames: processed.map(t => t.file),
+        rootNames: processed.map(t => t.srcFile),
     }
     const program = ts.createProgram(opts)
     console.log(program.getSourceFiles().length)
     program.getTypeChecker() // to make sure the parent nodes are set
     for (const file of processed) {
-        const sourceFile = program.getSourceFile(file.file)
+        const sourceFile = program.getSourceFile(file.srcFile)
         if (!sourceFile || sourceFile.isDeclarationFile) continue
         console.log("SOURCE FILE", sourceFile.fileName)
         await analyze(sourceFile, file, program)

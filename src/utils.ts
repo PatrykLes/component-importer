@@ -1,5 +1,6 @@
 import prettier from "prettier"
 import * as ts from "typescript"
+import glob from "glob"
 
 export function valueToTS(
     obj: any,
@@ -74,4 +75,8 @@ export function changeExtension(file: string, ext: string): string {
     var pos = file.lastIndexOf(".")
     file = file.substr(0, pos < 0 ? file.length : pos) + ext
     return file
+}
+
+export function globAsync(pattern: string, srcDir: string) {
+    return new Promise<string[]>(resolve => glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)))
 }

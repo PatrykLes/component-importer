@@ -21,14 +21,14 @@ import fse from "fs-extra"
 import * as path from "path"
 import { ProcessedFile, ComponentInfo, TypeInfo } from "./types"
 
-export async function analyzeBabel(dir: string, relativeFiles: string[]): Promise<BabelProcessedFile[]> {
+export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[]> {
     const processed: BabelProcessedFile[] = []
     const types: (ClassDeclaration | TypeAlias)[] = []
-    for (const relativeFile of relativeFiles) {
-        const srcFile = path.join(dir, relativeFile)
+    for (const srcFile of files) {
+        // const srcFile = path.join(dir, relativeFile)
         const file: BabelProcessedFile = {
-            file: srcFile,
-            relativeFile,
+            srcFile: srcFile,
+            // relativeFile,
             components: [],
             types: [],
         }

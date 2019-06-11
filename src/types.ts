@@ -2,8 +2,7 @@ import { printExpression, valueToTS } from "./utils"
 import * as ts from "typescript"
 
 export interface ProcessedFile {
-    relativeFile: string
-    file: string
+    srcFile: string
     components: ComponentInfo[]
 }
 

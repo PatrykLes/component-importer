@@ -1,7 +1,8 @@
 {
     "name": "component-importer",
     "version": "1.0.0",
-    "main": "build/index.js",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
     "repository": "git@github.com:framer/ComponentImporter.git",
     "author": "Dan-el Khen <danelkhen@gmail.com>",
     "license": "MIT",

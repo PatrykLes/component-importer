@@ -37,8 +37,15 @@ export function convert(comp: ComponentInfo) {
 export function generate(analyzedFile: ProcessedFile) {
     const sb = []
     for (const comp of analyzedFile.components) {
-        const { componentName, framerName, propertyControls } = comp
-        sb.push(`
+        sb.push(generateComponent(comp))
+    }
+    return sb.join("")
+}
+
+export function generateComponent(comp: ComponentInfo) {
+    const sb = []
+    const { componentName, framerName, propertyControls } = comp
+    sb.push(`
     import * as React from "react"
     import * as System from "../../design-system"
     import { ControlType, PropertyControls } from "framer"
@@ -61,6 +68,5 @@ export function generate(analyzedFile: ProcessedFile) {
       static propertyControls: PropertyControls<Props> = ${propertyControls.toJS()}
     }
     `)
-    }
     return sb.join("")
 }

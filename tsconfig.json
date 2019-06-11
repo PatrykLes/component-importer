@@ -7,6 +7,7 @@
         "strict": true,
         "strictNullChecks": false,
         "declaration": true,
+        "moduleResolution": "node",
         "esModuleInterop": true
     },
     "exclude": ["generated","build","node_modules"]
