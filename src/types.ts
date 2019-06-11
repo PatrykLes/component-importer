@@ -57,6 +57,7 @@ export class PropertyControl {
         const obj: any = {}
         for (const entry of entries) obj[entry[0]] = entry[1]
         const node = valueToTS(obj, (key, value) => {
+            if (key == "doc") return null
             if (key == "type") {
                 return ts.createIdentifier(value)
             }

@@ -9,7 +9,7 @@ export function valueToTS(
 ): ts.Expression {
     if (replacer) {
         const replaced = replacer(parentKey, obj)
-        if (replaced != null) {
+        if (replaced !== undefined) {
             return replaced
         }
     }
@@ -22,7 +22,9 @@ export function valueToTS(
         }
         const items = []
         for (const [key, value] of Object.entries(obj)) {
-            const prop = ts.createPropertyAssignment(key, valueToTS(value, replacer, key))
+            const valueExp = valueToTS(value, replacer, key)
+            if (valueExp == null) continue
+            const prop = ts.createPropertyAssignment(key, valueExp)
             items.push(prop)
         }
         const node = ts.createObjectLiteral(items)
