@@ -6,7 +6,8 @@
         "outDir": "build",
         "strict": true,
         "strictNullChecks": false,
+        "declaration": true,
         "esModuleInterop": true
     },
-    "exclude": ["generated"]
+    "exclude": ["generated","build","node_modules"]
 }

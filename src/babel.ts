@@ -94,7 +94,7 @@ function toTypeInfo(type: FlowType): TypeInfo {
         typeInfo.properties = []
         for (const prop of type.properties) {
             if (!isObjectTypeProperty(prop)) continue
-            typeInfo.properties.push({ name: toJS(prop.key), type: toTypeInfo(prop.value) })
+            typeInfo.properties.push({ name: toJS(prop.key), type: toTypeInfo(prop.value), doc: null })
         }
     } else if (isGenericTypeAnnotation(type)) {
         return { name: toJS(type.id) }
