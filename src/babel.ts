@@ -16,6 +16,10 @@ import {
     isTypeAlias,
     Node,
     TypeAlias,
+    isClassProperty,
+    isIdentifier,
+    isObjectExpression,
+    ObjectExpression,
 } from "@babel/types"
 import fse from "fs-extra"
 import { ComponentInfo, ProcessedFile, TypeInfo } from "./types"
@@ -36,7 +40,7 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
         const sourceFile = parser.parse(await fse.readFile(srcFile, "utf8"), {
             sourceType: "module",
             sourceFilename: srcFile,
-            plugins: ["jsx", "flow", "classProperties"],
+            plugins: ["jsx", "flow", "classProperties", "exportDefaultFrom"],
         })
         for (const node of sourceFile.program.body) {
             // console.log(relativeFile, node.type)
@@ -47,6 +51,11 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
                     file.types.push(decl)
                 }
             }
+            // TODO: support non exported classes that might be exported later
+            // else if (isClassDeclaration(node)) {
+            //     types.push(node)
+            //     file.types.push(node)
+            // }
         }
     }
 
@@ -54,7 +63,12 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
         for (const decl of file.types) {
             // console.log(decl.id.name)
             if (!isClassDeclaration(decl)) continue
-            if (!decl.superTypeParameters || !decl.superTypeParameters.params.length) continue
+            if (!decl.superTypeParameters || !decl.superTypeParameters.params.length) {
+                // TODO: support propTypes
+                // const propTypes = extractPropTypes(decl)
+                // console.log(propTypes)
+                continue
+            }
             const propsTypeName = toJS(decl.superTypeParameters.params[0])
             const propsTypeDecl = types.find(t => t.id.name == propsTypeName)
             if (propsTypeDecl) {
@@ -73,6 +87,23 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
     return processed
 }
 
+function propTypesToTypeInfo(propTypes: ObjectExpression): TypeInfo {
+    return null
+}
+function extractPropTypes(ce: ClassDeclaration): ObjectExpression {
+    for (const member of ce.body.body) {
+        if (isClassProperty(member)) {
+            const key = member.key
+            if (isIdentifier(key) && key.name == "propTypes") {
+                const value = member.value
+                if (isObjectExpression(value)) {
+                    return value
+                }
+            }
+        }
+    }
+    return null
+}
 function toJS(node: Node): string {
     return generator.default(node).code
 }
