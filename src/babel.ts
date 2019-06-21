@@ -20,6 +20,14 @@ import {
     isIdentifier,
     isObjectExpression,
     ObjectExpression,
+    isObjectProperty,
+    isCallExpression,
+    MemberExpression,
+    Expression,
+    isMemberExpression,
+    isExpressionStatement,
+    isAssignmentExpression,
+    File,
 } from "@babel/types"
 import fse from "fs-extra"
 import { ComponentInfo, ProcessedFile, TypeInfo } from "./types"
@@ -34,6 +42,7 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
             // relativeFile,
             components: [],
             types: [],
+            parsed: null,
         }
         processed.push(file)
 
@@ -42,31 +51,37 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
             sourceFilename: srcFile,
             plugins: ["jsx", "flow", "classProperties", "exportDefaultFrom"],
         })
+        file.parsed = sourceFile
         for (const node of sourceFile.program.body) {
+            let decl: Node = node
             // console.log(relativeFile, node.type)
             if (isExportDefaultDeclaration(node) || isExportNamedDeclaration(node)) {
-                const decl = node.declaration
-                if (isClassDeclaration(decl) || isTypeAlias(decl)) {
-                    types.push(decl)
-                    file.types.push(decl)
-                }
+                decl = node.declaration
             }
-            // TODO: support non exported classes that might be exported later
-            // else if (isClassDeclaration(node)) {
-            //     types.push(node)
-            //     file.types.push(node)
-            // }
+            if (isClassDeclaration(decl) || isTypeAlias(decl)) {
+                types.push(decl)
+                file.types.push(decl)
+            }
         }
     }
 
     for (const file of processed) {
         for (const decl of file.types) {
+            // if(isExpressionStatement(decl))
             // console.log(decl.id.name)
             if (!isClassDeclaration(decl)) continue
             if (!decl.superTypeParameters || !decl.superTypeParameters.params.length) {
-                // TODO: support propTypes
-                // const propTypes = extractPropTypes(decl)
-                // console.log(propTypes)
+                const propTypes = extractPropTypes(decl)
+                if (propTypes) {
+                    // console.log(propTypes)
+                    const propsTypeInfo = propTypesToTypeInfo(propTypes)
+                    // console.log(propsTypeInfo)
+                    const comp: ComponentInfo = {
+                        name: decl.id.name,
+                        propsTypeInfo,
+                    }
+                    file.components.push(comp)
+                }
                 continue
             }
             const propsTypeName = toJS(decl.superTypeParameters.params[0])
@@ -78,9 +93,30 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
                     propsTypeInfo: typeAliasToTypeInfo(propsTypeDecl),
                 }
                 file.components.push(comp)
-                break
             }
             // console.log(decl.id.name, propsTypeName)
+        }
+        for (const st of file.parsed.program.body) {
+            if (isExpressionStatement(st)) {
+                const exp = st.expression
+                if (isAssignmentExpression(exp)) {
+                    const left = exp.left
+                    if (isMemberExpression(left)) {
+                        const prop = left.property
+                        const obj = left.object
+                        if (isIdentifier(obj) && isIdentifier(prop) && prop.name == "propTypes") {
+                            const right = exp.right
+                            if (isObjectExpression(right)) {
+                                file.components.push({
+                                    name: obj.name,
+                                    propsTypeInfo: propTypesToTypeInfo(right),
+                                })
+                                // console.log(file.components[file.components.length - 1].propsTypeInfo.properties)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     //console.log(types.map(t => t.id.name))
@@ -88,7 +124,27 @@ export async function analyzeBabel(files: string[]): Promise<BabelProcessedFile[
 }
 
 function propTypesToTypeInfo(propTypes: ObjectExpression): TypeInfo {
-    return null
+    const typeInfo: TypeInfo = { properties: [] }
+    for (const prop of propTypes.properties) {
+        if (isObjectProperty(prop)) {
+            const nameExp = prop.key
+            if (isIdentifier(nameExp)) {
+                const name = nameExp.name
+                let member = prop.value
+                if (isCallExpression(member)) {
+                    member = member.callee
+                }
+                if (isMemberExpression(member)) {
+                    const typeIdentifier = member.property
+                    if (isIdentifier(typeIdentifier)) {
+                        const propTypeName = typeIdentifier.name
+                        typeInfo.properties.push({ name, type: { name: propTypeName } })
+                    }
+                }
+            }
+        }
+    }
+    return typeInfo
 }
 function extractPropTypes(ce: ClassDeclaration): ObjectExpression {
     for (const member of ce.body.body) {
@@ -145,5 +201,6 @@ function toTypeInfo(type: FlowType): TypeInfo {
 }
 
 export interface BabelProcessedFile extends ProcessedFile {
+    parsed: File
     types: (ClassDeclaration | TypeAlias)[]
 }

@@ -45,11 +45,12 @@ async function main() {
             console.log("Skipping", relativeFile)
             continue
         }
-        for (const comp of file.components) {
+        const components = file.components.filter(t => t.propsTypeInfo)
+        for (const comp of components) {
             convert(comp)
         }
         const sb: string[] = []
-        for (const comp of file.components) {
+        for (const comp of components) {
             sb.push(generate(comp))
         }
         const generatedCode = sb.join("")

@@ -25,7 +25,7 @@ export interface TypeInfo {
 export interface PropertyInfo {
     name: string
     type: TypeInfo
-    doc: string
+    doc?: string
 }
 
 export class PropertyControls {
