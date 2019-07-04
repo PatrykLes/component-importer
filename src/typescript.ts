@@ -10,13 +10,13 @@ export async function analyzeTypeScript(files: string[]): Promise<ProcessedFile[
                 srcFile: t,
             },
     )
-    let tsconfig: ts.CompilerOptions = {
+    const tsconfig: ts.CompilerOptions = {
         //rootDir: dir,
         target: ts.ScriptTarget.ESNext,
         jsx: ts.JsxEmit.React,
         typeRoots: [],
     }
-    let opts: ts.CreateProgramOptions = {
+    const opts: ts.CreateProgramOptions = {
         options: tsconfig,
         rootNames: processed.map(t => t.srcFile),
     }
