@@ -66,6 +66,8 @@ function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
     const typeInfo: TypeInfo = { rawType: type }
     if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
         typeInfo.name = "string"
+    } else if ((type.getFlags() & ts.TypeFlags.Number) == ts.TypeFlags.Number) {
+        typeInfo.name = "number"
     } else if ((type.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
         typeInfo.name = "boolean"
     } else if (type.isUnion()) {
