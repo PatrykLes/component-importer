@@ -8,7 +8,8 @@
     "license": "MIT",
     "scripts": {
         "build": "yarn && yarn tsc",
-        "cli": "node build/cli"
+        "cli": "node build/cli",
+        "test": "jest"
     },
     "dependencies": {
         "@babel/generator": "^7.4.4",
@@ -24,6 +25,9 @@
         "@types/command-line-args": "^5.0.0",
         "@types/fs-extra": "^7.0.0",
         "@types/glob": "^7.1.1",
-        "@types/prettier": "^1.16.3"
+        "@types/jest": "^24.0.15",
+        "@types/prettier": "^1.16.3",
+        "jest": "^24.8.0",
+        "ts-jest": "^24.0.2"
     }
 }
