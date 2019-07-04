@@ -10,5 +10,9 @@
         "moduleResolution": "node",
         "esModuleInterop": true
     },
-    "exclude": ["generated","build","node_modules"]
+    "exclude": [
+       "build/",
+        "node_modules/",
+        "src/__mocks__/"
+    ]
 }
