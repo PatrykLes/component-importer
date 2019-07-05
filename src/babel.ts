@@ -138,6 +138,7 @@ function propTypesToTypeInfo(propTypes: ObjectExpression): TypeInfo {
                     const typeIdentifier = member.property
                     if (isIdentifier(typeIdentifier)) {
                         const propTypeName = typeIdentifier.name
+                        // @ts-ignore: fhur: figure out which type comes out and remove this comment
                         typeInfo.properties.push({ name, type: { name: propTypeName } })
                     }
                 }
@@ -180,6 +181,7 @@ function toTypeInfo(type: FlowType): TypeInfo {
         return typeInfo
     }
     if (isGenericTypeAnnotation(type)) {
+        // @ts-ignore: fhur: figure out what type comes out and remove this comment
         return { name: toJS(type.id), rawType: type }
     }
     if (isBooleanTypeAnnotation(type)) {

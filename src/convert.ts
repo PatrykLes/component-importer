@@ -24,7 +24,7 @@ export function convert(comp: ComponentInfo) {
                 pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
             } else if (meType.name == "string") {
                 type = "ControlType.String"
-            } else if (meType.name == "boolean" || meType.name == "bool") {
+            } else if (meType.name === "boolean" || meType.name === "bool") {
                 type = "ControlType.Boolean"
             } else {
                 console.log("Skipping PropertyControl for", prop.name)

@@ -1,12 +1,16 @@
-// @ts-ignore
 import * as React from "react"
+import { MocksProps } from "./type"
 
-type Props = {
-    text: string
+const PrivateComponent: React.SFC<MocksProps> = props => {
+    return <p>{props.text}</p>
 }
 
-const SimpleReactComponent: React.SFC<Props> = (props: Props) => {
-    return <p>{props.text}</p>
+const SimpleReactComponent: React.SFC<MocksProps> = props => {
+    return (
+        <p>
+            <PrivateComponent {...props} />
+        </p>
+    )
 }
 
 export default SimpleReactComponent

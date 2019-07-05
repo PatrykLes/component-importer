@@ -1,12 +1,8 @@
-// @ts-ignore
 import * as React from "react"
+import { MocksProps } from "./type"
 
-type Props = {
-    text: string
-}
-
-export default class SimpleReactComponent extends React.Component<Props> {
+export default class SimpleReactComponent extends React.Component<MocksProps> {
     render() {
-        return <p>{props.text}</p>
+        return <p>{this.props.text}</p>
     }
 }

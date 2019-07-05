@@ -16,7 +16,9 @@ export interface ComponentInfo {
 }
 
 export interface TypeInfo {
-    name?: string
+    // XXX: This definition is likely incomplete
+    // normalize bool/boolean (seems like one is used for typescript the other for babel)
+    name?: "string" | "number" | "boolean" | "bool"
     possibleValues?: any[]
     isEnum?: boolean
     properties?: PropertyInfo[]
