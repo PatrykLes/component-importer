@@ -83,3 +83,44 @@ export function changeExtension(file: string, ext: string): string {
 export function globAsync(pattern: string, srcDir: string) {
     return new Promise<string[]>(resolve => glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)))
 }
+
+/**
+ * Gets a node's syntax kinds as strings. Meant for debugging.
+ */
+const getSyntaxKinds = (node: ts.Node): string[] => {
+    return Object.keys(ts.SyntaxKind).filter(key => {
+        // @ts-ignore
+        const kind = ts.SyntaxKind[key]
+
+        return (kind & node.kind) === kind
+    })
+}
+
+const getNodeFlags = (node: ts.Node): string[] => {
+    return Object.keys(ts.NodeFlags).filter(key => {
+        // @ts-ignore
+        const flag = ts.NodeFlags[key]
+
+        return (flag & node.flags) === flag
+    })
+}
+
+export const printDebugInfo = (node: ts.Node) => {
+    console.log(
+        [
+            `kinds: ${getSyntaxKinds(node)}`,
+            `children: ${node.getChildren().length} `,
+            `text: ${node.getText()}`,
+            `flags ${getNodeFlags(node)}`,
+        ].join("\n"),
+    )
+}
+
+export function flatMap<T, K>(array: Iterable<T>, mapper: (item: T) => K[]) {
+    return Array.from(array)
+        .map(mapper)
+        .reduce((res, arr) => {
+            res.push(...arr)
+            return res
+        }, [])
+}
