@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+DIR="design-systems/blueprint"
+REPO="git@github.com:palantir/blueprint.git"
+
+./scripts/import $DIR $REPO
