@@ -1,5 +1,5 @@
 import ts from "typescript"
-import { ComponentFinder } from "./types"
+import { ComponentFinder, ResultType } from "./types"
 import { isExported, getFirstGenericArgument, toTypeInfo } from "./utils"
 
 export const classComponentFinder: ComponentFinder = {
@@ -7,6 +7,8 @@ export const classComponentFinder: ComponentFinder = {
         if (!ts.isClassDeclaration(node) || !isExported(node)) {
             return []
         }
+
+        if (!node.heritageClauses) return []
 
         const clause = node.heritageClauses.find(clause => clause.token === ts.SyntaxKind.ExtendsKeyword)
         if (!clause) {
@@ -19,8 +21,11 @@ export const classComponentFinder: ComponentFinder = {
 
         return [
             {
-                name: node.name.text,
-                propsTypeInfo: toTypeInfo(type, checker),
+                type: ResultType.ComponentInfo,
+                componentInfo: {
+                    name: node.name.text,
+                    propsTypeInfo: toTypeInfo(type, checker),
+                },
             },
         ]
     },

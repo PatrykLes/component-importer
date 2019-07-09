@@ -10,6 +10,7 @@ describe("analyze | typescript", () => {
             "./src/__mocks__/exportDefaultClass.tsx",
             "./src/__mocks__/exportDefaultReference.1.tsx",
             "./src/__mocks__/exportDefaultReference.2.tsx",
+            "./src/__mocks__/exportDefaultReference.3.tsx",
             "./src/__mocks__/exportDefaultReference.tsx",
             "./src/__mocks__/exportLetArrow.tsx",
         ]

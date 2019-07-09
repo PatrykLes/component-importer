@@ -12,18 +12,18 @@ export function isExported(node: ts.Statement): boolean {
 }
 
 export function getFirstGenericArgument(type: ts.Node): ts.TypeNode | undefined {
-    if (ts.isTypeReferenceNode(type)) {
+    if (ts.isTypeReferenceNode(type) && type.typeArguments) {
         const genericArgType = type.typeArguments[0]
         return genericArgType
     }
-    if (ts.isHeritageClause(type)) {
+    if (ts.isHeritageClause(type) && type.types && type.types[0]) {
         return type.types[0].typeArguments[0]
     }
 
     return undefined
 }
 
-export function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
+export function toTypeInfo(type: ts.Type, checker: ts.TypeChecker, level: number = 0): TypeInfo {
     const typeInfo: TypeInfo = { rawType: type }
     if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
         typeInfo.name = "string"
@@ -34,14 +34,17 @@ export function toTypeInfo(type: ts.Type, checker: ts.TypeChecker): TypeInfo {
     } else if (type.isUnion()) {
         typeInfo.isEnum = true
         typeInfo.possibleValues = type.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
-    } else {
+    }
+    // XXX quick way to stop stack overflows on recursive types.
+    // revisit this later
+    else if (level < 5) {
         // TODO: typeInfo.name = type.name
         typeInfo.properties = []
         for (const prop of type.getProperties()) {
             const meType = checker.getTypeAtLocation(prop.valueDeclaration)
             let pc: PropertyInfo = {
                 name: prop.name,
-                type: toTypeInfo(meType, checker),
+                type: toTypeInfo(meType, checker, level + 1),
                 doc: ts.displayPartsToString(prop.getDocumentationComment(checker)),
             }
             typeInfo.properties.push(pc)

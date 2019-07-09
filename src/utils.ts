@@ -87,7 +87,7 @@ export function globAsync(pattern: string, srcDir: string) {
 /**
  * Gets a node's syntax kinds as strings. Meant for debugging.
  */
-const getSyntaxKinds = (node: ts.Node): string[] => {
+export const getSyntaxKinds = (node: ts.Node): string[] => {
     return Object.keys(ts.SyntaxKind).filter(key => {
         // @ts-ignore
         const kind = ts.SyntaxKind[key]

@@ -1,5 +1,5 @@
 import ts from "typescript"
-import { ComponentFinder } from "./types"
+import { ComponentFinder, ResultType } from "./types"
 import { toTypeInfo, isReactFunctionComponent, getReactPropsType } from "./utils"
 
 /**
@@ -19,8 +19,11 @@ export const referenceComponentFinder: ComponentFinder = {
 
         return [
             {
-                name: expression.text,
-                propsTypeInfo: toTypeInfo(getReactPropsType(type), checker),
+                type: ResultType.ComponentInfo,
+                componentInfo: {
+                    name: expression.text,
+                    propsTypeInfo: toTypeInfo(getReactPropsType(type), checker),
+                },
             },
         ]
     },

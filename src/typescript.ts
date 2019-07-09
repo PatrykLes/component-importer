@@ -1,11 +1,14 @@
 import * as ts from "typescript"
+import path from "path"
 import { ComponentInfo, ProcessedFile } from "./types"
-import { ComponentFinder } from "./ts/types"
+import { ComponentFinder, ResultType } from "./ts/types"
 import { classComponentFinder } from "./ts/classComponentFinder"
 import { functionComponentFinder } from "./ts/functionComponentFinder"
 import { referenceComponentFinder } from "./ts/referenceComponentFinder"
 import { exportTypeFinder } from "./ts/exportTypeFinder"
 import { exportStarFinder } from "./ts/exportStarFinder"
+import glob from "glob"
+import { flatMap } from "./utils"
 
 export async function analyzeTypeScript(files: string[], tsConfigPath?: string): Promise<ProcessedFile[]> {
     const processed: ProcessedFile[] = files.map(t => ({
@@ -20,9 +23,15 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
         typeRoots: [],
     }
 
+    const patterns = files.map(file => {
+        const dir = path.dirname(file)
+        return path.join(dir, "**/*.{tsx,ts,js,jsx, d.ts}")
+    })
+    const rootNames = flatMap(patterns, pattern => glob.sync(pattern))
+
     const program = ts.createProgram({
         options: tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig,
-        rootNames: processed.map(t => t.srcFile),
+        rootNames,
     })
 
     console.log("Source Files Founds:", program.getSourceFiles().length)
@@ -46,12 +55,20 @@ function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): Iterab
         functionComponentFinder,
         referenceComponentFinder,
         exportTypeFinder,
+        exportStarFinder,
     ]
 
-    for (const node of sourceFile.statements) {
+    const remainingStatements = Array.from(sourceFile.statements)
+
+    for (const node of remainingStatements) {
         for (const componentFinder of componentFinders) {
             for (const comp of componentFinder.extract(node, program)) {
-                yield comp
+                if (comp.type === ResultType.ComponentInfo) {
+                    yield comp.componentInfo
+                }
+                if (comp.type === ResultType.SourceFile) {
+                    remainingStatements.push(...comp.sourceFile.statements)
+                }
             }
         }
     }
