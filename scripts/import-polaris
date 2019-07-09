@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+DIR="design-systems/polaris"
+REPO="git@github.com:Shopify/polaris-react.git"
+
+./scripts/import $DIR $REPO
