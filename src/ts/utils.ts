@@ -1,5 +1,5 @@
 import ts from "typescript"
-import { TypeInfo, PropertyInfo } from "../types"
+import { TypeInfo, PropertyInfo, PropType } from "../types"
 
 /**
  * @returns true if the given node contains the `export` modifier.
@@ -33,7 +33,7 @@ export function toTypeInfo(type: ts.Type, checker: ts.TypeChecker, level: number
         typeInfo.name = "boolean"
     } else if (type.isUnion()) {
         typeInfo.isEnum = true
-        typeInfo.possibleValues = type.types.map(t => (t.isLiteral() ? (t.value as string | number) : ""))
+        typeInfo.possibleValues = type.types.filter(t => t.isLiteral()).map(t => (t.isLiteral() ? t.value : ""))
     }
     // XXX quick way to stop stack overflows on recursive types.
     // revisit this later

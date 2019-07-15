@@ -2,6 +2,7 @@ import ts from "typescript"
 import { flatMap, printDebugInfo, getSyntaxKinds } from "../utils"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
 import { getReactPropsType, isReactFunctionComponent, toTypeInfo } from "./utils"
+import { extractPropTypes } from "./extractPropTypes"
 
 export const exportTypeFinder: ComponentFinder = {
     extract(node: ts.Statement, program: ts.Program): ComponentFinderResult[] {
@@ -10,6 +11,17 @@ export const exportTypeFinder: ComponentFinder = {
         const identifiers = findExportedIdentifiers(node)
 
         const checker = program.getTypeChecker()
+
+        // const sourceFile = node.getSourceFile()
+        // const mod = checker.getSymbolAtLocation(sourceFile)
+        // mod.exports.forEach((exp, key) => {
+        //     if ((exp.flags & ts.SymbolFlags.ExportStar) == ts.SymbolFlags.ExportStar) {
+        //     }
+
+        //     const comp = exp
+        //     const type = checker.getDeclaredTypeOfSymbol(comp)
+        //     console.log(type)
+        // })
 
         return flatMap(identifiers, identifier => {
             const type = checker.getTypeAtLocation(identifier)
@@ -21,7 +33,7 @@ export const exportTypeFinder: ComponentFinder = {
                     type: ResultType.ComponentInfo,
                     componentInfo: {
                         name: identifier.text,
-                        propsTypeInfo: toTypeInfo(getReactPropsType(type), checker),
+                        propTypes: extractPropTypes(getReactPropsType(type), checker),
                     },
                 },
             ]
@@ -46,3 +58,37 @@ function findExportedIdentifiers(node: ts.ExportDeclaration): ts.Identifier[] {
 
     return exportClause.elements.map(element => element.name)
 }
+
+/*
+var mod = checker.getSymbolAtLocation(sourceFile)
+var comp = mod.exports.get("SimpleReactComponent2")
+var type = checker.getDeclaredTypeOfSymbol(comp)
+
+
+checker.getSymbolAtLocation(exportDecl.moduleSpecifier)
+(exp.flags & ts.SymbolFlags.ExportStar) == ts.SymbolFlags.ExportStar
+
+
+
+
+
+export * from "./path"
+
+// type checker resolves * to a TypeFlags.ValueModule
+checker.getSymbolAtLocation(exportDecl.moduleSpecifier)
+* ->  { MyComp: MyComp, MyComp2: MyComp2}
+
+
+
+const type: ts.Type = null
+
+const xx = type.getBaseTypes()[0]
+xx.flags & ts.TypeFlags.Object
+const objType = xx as ts.ObjectType
+objType.objectFlags && ObjectFlags.Reference
+const refType = objType as ts.TypeReference
+refType.typeArguments
+
+
+
+*/

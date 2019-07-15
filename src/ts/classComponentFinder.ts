@@ -1,6 +1,7 @@
 import ts from "typescript"
 import { ComponentFinder, ResultType } from "./types"
-import { isExported, getFirstGenericArgument, toTypeInfo } from "./utils"
+import { isExported, getFirstGenericArgument } from "./utils"
+import { extractPropTypes } from "./extractPropTypes"
 
 export const classComponentFinder: ComponentFinder = {
     extract(node: ts.Statement, program: ts.Program) {
@@ -24,7 +25,7 @@ export const classComponentFinder: ComponentFinder = {
                 type: ResultType.ComponentInfo,
                 componentInfo: {
                     name: node.name.text,
-                    propsTypeInfo: toTypeInfo(type, checker),
+                    propTypes: extractPropTypes(type, checker),
                 },
             },
         ]

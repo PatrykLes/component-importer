@@ -2,3 +2,4 @@ node_modules/
 build/
 generated/
 design-systems/
+.DS_Store

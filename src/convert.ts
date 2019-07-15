@@ -7,31 +7,34 @@ export function convert(comp: ComponentInfo) {
     comp.framerName = comp.name
 
     comp.propertyControls = new PropertyControls()
-    if (comp.propsTypeInfo && comp.propsTypeInfo.properties) {
-        for (const prop of comp.propsTypeInfo.properties) {
-            let pc = new PropertyControl({ name: prop.name })
-            pc.doc = prop.doc
-            pc.title = upperCaseFirstLetter(pc.name)
-            const meType = prop.type
-            if (!meType) {
-                console.log("Skipping PropertyControl for", prop.name)
-                continue
-            }
-            let type: string
-            if (meType.isEnum) {
-                type = "ControlType.Enum"
-                pc.options = meType.possibleValues
-                pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
-            } else if (meType.name == "string") {
-                type = "ControlType.String"
-            } else if (meType.name === "boolean" || meType.name === "bool") {
-                type = "ControlType.Boolean"
-            } else {
-                console.log("Skipping PropertyControl for", prop.name)
-                continue
-            }
-            pc.type = type
-            comp.propertyControls.add(pc)
+    for (const prop of comp.propTypes) {
+        if (prop.type === "unsupported") {
+            continue
         }
+
+        const pc = new PropertyControl({ name: prop.name })
+        pc.doc = "" // TODO add support for documentation
+        pc.title = upperCaseFirstLetter(pc.name)
+
+        let type: string
+        if (prop.type === "enum") {
+            type = "ControlType.Enum"
+            pc.options = prop.possibleValues
+            pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
+        } else if (prop.type === "string") {
+            type = "ControlType.String"
+        } else if (prop.type === "boolean") {
+            type = "ControlType.Boolean"
+        } else if (prop.type === "number") {
+            type = "ControlType.Number"
+        } else if (prop.type === "array") {
+            // XXX add support for arrays
+            continue
+        } else {
+            console.log("Skipping PropertyControl for", prop.name)
+            continue
+        }
+        pc.type = type
+        comp.propertyControls.add(pc)
     }
 }

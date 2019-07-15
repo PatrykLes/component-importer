@@ -1,7 +1,8 @@
 import ts from "typescript"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
-import { getFirstGenericArgument, toTypeInfo, isExported } from "./utils"
+import { getFirstGenericArgument, isExported } from "./utils"
 import { flatMap } from "../utils"
+import { extractPropTypes } from "./extractPropTypes"
 
 /**
  * A ComponentFinder for function components
@@ -27,7 +28,7 @@ export const functionComponentFinder: ComponentFinder = {
                     type: ResultType.ComponentInfo,
                     componentInfo: {
                         name,
-                        propsTypeInfo: toTypeInfo(type, checker),
+                        propTypes: extractPropTypes(type, checker),
                     },
                 },
             ]

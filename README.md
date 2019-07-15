@@ -35,7 +35,7 @@ async function main() {
     const files = ["a.tsx", "b.tsx"]
     const processedFiles = await analyze(files, "typescript") // parses source files, analyzes components and type information
     for (const processedFile of processedFiles) {
-        for (const component of processedFile.components) {            
+        for (const component of processedFile.components) {
             convert(component)                                // Adds Framer X component info (property controls)
             // Optional: customize the components before generating the code
             const code = generate(component)                  // Generates the code

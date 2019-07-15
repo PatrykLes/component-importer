@@ -1,73 +1,58 @@
 import commandLineArgs, { OptionDefinition } from "command-line-args"
 import fse from "fs-extra"
 import path from "path"
-import { analyze, changeExtension, convert, generate, globAsync, makePrettier } from "./index"
+import { compile } from "./compile"
 
 const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] = [
-    { name: "dirs", type: String, defaultOption: true, multiple: true },
-    { name: "pattern", type: String },
-    { name: "lang", type: String },
+    { name: "packageName", type: String },
+    { name: "tsconfig", type: String },
+    { name: "index", type: String },
+    { name: "out", type: String },
 ]
 
-let args: CLIArguments
 export interface CLIArguments {
-    dirs?: string[]
-    pattern?: string
-    lang?: "typescript" | "flow"
+    index?: string
+    tsconfig?: string
+    packageName?: string
+    out?: string
+}
+
+function printUsage() {
+    const lines = [
+        "Usage:",
+        "",
+        "    cli [packageName] [index] [tsconfig] [out-dir] ",
+        "",
+        "Where:",
+        "",
+        "    [index]: a path to the index (starting point) of the source code (usually under src/index.ts)",
+        "    [tsconfig]: a path to the tsconfig (optional)",
+        "    [packageName]: the package name to import e.g. @material-ui/core",
+        "    [out]: the output directory",
+    ]
+    lines.forEach(line => console.log(line))
 }
 
 async function main() {
-    console.log(process.argv)
-    args = commandLineArgs(argumentDefinitions) as CLIArguments
-    if (!args.dirs || args.dirs.length != 2) {
-        console.log("")
-        console.log("Usage:")
-        console.log("yarn cli [src-dir] [out-dir] [--lang [typescript/flow]] [--pattern '**/*.{tsx,ts,js,jsx}']")
-        console.log("")
-        console.log("Example:")
-        console.log("yarn cli ../my-project/src ../my-project/framer")
-        console.log("")
+    const args = commandLineArgs(argumentDefinitions) as CLIArguments
+    console.log(args)
+
+    if (!args.index || !args.packageName || !args.out) {
+        printUsage()
         return
     }
-    const srcDir = args.dirs[0]
-    const outDir = args.dirs[1]
-    const lang = args.lang || "typescript"
-    const pattern = args.pattern || "**/*.{tsx,ts,js,jsx}"
-    console.log({ pattern, outDir, lang })
-    const relativeFiles = await globAsync(pattern, srcDir)
-    const srcFiles = relativeFiles.map(t => path.join(srcDir, t))
-    const processedFiles = await analyze(srcFiles, lang)
-    for (const file of processedFiles) {
-        const srcFile = file.srcFile
-        const relativeFile = path.relative(srcDir, srcFile)
-        console.log("Processing", relativeFile)
-        if (!file.components || !file.components.length) {
-            console.log("Skipping", relativeFile)
-            continue
-        }
-        const components = file.components.filter(t => t.propsTypeInfo)
-        for (const comp of components) {
-            convert(comp)
-        }
-        const sb: string[] = []
-        for (const comp of components) {
-            sb.push(generate(comp))
-        }
-        const generatedCode = sb.join("")
-        if (!generatedCode) {
-            console.log("Skipping", relativeFile)
-            continue
-        }
-        if (!outDir) {
-            console.log(generatedCode)
-            continue
-        }
-        const prettierCode = await makePrettier(generatedCode, file.srcFile)
-        let outFile = path.join(outDir, relativeFile)
-        outFile = changeExtension(outFile, ".tsx")
-        console.log("Saving", outFile)
-        await fse.ensureDir(path.dirname(outFile))
-        await fse.writeFile(outFile, prettierCode)
+
+    const outFiles = await compile({
+        rootFiles: [args.index],
+        packageName: args.packageName,
+        tsConfigPath: args.tsconfig,
+    })
+
+    for (const outFile of outFiles) {
+        const file = path.join(args.out, outFile.fileName)
+        console.log("Generating ", file)
+        await fse.ensureDir(args.out)
+        await fse.writeFile(file, outFile.outputSource)
     }
 }
 main()

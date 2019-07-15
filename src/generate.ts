@@ -1,40 +1,48 @@
 import { ComponentInfo, ProcessedFile } from "./types"
-
-/** Emits the code of all components found in a processed file */
-export function generateFile(analyzedFile: ProcessedFile): string {
-    const sb = []
-    for (const comp of analyzedFile.components) {
-        sb.push(generate(comp))
-    }
-    return sb.join("")
-}
+import prettier from "prettier"
 
 /** Emits the code for a framer component */
-export function generate(comp: ComponentInfo): string {
-    const sb = []
+export function generate(packageName: string, comp: ComponentInfo): string {
     const { componentName, framerName, propertyControls } = comp
-    sb.push(`
+
+    return `
     import * as React from "react"
-    import * as System from "../../design-system"
-    import { ControlType, PropertyControls } from "framer"
-    
-    type Props = ${componentName}Props & {
-      width: number
-      height: number
+    import * as System from "${packageName}"
+    import { ControlType, PropertyControls, addPropertyControls } from "framer"
+
+    const style: React.CSSProperties = {
+      width: "100%",
+      height: "100%",
     }
-    
-    export class ${framerName} extends React.Component<Props> {
-      render() {
-        return <${componentName} {...this.props} />
-      }
-    
-      static defaultProps: Props = {
-        width: 150,
-        height: 50,
-      }
-    
-      static propertyControls: PropertyControls<Props> = ${propertyControls.toJS()}
+
+    export const ${framerName}: React.SFC = props => {
+      return <${componentName} {...props} style={style} />
     }
-    `)
-    return sb.join("")
+
+    ${framerName}.defaultProps = {
+      width: 150,
+      height: 50,
+    }
+
+    addPropertyControls(${framerName}, ${propertyControls.toJS()})
+    `
+}
+
+export type EmitOptions = {
+    packageName: string
+    components: ComponentInfo[]
+}
+
+export async function emit({
+    packageName,
+    components,
+}: EmitOptions): Promise<Array<{ fileName: string; outputSource: string }>> {
+    const makePrettier = (code: string) => prettier.format(code, { parser: "typescript" })
+
+    return components.map(comp => {
+        return {
+            fileName: comp.name + ".tsx",
+            outputSource: makePrettier(generate(packageName, comp)),
+        }
+    })
 }
