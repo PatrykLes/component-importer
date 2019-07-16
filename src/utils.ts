@@ -1,6 +1,6 @@
+import glob from "glob"
 import prettier from "prettier"
 import * as ts from "typescript"
-import glob from "glob"
 
 export function valueToTS(
     obj: any,

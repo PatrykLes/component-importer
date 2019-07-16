@@ -1,7 +1,7 @@
-import { analyzeTypeScript } from "./typescript"
-import { flatMap } from "./utils"
 import { convert } from "./convert"
 import { emit } from "./generate"
+import { analyzeTypeScript } from "./typescript"
+import { flatMap } from "./utils"
 
 export type CompileOptions = {
     rootFiles: string[]

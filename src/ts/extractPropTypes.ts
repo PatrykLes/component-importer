@@ -1,5 +1,5 @@
-import ts from "typescript"
 import assert from "assert"
+import ts from "typescript"
 import { PropType } from "../types"
 
 function matchesSomeFlag(type: ts.Type | ts.Symbol, ...flags: ts.TypeFlags[]) {

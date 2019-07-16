@@ -1,7 +1,7 @@
 import ts from "typescript"
-import { ComponentFinder, ResultType } from "./types"
-import { isExported, getFirstGenericArgument } from "./utils"
 import { extractPropTypes } from "./extractPropTypes"
+import { ComponentFinder, ResultType } from "./types"
+import { getFirstGenericArgument, isExported } from "./utils"
 
 export const classComponentFinder: ComponentFinder = {
     extract(node: ts.Statement, program: ts.Program) {

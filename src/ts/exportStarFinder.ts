@@ -1,7 +1,7 @@
+import fs from "fs"
 import path from "path"
 import ts, { Program, SourceFile, StringLiteral } from "typescript"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
-import fs from "fs"
 
 /**
  * Extracts SourceFiles from `export * from "./path/to/file"` syntax.

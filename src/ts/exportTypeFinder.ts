@@ -1,8 +1,8 @@
 import ts from "typescript"
-import { flatMap, printDebugInfo, getSyntaxKinds } from "../utils"
-import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
-import { getReactPropsType, isReactFunctionComponent, toTypeInfo } from "./utils"
+import { flatMap } from "../utils"
 import { extractPropTypes } from "./extractPropTypes"
+import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
+import { getReactPropsType, isReactFunctionComponent } from "./utils"
 
 export const exportTypeFinder: ComponentFinder = {
     extract(node: ts.Statement, program: ts.Program): ComponentFinderResult[] {

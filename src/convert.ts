@@ -1,4 +1,4 @@
-import { ComponentInfo, ProcessedFile, PropertyControl, PropertyControls } from "./types"
+import { ComponentInfo, PropertyControl, PropertyControls } from "./types"
 import { upperCaseFirstLetter } from "./utils"
 
 /** Converts a component into a framer component by generated names and property controls */

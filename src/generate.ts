@@ -1,5 +1,5 @@
-import { ComponentInfo, ProcessedFile } from "./types"
 import prettier from "prettier"
+import { ComponentInfo } from "./types"
 
 /** Emits the code for a framer component */
 export function generate(packageName: string, comp: ComponentInfo): string {

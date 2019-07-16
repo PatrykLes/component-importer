@@ -1,5 +1,4 @@
 import { analyzeTypeScript } from "./typescript"
-import fs from "fs"
 import { flatMap } from "./utils"
 
 describe("integration-test", () => {

@@ -1,7 +1,7 @@
 import ts from "typescript"
-import { ComponentFinder, ResultType } from "./types"
-import { toTypeInfo, isReactFunctionComponent, getReactPropsType } from "./utils"
 import { extractPropTypes } from "./extractPropTypes"
+import { ComponentFinder, ResultType } from "./types"
+import { getReactPropsType, isReactFunctionComponent } from "./utils"
 
 /**
  * A ComponentFinder for references to a Function Component

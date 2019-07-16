@@ -1,5 +1,4 @@
 import ts from "typescript"
-import { TypeInfo, PropertyInfo, PropType } from "../types"
 
 /**
  * @returns true if the given node contains the `export` modifier.
@@ -21,36 +20,6 @@ export function getFirstGenericArgument(type: ts.Node): ts.TypeNode | undefined 
     }
 
     return undefined
-}
-
-export function toTypeInfo(type: ts.Type, checker: ts.TypeChecker, level: number = 0): TypeInfo {
-    const typeInfo: TypeInfo = { rawType: type }
-    if ((type.getFlags() & ts.TypeFlags.String) == ts.TypeFlags.String) {
-        typeInfo.name = "string"
-    } else if ((type.getFlags() & ts.TypeFlags.Number) == ts.TypeFlags.Number) {
-        typeInfo.name = "number"
-    } else if ((type.getFlags() & ts.TypeFlags.Boolean) == ts.TypeFlags.Boolean) {
-        typeInfo.name = "boolean"
-    } else if (type.isUnion()) {
-        typeInfo.isEnum = true
-        typeInfo.possibleValues = type.types.filter(t => t.isLiteral()).map(t => (t.isLiteral() ? t.value : ""))
-    }
-    // XXX quick way to stop stack overflows on recursive types.
-    // revisit this later
-    else if (level < 5) {
-        // TODO: typeInfo.name = type.name
-        typeInfo.properties = []
-        for (const prop of type.getProperties()) {
-            const meType = checker.getTypeAtLocation(prop.valueDeclaration)
-            let pc: PropertyInfo = {
-                name: prop.name,
-                type: toTypeInfo(meType, checker, level + 1),
-                doc: ts.displayPartsToString(prop.getDocumentationComment(checker)),
-            }
-            typeInfo.properties.push(pc)
-        }
-    }
-    return typeInfo
 }
 
 // this seems to correctly identify:

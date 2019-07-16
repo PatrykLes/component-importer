@@ -1,22 +1,21 @@
-import { compile } from "./compile"
-import ts from "typescript"
 import { analyzeTypeScript } from "./typescript"
 
 describe("analyze | typescript", () => {
     describe("finding components with different export syntax", () => {
         const cases: Array<string> = [
-            // "./src/__mocks__/exportClass.tsx",
-            // "./src/__mocks__/exportConstArrow.tsx",
-            // // // TODO: doesn't work
-            // // // "./src/__mocks__/exportDefaultArrow.tsx",
-            // "./src/__mocks__/exportDefaultClass.tsx",
-            // "./src/__mocks__/exportDefaultReference.1.tsx",
-            // "./src/__mocks__/exportDefaultReference.2.tsx",
-            // "./src/__mocks__/exportDefaultReference.tsx",
+            "./src/__mocks__/exportClass.tsx",
+            "./src/__mocks__/exportConstArrow.tsx",
+            // TODO: doesn't work
+            // "./src/__mocks__/exportDefaultArrow.tsx",
+            "./src/__mocks__/exportDefaultClass.tsx",
+            "./src/__mocks__/exportDefaultReference.1.tsx",
+            "./src/__mocks__/exportDefaultReference.2.tsx",
+            "./src/__mocks__/exportDefaultReference.tsx",
+            // TODO: doesnt work
             // "./src/__mocks__/exportFrom.1.tsx",
-            // "./src/__mocks__/exportFrom.2.tsx",
-            // "./src/__mocks__/exportLetArrow.tsx",
-            // "./src/__mocks__/exportReference.1.tsx",
+            "./src/__mocks__/exportFrom.2.tsx",
+            "./src/__mocks__/exportLetArrow.tsx",
+            "./src/__mocks__/exportReference.1.tsx",
         ]
 
         cases.forEach(file => {
@@ -28,13 +27,11 @@ describe("analyze | typescript", () => {
 
                 expect(out[0].components[0]).toMatchObject({
                     name: "SimpleReactComponent",
-                    propsTypeInfo: {
-                        properties: [
-                            { name: "text", type: { name: "string" } },
-                            { name: "num", type: { name: "number" } },
-                            { name: "bool", type: { name: "boolean" } },
-                        ],
-                    },
+                    propTypes: [
+                        { name: "text", type: "string" },
+                        { name: "num", type: "number" },
+                        { name: "bool", type: "boolean" },
+                    ],
                 })
             })
         })

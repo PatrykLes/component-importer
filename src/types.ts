@@ -1,9 +1,6 @@
-import { printExpression, valueToTS } from "./utils"
-import * as ts from "typescript"
 import * as babel from "@babel/types"
-import assert from "assert"
-import { check } from "prettier"
-import { match } from "minimatch"
+import * as ts from "typescript"
+import { printExpression, valueToTS } from "./utils"
 
 export interface ProcessedFile {
     srcFile: string

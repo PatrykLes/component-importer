@@ -1,8 +1,8 @@
 import ts from "typescript"
-import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
-import { getFirstGenericArgument, isExported } from "./utils"
 import { flatMap } from "../utils"
 import { extractPropTypes } from "./extractPropTypes"
+import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
+import { getFirstGenericArgument, isExported } from "./utils"
 
 /**
  * A ComponentFinder for function components
