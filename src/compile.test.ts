@@ -25,26 +25,29 @@ describe("compile | typescript", () => {
                 expect(out).toEqual([
                     {
                         fileName: "SimpleReactComponent.tsx",
-                        outputSource: `import * as React from \"react\";
-import * as System from \"@foo/core\";
-import { ControlType, PropertyControls } from \"framer\";
+                        outputSource: `import * as React from "react";
+import * as System from "@foo/core";
+import { ControlType, PropertyControls, addPropertyControls } from "framer";
 
-export class SimpleReactComponent extends React.Component {
-  render() {
-    return <System.SimpleReactComponent {...this.props} />;
-  }
+const style: React.CSSProperties = {
+  width: "100%",
+  height: "100%"
+};
 
-  static defaultProps = {
-    width: 150,
-    height: 50
-  };
+export const SimpleReactComponent: React.SFC = props => {
+  return <System.SimpleReactComponent {...props} style={style} />;
+};
 
-  static propertyControls: PropertyControls = {
-    text: { title: \"Text\", type: ControlType.String },
-    num: { title: \"Num\", type: ControlType.Number },
-    bool: { title: \"Bool\", type: ControlType.Boolean }
-  };
-}
+SimpleReactComponent.defaultProps = {
+  width: 150,
+  height: 50
+};
+
+addPropertyControls(SimpleReactComponent, {
+  text: { title: \"Text\", type: ControlType.String },
+  num: { title: \"Num\", type: ControlType.Number },
+  bool: { title: \"Bool\", type: ControlType.Boolean }
+});
 `,
                     },
                 ])

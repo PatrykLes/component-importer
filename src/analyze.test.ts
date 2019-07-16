@@ -5,8 +5,8 @@ describe("analyze | typescript", () => {
         const cases: Array<string> = [
             "./src/__mocks__/exportClass.tsx",
             "./src/__mocks__/exportConstArrow.tsx",
-            // TODO: doesn't work
-            // "./src/__mocks__/exportDefaultArrow.tsx",
+            "./src/__mocks__/exportJsxFunction.1.tsx",
+            "./src/__mocks__/exportJsxFunction.2.tsx",
             "./src/__mocks__/exportDefaultClass.tsx",
             "./src/__mocks__/exportDefaultReference.1.tsx",
             "./src/__mocks__/exportDefaultReference.2.tsx",

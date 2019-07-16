@@ -40,6 +40,48 @@ export function isReactFunctionComponent(type: ts.Type) {
     return containsFunctionComponentProps
 }
 
+/**
+ * Returns the parameter declaration of a react function component or undefined if not found.
+ *
+ * Expects type to be a function with the following shape
+ *
+ * (arg: SomeType) => JSX.Element
+ */
+export function getFunctionComponentParameter(type: ts.Type): ts.ParameterDeclaration {
+    if (!type.getCallSignatures() || type.getCallSignatures().length === 0) {
+        return
+    }
+    const [callSignature] = type.getCallSignatures()
+
+    // Should match Element (From JSX.Element)
+    if (
+        !callSignature.getReturnType() ||
+        !callSignature.getReturnType().getSymbol() ||
+        callSignature
+            .getReturnType()
+            .getSymbol()
+            .getName() !== "Element"
+    ) {
+        return
+    }
+
+    if (callSignature.getParameters().length !== 1) {
+        return
+    }
+
+    const [parameter] = callSignature.getParameters()
+    const { valueDeclaration } = parameter
+    if (!ts.isParameter(valueDeclaration)) {
+        return
+    }
+
+    if (!valueDeclaration.type) {
+        return
+    }
+
+    return valueDeclaration
+}
+
 export function getReactPropsType(type: ts.Type): ts.Type | undefined {
     // XXX ugly, ugly, ugly but I couldn't find another way of getting the first type argument from the FunctionComponent type.
     const typeArguments = (type as any)["typeArguments"]

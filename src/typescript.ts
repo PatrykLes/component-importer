@@ -2,11 +2,13 @@ import glob from "glob"
 import path from "path"
 import * as ts from "typescript"
 import { classComponentFinder } from "./ts/classComponentFinder"
+import { exportJsxElementArrowFunctionFinder } from "./ts/exportJSXElementArrowFunctionFinder"
 import { exportStarFinder } from "./ts/exportStarFinder"
 import { exportTypeFinder } from "./ts/exportTypeFinder"
-import { functionComponentFinder } from "./ts/functionComponentFinder"
+import { functionDeclarationFinder } from "./ts/functionDeclarationFinder"
 import { referenceComponentFinder } from "./ts/referenceComponentFinder"
 import { ComponentFinder, ResultType } from "./ts/types"
+import { variableStatementFinder } from "./ts/variableStatementFinder"
 import { ComponentInfo, ProcessedFile } from "./types"
 import { flatMap } from "./utils"
 
@@ -52,10 +54,12 @@ function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile, progra
 function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): IterableIterator<ComponentInfo> {
     const componentFinders: ComponentFinder[] = [
         classComponentFinder,
-        functionComponentFinder,
+        variableStatementFinder,
         referenceComponentFinder,
         exportTypeFinder,
         exportStarFinder,
+        exportJsxElementArrowFunctionFinder,
+        functionDeclarationFinder,
     ]
 
     const remainingStatements = Array.from(sourceFile.statements)

@@ -7,7 +7,7 @@ import { getFirstGenericArgument, isExported } from "./utils"
 /**
  * A ComponentFinder for function components
  */
-export const functionComponentFinder: ComponentFinder = {
+export const variableStatementFinder: ComponentFinder = {
     extract(node: ts.Statement, program: ts.Program): ComponentFinderResult[] {
         if (!ts.isVariableStatement(node)) return []
         if (!isExported(node)) return []

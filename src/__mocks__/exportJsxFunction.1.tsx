@@ -1,6 +1,6 @@
 import * as React from "react"
 import { MocksProps } from "./type"
 
-export default (props: MocksProps) => {
+export const SimpleReactComponent = (props: MocksProps) => {
     return <p>{props.text}</p>
 }
