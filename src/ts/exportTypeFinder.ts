@@ -20,7 +20,6 @@ export const exportTypeFinder: ComponentFinder = {
 
         //     const comp = exp
         //     const type = checker.getDeclaredTypeOfSymbol(comp)
-        //     console.log(type)
         // })
 
         return flatMap(identifiers, identifier => {

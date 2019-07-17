@@ -1,4 +1,5 @@
 import { analyzeTypeScript } from "./typescript"
+import { readFileSync } from "fs"
 
 describe("analyze | typescript", () => {
     describe("finding components with different export syntax", () => {
@@ -11,15 +12,18 @@ describe("analyze | typescript", () => {
             "./src/__mocks__/exportDefaultReference.1.tsx",
             "./src/__mocks__/exportDefaultReference.2.tsx",
             "./src/__mocks__/exportDefaultReference.tsx",
-            // TODO: doesnt work
-            // "./src/__mocks__/exportFrom.1.tsx",
+            "./src/__mocks__/exportFrom.1.tsx",
             "./src/__mocks__/exportFrom.2.tsx",
+            // TODO: doesnt work
+            "./src/__mocks__/exportFrom.3.tsx",
             "./src/__mocks__/exportLetArrow.tsx",
             "./src/__mocks__/exportReference.1.tsx",
+            "./src/__mocks__/exportReference.2.tsx",
         ]
 
         cases.forEach(file => {
-            it(`supports ${file} type imports`, async () => {
+            const fileContents = readFileSync(file)
+            it(`supports ${file} type imports:\n\n${fileContents}`, async () => {
                 const out = await analyzeTypeScript([file])
 
                 expect(out.length).toEqual(1)

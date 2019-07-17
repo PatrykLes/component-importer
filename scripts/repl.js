@@ -40,32 +40,6 @@ const program = ts.createProgram({
 
 const checker = program.getTypeChecker() // to make sure the parent nodes are set
 
-const walkType = type => {
-    const result = []
-
-    checker
-        .getSymbolWalker(sym => {
-            result.push(sym)
-            return true
-        })
-        .walkType(type)
-
-    return result
-}
-
-const walkSymbol = type => {
-    const result = []
-
-    checker
-        .getSymbolWalker(sym => {
-            result.push(sym)
-            return true
-        })
-        .walkSymbol(type)
-
-    return result
-}
-
 const sourceFile = program.getSourceFile(file)
 
 const statements = sourceFile.statements

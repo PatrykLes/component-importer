@@ -1,1 +1,1 @@
-export { default as SimpleReactComponent } from "./exportDefaultClass"
+export { SimpleReactComponent } from "./exportConstArrow"

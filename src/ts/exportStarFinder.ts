@@ -2,6 +2,7 @@ import fs from "fs"
 import path from "path"
 import ts, { Program, SourceFile, StringLiteral } from "typescript"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
+import { ComponentInfo } from "../types"
 
 /**
  * Extracts SourceFiles from `export * from "./path/to/file"` syntax.
@@ -25,6 +26,7 @@ export const exportStarFinder: ComponentFinder = {
             return {
                 type: ResultType.SourceFile,
                 sourceFile,
+                filter: (_: ComponentInfo) => true,
             }
         })
     },
