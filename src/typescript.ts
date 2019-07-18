@@ -21,13 +21,14 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
     const defaultConfig: ts.CompilerOptions = {
         //rootDir: dir,
         target: ts.ScriptTarget.ESNext,
+        allowSyntheticDefaultImports: true,
         jsx: ts.JsxEmit.React,
         typeRoots: [],
     }
 
     const patterns = files.map(file => {
         const dir = path.dirname(file)
-        return path.join(dir, "**/*.{tsx,ts,js,jsx, d.ts}")
+        return path.join(dir, "**/*.{tsx,ts,js,jsx,d.ts}")
     })
     const rootNames = flatMap(patterns, pattern => glob.sync(pattern))
 

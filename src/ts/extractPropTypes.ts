@@ -138,7 +138,7 @@ const numberPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
  * @param propsType the type of a react component's props.
  */
 export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): PropType[] {
-    const stringKeys = propsType
+    const stringProperties = propsType
         .getProperties()
         // filter out possible keys that are not strings
         .filter(t => matchesSomeFlag(t, ts.TypeFlags.String))
@@ -152,7 +152,7 @@ export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): P
         arrayPropTypeFinder,
     ]
 
-    return stringKeys.map(symbol => {
+    return stringProperties.map(symbol => {
         const { valueDeclaration, name: propTypeName } = symbol
         const symbolType = checker.getTypeAtLocation(valueDeclaration)
 
