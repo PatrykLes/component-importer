@@ -1,3 +1,6 @@
+import assert from "assert"
+import fs from "fs"
+import path from "path"
 import ts from "typescript"
 
 /**
@@ -22,30 +25,14 @@ export function getFirstGenericArgument(type: ts.Node): ts.TypeNode | undefined 
     return undefined
 }
 
-// this seems to correctly identify:
-// - React.FunctionComponent
-// - React.SFC
-// - React.ComponentType
-export function isReactFunctionComponent(type: ts.Type) {
-    const propTypes = type.getProperties().map(props => props.name)
-
-    // XXX some duck typing to verify that `type` is indeed a React.Function component.
-    const containsFunctionComponentProps = ["propTypes", "defaultProps", "displayName"].every(propType =>
-        propTypes.includes(propType),
-    )
-
-    // I'd like to check for symbol.name but its apparently not always present. Until then, keep this
-    // commented.
-    // return type.symbol.name === "FunctionComponent" && containsFunctionComponentProps
-    return containsFunctionComponentProps
-}
-
 /**
  * Returns the parameter declaration of a react function component or undefined if not found.
  *
  * Expects type to be a function with the following shape
  *
+ * ```ts
  * (arg: SomeType) => JSX.Element
+ * ```
  */
 export function getFunctionComponentParameter(type: ts.Type): ts.ParameterDeclaration {
     if (!type.getCallSignatures() || type.getCallSignatures().length === 0) {
@@ -82,7 +69,7 @@ export function getFunctionComponentParameter(type: ts.Type): ts.ParameterDeclar
     return valueDeclaration
 }
 
-export function getReactPropsType(type: ts.Type): ts.Type | undefined {
+export function getFirstTypeArgument(type: ts.Type): ts.Type | undefined {
     // XXX ugly, ugly, ugly but I couldn't find another way of getting the first type argument from the FunctionComponent type.
     const typeArguments = (type as any)["typeArguments"]
     if (typeArguments && typeArguments.length > 0) {
@@ -91,6 +78,77 @@ export function getReactPropsType(type: ts.Type): ts.Type | undefined {
 
     if (type.aliasTypeArguments && type.aliasTypeArguments.length > 0) {
         return type.aliasTypeArguments[0]
+    }
+
+    return undefined
+}
+
+/**
+ * @param pathNode a StringLiteral node containing a an import path. So, for example in `export * from "./path"`, the `pathNode` should be the node that contains `./path`
+ */
+// XXX this is a super hacky way of finding a source file given an import path.
+// It takes into account the fact that an import can result in a tsx, tsx, /index.ts, etc.
+// Ideally the ts compiler should have a way to resolve these references, but I wasn't able to find
+// how
+export function findSourceFiles(program: ts.Program, pathNode: ts.StringLiteral): ts.SourceFile[] {
+    const relativeImportPath = pathNode.text
+    const { fileName } = pathNode.getSourceFile()
+    const resolvedImport = path.join(path.dirname(fileName), relativeImportPath)
+
+    const sourceFiles = [".ts", ".tsx", ".d.ts", "/index.ts", "/index.tsx", "/index.d.ts"]
+        .map(extension => `${resolvedImport}${extension}`)
+        .filter(filePath => fs.existsSync(filePath))
+        .map(filePath => {
+            const sourceFile = program.getSourceFile(filePath)
+
+            return sourceFile
+        })
+        .filter(sourceFile => {
+            return !!sourceFile
+        })
+
+    assert(
+        sourceFiles.length > 0,
+        `Failed to resolve import from pathNode ${pathNode.getText()} relative to ${fileName}`,
+    )
+
+    return sourceFiles
+}
+
+/**
+ * @returns true iff `exportDeclaration` matches the `export * from "path"` syntax.
+ */
+export function isExportStar(exportDeclaration: ts.ExportDeclaration) {
+    return !exportDeclaration.exportClause
+}
+
+export function findReactPropType(type: ts.Type, checker: ts.TypeChecker): ts.Type | undefined {
+    // Case 1: obtain the type parameter from an identifier
+    // Type is const foo: React.SFC<Props> = props => {
+    //   return <foo/>
+    // }
+    //
+    // In this case the identifier is foo.
+    const propType = getFirstTypeArgument(type)
+    if (propType) {
+        return propType
+    }
+
+    // Case 2: obtain the type argument from the actual function type
+    // Type is (props: Props) => JSX.Element
+    // Get the parameter declaration for `props`.
+    const paramDeclaration = getFunctionComponentParameter(type)
+    if (paramDeclaration) {
+        return checker.getTypeAtLocation(paramDeclaration)
+    }
+
+    // Case 3: obtain the type argument from the type hierarchy
+    // Type is class Foo extends React.Component<Props>
+    if (type.isClass() && type.getBaseTypes().length > 0) {
+        const typeArg = getFirstTypeArgument(type.getBaseTypes()[0])
+        if (typeArg) {
+            return typeArg
+        }
     }
 
     return undefined

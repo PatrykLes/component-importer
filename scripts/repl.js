@@ -34,9 +34,17 @@ children = node => {
 }
 
 const program = ts.createProgram({
-    options: parseTsConfig("tsconfig.json"),
+    options: {
+        //rootDir: dir,
+        target: ts.ScriptTarget.ESNext,
+        allowSyntheticDefaultImports: false,
+        jsx: ts.JsxEmit.React,
+        typeRoots: [],
+    },
     rootNames: getFiles(file),
 })
+
+console.log(program.getSemanticDiagnostics().map(x => x.messageText))
 
 const checker = program.getTypeChecker() // to make sure the parent nodes are set
 

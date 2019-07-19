@@ -9,6 +9,6 @@ describe("integration-test", () => {
 
         const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
 
-        expect(componentNames.length).toBeGreaterThan(0)
+        expect(componentNames).toEqual([])
     })
 })

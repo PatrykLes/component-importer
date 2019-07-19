@@ -2,26 +2,30 @@ import ts from "typescript"
 import { flatMap } from "../utils"
 import { extractPropTypes } from "./extractPropTypes"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
-import { getFirstGenericArgument, isExported, findReactPropType } from "./utils"
-import { check } from "prettier"
+import { findReactPropType } from "./utils"
 
-/**
- * A ComponentFinder for function components
- */
-export const variableStatementFinder: ComponentFinder = {
+export const aliasedSymbolFinder: ComponentFinder = {
     extract(node: ts.Statement, program: ts.Program): ComponentFinderResult[] {
-        if (!ts.isVariableStatement(node)) return []
-        if (!isExported(node)) return []
-        if (!node.declarationList.declarations) return []
+        if (!ts.isExportDeclaration(node)) return []
 
         const checker = program.getTypeChecker()
 
-        const names = node.declarationList.declarations.map(declaration => declaration.name)
+        if (!node.exportClause) {
+            return []
+        }
 
-        return flatMap(names, declarationName => {
-            if (!ts.isIdentifier(declarationName)) return []
+        return flatMap(node.exportClause.elements, el => {
+            if (!el.propertyName) {
+                return []
+            }
 
-            const type = checker.getTypeAtLocation(declarationName)
+            const symbol = checker.getSymbolAtLocation(el.propertyName)
+
+            if (!symbol) {
+                return []
+            }
+
+            const type = checker.getDeclaredTypeOfSymbol(symbol)
             const propType = findReactPropType(type, checker)
 
             if (!propType) {
@@ -32,7 +36,7 @@ export const variableStatementFinder: ComponentFinder = {
                 {
                     type: ResultType.ComponentInfo,
                     componentInfo: {
-                        name: declarationName.text,
+                        name: el.name.text,
                         propTypes: extractPropTypes(propType, checker),
                     },
                 },

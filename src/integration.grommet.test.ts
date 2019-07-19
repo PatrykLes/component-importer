@@ -64,6 +64,8 @@ describe("integration-test", () => {
             "TextInput",
             "Video",
             "WorldMap",
+            "AnnounceContext",
+            "ResponsiveContext",
         ])
     })
 })

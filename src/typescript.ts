@@ -2,15 +2,15 @@ import glob from "glob"
 import path from "path"
 import * as ts from "typescript"
 import { classComponentFinder } from "./ts/classComponentFinder"
-import { exportJsxElementArrowFunctionFinder } from "./ts/exportJSXElementArrowFunctionFinder"
 import { exportStarFinder } from "./ts/exportStarFinder"
-import { exportTypeFinder } from "./ts/exportTypeFinder"
+import { exportDeclarationFinder } from "./ts/exportDeclarationFinder"
 import { functionDeclarationFinder } from "./ts/functionDeclarationFinder"
 import { referenceComponentFinder } from "./ts/referenceComponentFinder"
 import { ComponentFinder, ResultType } from "./ts/types"
 import { variableStatementFinder } from "./ts/variableStatementFinder"
 import { ComponentInfo, ProcessedFile } from "./types"
 import { flatMap } from "./utils"
+import { aliasedSymbolFinder } from "./ts/aliasedSymbolFinder"
 
 export async function analyzeTypeScript(files: string[], tsConfigPath?: string): Promise<ProcessedFile[]> {
     const processed: ProcessedFile[] = files.map(t => ({
@@ -24,6 +24,7 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
         allowSyntheticDefaultImports: true,
         jsx: ts.JsxEmit.React,
         typeRoots: [],
+        lib: ["dom"],
     }
 
     const patterns = files.map(file => {
@@ -32,10 +33,13 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
     })
     const rootNames = flatMap(patterns, pattern => glob.sync(pattern))
 
-    const program = ts.createProgram({
-        options: tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig,
-        rootNames,
-    })
+    const config = tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig
+
+    const program = ts.createProgram({ rootNames, options: config })
+
+    program
+        .getSemanticDiagnostics()
+        .forEach(diag => console.warn(ts.flattenDiagnosticMessageText(diag.messageText, "\n")))
 
     console.log("Source Files Founds:", program.getSourceFiles().length)
     program.getTypeChecker() // to make sure the parent nodes are set
@@ -54,13 +58,13 @@ function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile, progra
 
 function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): IterableIterator<ComponentInfo> {
     const componentFinders: ComponentFinder[] = [
+        aliasedSymbolFinder,
         classComponentFinder,
-        variableStatementFinder,
-        referenceComponentFinder,
-        exportTypeFinder,
+        exportDeclarationFinder,
         exportStarFinder,
-        exportJsxElementArrowFunctionFinder,
         functionDeclarationFinder,
+        referenceComponentFinder,
+        variableStatementFinder,
     ]
 
     const remainingStatements = Array.from(sourceFile.statements)
@@ -79,10 +83,20 @@ function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): Iterab
     }
 }
 
-function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {
+function parseTsConfig(tsConfigPath: string) {
     const { error, config } = ts.readConfigFile(tsConfigPath, ts.sys.readFile)
     if (error) {
         throw new Error(`Unable to find tsconfig.json under ${tsConfigPath}`)
     }
-    return config
+
+    const parseConfigHost: ts.ParseConfigHost = {
+        fileExists: ts.sys.fileExists,
+        readFile: ts.sys.readFile,
+        readDirectory: ts.sys.readDirectory,
+        useCaseSensitiveFileNames: true,
+    }
+
+    const configFileName = ts.findConfigFile(path.dirname(tsConfigPath), ts.sys.fileExists, "tsconfig.json")
+    const configFile = ts.readConfigFile(configFileName, ts.sys.readFile)
+    return ts.parseJsonConfigFileContent(configFile.config, parseConfigHost, "./").options
 }

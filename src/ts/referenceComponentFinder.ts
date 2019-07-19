@@ -1,7 +1,7 @@
 import ts from "typescript"
 import { extractPropTypes } from "./extractPropTypes"
 import { ComponentFinder, ResultType } from "./types"
-import { getReactPropsType, isReactFunctionComponent } from "./utils"
+import { findReactPropType } from "./utils"
 
 /**
  * A ComponentFinder for references to a Function Component
@@ -16,14 +16,18 @@ export const referenceComponentFinder: ComponentFinder = {
         const checker = program.getTypeChecker()
         const type = checker.getTypeAtLocation(expression)
 
-        if (!isReactFunctionComponent(type)) return []
+        const propType = findReactPropType(type, checker)
+
+        if (!propType) {
+            return []
+        }
 
         return [
             {
                 type: ResultType.ComponentInfo,
                 componentInfo: {
                     name: expression.text,
-                    propTypes: extractPropTypes(getReactPropsType(type), checker),
+                    propTypes: extractPropTypes(propType, checker),
                 },
             },
         ]
