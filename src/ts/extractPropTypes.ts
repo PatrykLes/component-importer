@@ -1,4 +1,4 @@
-import assert from "assert"
+import { assert } from "../assert"
 import ts from "typescript"
 import { PropType } from "../types"
 
@@ -29,7 +29,6 @@ const enumPropTypeFinder: PropTypeFinder = (propSymbol: ts.Symbol, propType: ts.
         return {
             type: "unsupported",
             name: propSymbol.name,
-            rawType: unionType,
         }
     }
 
@@ -168,7 +167,6 @@ export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): P
         return {
             type: "unsupported",
             name: propTypeName,
-            rawType: propsType,
         }
     })
 }

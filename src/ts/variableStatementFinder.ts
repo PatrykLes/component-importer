@@ -2,8 +2,7 @@ import ts from "typescript"
 import { flatMap } from "../utils"
 import { extractPropTypes } from "./extractPropTypes"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
-import { getFirstGenericArgument, isExported, findReactPropType } from "./utils"
-import { check } from "prettier"
+import { isExported, findReactPropType } from "./utils"
 
 /**
  * A ComponentFinder for function components

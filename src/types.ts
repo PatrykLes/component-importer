@@ -39,7 +39,6 @@ export type PropType =
     | {
           type: "unsupported"
           name: string
-          rawType: ts.Type
       }
 
 export interface TypeInfo {

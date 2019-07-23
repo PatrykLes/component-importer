@@ -1,4 +1,4 @@
-import assert from "assert"
+import { assert } from "../assert"
 import ts, { StringLiteral } from "typescript"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
 import { findSourceFiles, isExportStar } from "./utils"

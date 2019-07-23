@@ -22,24 +22,31 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
         //rootDir: dir,
         target: ts.ScriptTarget.ESNext,
         allowSyntheticDefaultImports: true,
-        jsx: ts.JsxEmit.React,
+        jsx: ts.JsxEmit.Preserve,
         typeRoots: [],
-        lib: ["dom"],
+        lib: ["dom", "es2015"],
     }
 
     const patterns = files.map(file => {
         const dir = path.dirname(file)
-        return path.join(dir, "**/*.{tsx,ts,js,jsx,d.ts}")
+        return path.join(dir, "**/*.{tsx,ts,jsx,d.ts}")
     })
     const rootNames = flatMap(patterns, pattern => glob.sync(pattern))
 
     const config = tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig
 
+    console.log("creating program")
     const program = ts.createProgram({ rootNames, options: config })
 
     program
         .getSemanticDiagnostics()
-        .forEach(diag => console.warn(ts.flattenDiagnosticMessageText(diag.messageText, "\n")))
+        .forEach(diag =>
+            console.warn(
+                diag.file.fileName,
+                ts.getLineAndCharacterOfPosition(diag.file, diag.start),
+                ts.flattenDiagnosticMessageText(diag.messageText, "\n"),
+            ),
+        )
 
     console.log("Source Files Founds:", program.getSourceFiles().length)
     program.getTypeChecker() // to make sure the parent nodes are set
@@ -83,20 +90,32 @@ function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): Iterab
     }
 }
 
-function parseTsConfig(tsConfigPath: string) {
-    const { error, config } = ts.readConfigFile(tsConfigPath, ts.sys.readFile)
-    if (error) {
-        throw new Error(`Unable to find tsconfig.json under ${tsConfigPath}`)
-    }
+function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {
+    const originalWorkingDirectory = process.cwd()
+    try {
+        process.chdir(path.dirname(tsConfigPath))
 
-    const parseConfigHost: ts.ParseConfigHost = {
-        fileExists: ts.sys.fileExists,
-        readFile: ts.sys.readFile,
-        readDirectory: ts.sys.readDirectory,
-        useCaseSensitiveFileNames: true,
-    }
+        const parseConfigHost: ts.ParseConfigHost = {
+            fileExists: ts.sys.fileExists,
+            readFile: ts.sys.readFile,
+            readDirectory: ts.sys.readDirectory,
+            useCaseSensitiveFileNames: true,
+        }
 
-    const configFileName = ts.findConfigFile(path.dirname(tsConfigPath), ts.sys.fileExists, "tsconfig.json")
-    const configFile = ts.readConfigFile(configFileName, ts.sys.readFile)
-    return ts.parseJsonConfigFileContent(configFile.config, parseConfigHost, "./").options
+        const configFileName = ts.findConfigFile(path.dirname(tsConfigPath), ts.sys.fileExists, "tsconfig.json")
+
+        const configFile = ts.readConfigFile(configFileName, ts.sys.readFile)
+        const parsedConfigFile = ts.parseJsonConfigFileContent(configFile.config, parseConfigHost, "./")
+
+        if (parsedConfigFile.errors.length > 0) {
+            for (const diagnostic of parsedConfigFile.errors) {
+                console.warn(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"))
+            }
+            process.exit(1)
+        }
+
+        return parsedConfigFile.options
+    } finally {
+        process.chdir(originalWorkingDirectory)
+    }
 }

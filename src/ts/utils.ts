@@ -1,4 +1,4 @@
-import assert from "assert"
+import { assert } from "../assert"
 import fs from "fs"
 import path from "path"
 import ts from "typescript"
@@ -18,7 +18,7 @@ export function getFirstGenericArgument(type: ts.Node): ts.TypeNode | undefined 
         const genericArgType = type.typeArguments[0]
         return genericArgType
     }
-    if (ts.isHeritageClause(type) && type.types && type.types[0]) {
+    if (ts.isHeritageClause(type) && type.types && type.types[0] && type.types[0].typeArguments) {
         return type.types[0].typeArguments[0]
     }
 
@@ -95,8 +95,11 @@ export function findSourceFiles(program: ts.Program, pathNode: ts.StringLiteral)
     const { fileName } = pathNode.getSourceFile()
     const resolvedImport = path.join(path.dirname(fileName), relativeImportPath)
 
-    const sourceFiles = [".ts", ".tsx", ".d.ts", "/index.ts", "/index.tsx", "/index.d.ts"]
-        .map(extension => `${resolvedImport}${extension}`)
+    const possibilities = [".ts", ".tsx", ".d.ts", "/index.ts", "/index.tsx", "/index.d.ts"].map(
+        extension => `${resolvedImport}${extension}`,
+    )
+
+    const sourceFiles = possibilities
         .filter(filePath => fs.existsSync(filePath))
         .map(filePath => {
             const sourceFile = program.getSourceFile(filePath)
@@ -109,7 +112,9 @@ export function findSourceFiles(program: ts.Program, pathNode: ts.StringLiteral)
 
     assert(
         sourceFiles.length > 0,
-        `Failed to resolve import from pathNode ${pathNode.getText()} relative to ${fileName}`,
+        `Failed to resolve import from pathNode ${pathNode.getText()} relative to ${fileName}. Tried the following combinations: \n${possibilities.join(
+            "\n",
+        )}`,
     )
 
     return sourceFiles
