@@ -58,21 +58,13 @@ describe("extractPropTypes", () => {
                 type: "enum",
                 possibleValues: ["a", "b"],
             },
-        ])
-    })
-
-    it.only("supports ts declaration files", async () => {
-        const out = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.complexButton.tsx"])
-
-        expect(out[0].components[0].propTypes).toMatchObject([
             {
-                name: "a11yTitle",
+                name: "primitiveMix",
                 type: "string",
             },
             {
-                name: "alignSelf",
-                type: "enum",
-                possibleValues: ["start", "center", "end", "stretch"],
+                name: "stringMixWithExtras",
+                type: "string",
             },
         ])
     })

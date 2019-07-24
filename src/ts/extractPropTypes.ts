@@ -153,7 +153,7 @@ const unionPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
         return
     }
 
-    const finders: PropTypeFinder[] = [booleanPropTypeFinder, numberPropTypeFinder, stringPropTypeFinder]
+    const finders: PropTypeFinder[] = [stringPropTypeFinder, numberPropTypeFinder, booleanPropTypeFinder]
 
     for (const finder of finders) {
         for (const typeInUnion of propType.types) {
