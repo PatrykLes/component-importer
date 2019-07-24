@@ -1,6 +1,7 @@
 import { assert } from "../assert"
 import ts from "typescript"
 import { PropType } from "../types"
+import { isDeclaredAt } from "./utils"
 
 function matchesSomeFlag(type: ts.Type | ts.Symbol, ...flags: ts.TypeFlags[]) {
     return flags.some(flag => (type.flags & flag) === flag)
@@ -70,6 +71,9 @@ const numberEnumPropTypeFinder: PropTypeFinder = (propSymbol: ts.Symbol, propTyp
     }
 }
 
+/**
+ * Matches arrays. Currently only supports arrays of strings, booleans and numbers
+ */
 const arrayPropTypeFinder: PropTypeFinder = (propSymbol: ts.Symbol, propType: ts.Type): PropType | undefined => {
     const indexType = propType.getNumberIndexType()
 
@@ -101,8 +105,13 @@ const arrayPropTypeFinder: PropTypeFinder = (propSymbol: ts.Symbol, propType: ts
             of: { type: "number", name: "" },
         }
     }
+
+    return
 }
 
+/**
+ * Matches the boolean type
+ */
 const booleanPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
     if (!matchesSomeFlag(propType, ts.TypeFlags.Boolean)) {
         return
@@ -113,6 +122,9 @@ const booleanPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
     }
 }
 
+/**
+ * Matches the string type
+ */
 const stringPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
     if (!matchesSomeFlag(propType, ts.TypeFlags.String)) {
         return
@@ -123,6 +135,9 @@ const stringPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
     }
 }
 
+/**
+ * Matches the number type
+ */
 const numberPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
     if (!matchesSomeFlag(propType, ts.TypeFlags.Number)) {
         return
@@ -131,6 +146,46 @@ const numberPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
         type: "number",
         name: propSymbol.name,
     }
+}
+
+const unionPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
+    if (!propType.isUnion()) {
+        return
+    }
+
+    const finders: PropTypeFinder[] = [booleanPropTypeFinder, numberPropTypeFinder, stringPropTypeFinder]
+
+    for (const finder of finders) {
+        for (const typeInUnion of propType.types) {
+            const resultingPropType = finder(propSymbol, typeInUnion)
+            if (resultingPropType && resultingPropType.type !== "unsupported") {
+                return resultingPropType
+            }
+        }
+    }
+    return {
+        type: "unsupported",
+        name: propSymbol.name,
+    }
+}
+
+/**
+ * Many design systems have declarations like
+ *
+ * ```ts
+ * declare const Button: React.ComponentClass<ButtonProps & JSX.IntrinsicElements["button"]>
+ * ```
+ *
+ * Which add hundreds of useless properties. This attempts to keep only those that are actually useful.
+ */
+function isValidProperty(symbol: ts.Symbol): boolean {
+    if (!isDeclaredAt(symbol, "@types/react")) {
+        return true
+    }
+
+    const propertiesToInclude = new Set(["disable", "defaultValue", "placeholder"])
+
+    return propertiesToInclude.has(symbol.name)
 }
 
 /**
@@ -149,14 +204,16 @@ export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): P
         stringPropTypeFinder,
         enumPropTypeFinder,
         arrayPropTypeFinder,
+        unionPropTypeFinder,
     ]
 
-    return stringProperties.map(symbol => {
+    return stringProperties.filter(isValidProperty).map(symbol => {
         const { valueDeclaration, name: propTypeName } = symbol
         const symbolType = checker.getTypeAtLocation(valueDeclaration)
 
         for (const finder of finders) {
             const result = finder(symbol, symbolType)
+
             if (result && result.type !== "unsupported") {
                 // in case a finder returned unsupported, give another finder
                 // the chance to see if it can find something useful.
