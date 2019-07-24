@@ -24,7 +24,6 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
         allowSyntheticDefaultImports: true,
         jsx: ts.JsxEmit.Preserve,
         typeRoots: [],
-        lib: ["dom", "es2015"],
     }
 
     const patterns = files.map(file => {
