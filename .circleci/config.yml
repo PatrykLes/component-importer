@@ -1,13 +1,30 @@
-version: 2.0
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
 jobs:
-  build:
-    working_directory: ~/repo
+  test-components:
     docker:
-      - image: circleci/node:10.15
+      - image: circleci/node:10
     steps:
       - checkout
-      - run:
-          name: build
-          command: |
-            yarn
-            yarn build
+      - run: yarn
+      - run: ./scripts/import-ant-design
+      - run: yarn
+      - run: yarn test:ant-design
+      - run: ./scripts/import-blueprint
+      - run: yarn
+      - run: yarn test:blueprint
+      - run: ./scripts/import-grommet
+      - run: yarn
+      - run: yarn test:grommet
+      - run: ./scripts/import-material-ui
+      - run: yarn
+      - run: yarn test:material
+      - run: yarn test
+workflows:
+  version: 2.1
+  component-test:
+    jobs:
+      - test-components
