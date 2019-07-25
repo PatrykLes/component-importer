@@ -12,6 +12,12 @@ import { ComponentInfo, ProcessedFile } from "./types"
 import { flatMap } from "./utils"
 import { aliasedSymbolFinder } from "./ts/aliasedSymbolFinder"
 
+/**
+ * Analyzes a TypeScript source code and returns an array of processed files with the components that were found in the process.
+ *
+ * @param files the "root" files to analize. Usually just pointing to the src/index.ts, src/index.tsx, src/index.d.ts is enough.
+ * @param tsConfigPath the path to a tsconfig. If not present, a default tsconfig will be used instead.
+ */
 export async function analyzeTypeScript(files: string[], tsConfigPath?: string): Promise<ProcessedFile[]> {
     const processed: ProcessedFile[] = files.map(t => ({
         components: [],

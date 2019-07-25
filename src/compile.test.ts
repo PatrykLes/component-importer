@@ -22,21 +22,22 @@ describe("compile | typescript", () => {
             it(`compiles ${file} correctly`, async () => {
                 const out = await compile({ packageName: "@foo/core", rootFiles: [file] })
 
-                expect(out).toEqual([
-                    {
-                        fileName: "SimpleReactComponent.tsx",
-                        outputSource: `import * as React from "react";
+                expect(out[0]).toEqual({
+                    type: "component",
+                    fileName: "SimpleReactComponent.tsx",
+                    outputSource: `import * as React from "react";
 import * as System from "@foo/core";
 import { ControlType, PropertyControls, addPropertyControls } from "framer";
+import { controls, merge } from \"./inferredProps/SimpleReactComponent\";
 
 const style: React.CSSProperties = {
   width: "100%",
   height: "100%"
 };
 
-export const SimpleReactComponent: React.SFC = props => {
+export function SimpleReactComponent(props) {
   return <System.SimpleReactComponent {...props} style={style} />;
-};
+}
 
 SimpleReactComponent.defaultProps = {
   width: 150,
@@ -44,13 +45,12 @@ SimpleReactComponent.defaultProps = {
 };
 
 addPropertyControls(SimpleReactComponent, {
-  text: { title: \"Text\", type: ControlType.String },
-  num: { title: \"Num\", type: ControlType.Number },
-  bool: { title: \"Bool\", type: ControlType.Boolean }
+  text: merge(controls.text, {}),
+  num: merge(controls.num, {}),
+  bool: merge(controls.bool, {})
 });
 `,
-                    },
-                ])
+                })
             })
         })
     })

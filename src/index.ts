@@ -1,5 +1,3 @@
-export * from "./convert"
-export * from "./generate"
-export * from "./types"
-export * from "./typescript"
-export * from "./utils"
+export { analyzeTypeScript } from "./typescript"
+export { ProcessedFile, ComponentInfo, EmitResult } from "./types"
+export { compile } from "./compile"

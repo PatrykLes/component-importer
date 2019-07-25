@@ -1,52 +1,34 @@
 # ComponentImporter
 
-Example utility that helps importing React components into Framer with basic support for TypeScript and Flow.
+Example utility that helps importing React components into Framer with basic support for TypeScript.
 
-## Build
+## Getting Started
 
-```
-yarn build
-```
+To install run `yarn add @framerjs/component-importer`.
 
-## CLI Usage
+The component importer exposes a few functions, the most useful one is the `compile` functions which
+takes a `CompileOptions` as input and returns an `EmitResult[]`.
 
-```bash
-yarn cli [src-dir] [out-dir] [--lang [typescript/flow]] [--pattern '**/*.{tsx,ts,js,jsx}']
-```
-
-## Example
-
-```bash
-yarn cli ../my-project/src ../my-project/framer
-```
-
-## API Usage
-
-* Build the project
-* Run `yarn link` in the project folder
-* Create a new project
-* Run `yarn link component-importer` in the new project
-* Add and run the following code:
+### Example: writing a simple CLI
 
 ```typescript
-import { analyze, convert, generate, makePrettier } from "component-importer"
+import { compile } from "@framerjs/component-importer"
 
 async function main() {
-    const files = ["a.tsx", "b.tsx"]
-    const processedFiles = await analyze(files, "typescript") // parses source files, analyzes components and type information
-    for (const processedFile of processedFiles) {
-        for (const component of processedFile.components) {
-            convert(component)                                // Adds Framer X component info (property controls)
-            // Optional: customize the components before generating the code
-            const code = generate(component)                  // Generates the code
-            const prettyCode = await makePrettier(code)       // Formats the code
-            console.log(prettyCode)
-            // Save the code to a file
-        }
+    const outFiles = await compile({
+        rootFiles: ["my-package/src/index.tsx"],
+        packageName: "my-package",
+        tsConfigPath: "my-package/tsconfig.json",
+    })
+
+    for (const outFile of outFiles) {
+        const file = path.join(args.out, outFile.fileName)
+        const dir = path.dirname(file)
+        console.log("Generating ", file)
+        fse.ensureDirSync(dir)
+        fse.writeFileSync(file, outFile.outputSource)
     }
 }
 
 main()
 ```
-
-Another example can be found in `src/cli.ts`

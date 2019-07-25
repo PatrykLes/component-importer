@@ -7,6 +7,35 @@ export interface ProcessedFile {
     components: ComponentInfo[]
 }
 
+/**
+ * The types of files emited by the compiler
+ *
+ * - `inferredControls`: expose a components inferred property controls.
+ * - `component`: expose a component's scaffold or starting template.
+ */
+export type EmitResult =
+    | { type: "inferredControls"; fileName: string; outputSource: string }
+    | { type: "component"; fileName: string; outputSource: string }
+
+/**
+ * The compiler's options.
+ */
+export type CompileOptions = {
+    /**
+     * The set of root files from which the compiler will start traversing the source code.
+     * Usually this is a single file `src/index.d.ts`, `src/index.tsx` or `src/index.ts`
+     */
+    rootFiles: string[]
+    /**
+     * The path to the project's tsconfig. If not supplied, a default tsocnfig will be applied instead.
+     */
+    tsConfigPath?: string
+    /**
+     * e.g. @mui/material-ui
+     */
+    packageName: string
+}
+
 export interface ComponentInfo {
     name: string
     propTypes: PropType[]
@@ -88,10 +117,6 @@ export class PropertyControl {
             // Dont include aria-* (accessibility) fields, they are (probably) not needed for most prototyping needs. Consider
             // adding support for them later.
             if (/aria-/.test(key)) {
-                return null
-            }
-            // Dont include reserved react props since Framer X doesn't accept property controls for them.
-            if (["ref", "key", "children"].indexOf(key) !== -1) {
                 return null
             }
 

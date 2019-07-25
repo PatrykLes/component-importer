@@ -2,15 +2,7 @@ import { convert } from "./convert"
 import { emit } from "./generate"
 import { analyzeTypeScript } from "./typescript"
 import { flatMap } from "./utils"
-
-export type CompileOptions = {
-    rootFiles: string[]
-    tsConfigPath?: string
-    /**
-     * e.g. @mui/material-ui
-     */
-    packageName: string
-}
+import { EmitResult, CompileOptions } from "./types"
 
 /**
  * Runs all the compilers steps, namely
@@ -19,7 +11,7 @@ export type CompileOptions = {
  * 2. convert: converts the analized components into a "framer component" data structure
  * 3. emit: returns the output that will eventually be written to disc
  */
-export async function compile({ rootFiles, tsConfigPath, packageName }: CompileOptions) {
+export async function compile({ rootFiles, tsConfigPath, packageName }: CompileOptions): Promise<EmitResult[]> {
     const processedFiles = await analyzeTypeScript(rootFiles, tsConfigPath)
 
     const components = flatMap(processedFiles, files => files.components)

@@ -15,6 +15,7 @@
        "build/",
         "node_modules/",
         "src/__mocks__/",
-        "design-systems/"
+        "design-systems/",
+        "src/**/*.test.ts",
     ]
 }

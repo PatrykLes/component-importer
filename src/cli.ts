@@ -50,9 +50,10 @@ async function main() {
 
     for (const outFile of outFiles) {
         const file = path.join(args.out, outFile.fileName)
+        const dir = path.dirname(file)
         console.log("Generating ", file)
-        await fse.ensureDir(args.out)
-        await fse.writeFile(file, outFile.outputSource)
+        fse.ensureDirSync(dir)
+        fse.writeFileSync(file, outFile.outputSource)
     }
 }
 main()

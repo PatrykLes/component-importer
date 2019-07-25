@@ -1,22 +1,35 @@
 import prettier from "prettier"
-import { ComponentInfo } from "./types"
+import { ComponentInfo, PropertyControl, EmitResult } from "./types"
+import { flatMap } from "./utils"
+import { string } from "prop-types"
+
+const prefixIdentifier = (prefix: string, identifier: string) => {
+    return `${prefix}${identifier.replace(/^./, s => s.toLowerCase())}`
+}
 
 /** Emits the code for a framer component */
-export function generate(packageName: string, comp: ComponentInfo): string {
+function generate(packageName: string, comp: ComponentInfo): string {
     const { componentName, framerName, propertyControls } = comp
+
+    const controls = propertyControls.items
+        .map(item => {
+            return `${item.name}: merge(controls.${item.name}, {})`
+        })
+        .join(",\n")
 
     return `
     import * as React from "react"
     import * as System from "${packageName}"
     import { ControlType, PropertyControls, addPropertyControls } from "framer"
+    import { controls, merge } from "./inferredProps/${componentName}"
 
     const style: React.CSSProperties = {
       width: "100%",
       height: "100%",
     }
 
-    export const ${framerName}: React.SFC = props => {
-      return <${componentName} {...props} style={style} />
+    export function ${framerName}(props) {
+      return <System.${componentName} {...props} style={style} />
     }
 
     ${framerName}.defaultProps = {
@@ -24,7 +37,39 @@ export function generate(packageName: string, comp: ComponentInfo): string {
       height: 50,
     }
 
-    addPropertyControls(${framerName}, ${propertyControls.toJS()})
+    addPropertyControls(${framerName},{
+        ${controls}
+    })
+    `
+}
+
+function generateInferredPropertyControls(comp: ComponentInfo): string {
+    const controlType = comp.propertyControls.items
+        .map(item => {
+            return `${item.name}: ControlDescription`
+        })
+        .join(",\n")
+
+    return `
+    // WARNING: This is an auto-generated file. Changes to this file will be lost!
+    import { ControlType, PropertyControls, ControlDescription } from "framer"
+
+    export type Controls = {
+        ${controlType}
+    }
+
+    /**
+     * Contains the inferred property controls.
+     */
+    export const controls: Controls
+        = ${comp.propertyControls.toJS()}
+
+    export function merge(
+        inferredControls: ControlDescription,
+        overrides: {}
+    ): ControlDescription {
+        return { ...inferredControls, ...overrides };
+    }
     `
 }
 
@@ -33,16 +78,21 @@ export type EmitOptions = {
     components: ComponentInfo[]
 }
 
-export async function emit({
-    packageName,
-    components,
-}: EmitOptions): Promise<Array<{ fileName: string; outputSource: string }>> {
+export async function emit({ packageName, components }: EmitOptions): Promise<EmitResult[]> {
     const makePrettier = (code: string) => prettier.format(code, { parser: "typescript" })
 
-    return components.map(comp => {
-        return {
-            fileName: comp.name + ".tsx",
-            outputSource: makePrettier(generate(packageName, comp)),
-        }
+    return flatMap(components, comp => {
+        return [
+            {
+                type: "component",
+                fileName: comp.name + ".tsx",
+                outputSource: makePrettier(generate(packageName, comp)),
+            },
+            {
+                type: "inferredControls",
+                fileName: `inferredProps/${comp.name}.ts`,
+                outputSource: makePrettier(generateInferredPropertyControls(comp)),
+            },
+        ]
     })
 }
