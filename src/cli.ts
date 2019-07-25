@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+
+// XXX Probably not the most idiomatic way of doing this
+if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = "production"
+}
+
 import commandLineArgs, { OptionDefinition } from "command-line-args"
 import fse from "fs-extra"
 import path from "path"

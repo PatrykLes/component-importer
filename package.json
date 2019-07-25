@@ -8,7 +8,7 @@
     "license": "MIT",
     "scripts": {
         "build": "yarn && yarn tsc",
-        "cli": "NODE_ENV='production' node build/cli",
+        "cli": "node build/cli",
         "test": "jest",
         "test:blueprint": "yarn build && yarn cli --packageName @blueprintjs/core --tsconfig design-systems/blueprint/repo/packages/core/src/tsconfig.json --index design-systems/blueprint/repo/packages/core/src/index.ts --out design-systems/blueprint/out/",
         "test:material": "yarn build && yarn cli --packageName @material-ui/core --tsconfig design-systems/material-ui/repo/packages/material-ui/tsconfig.json --index design-systems/material-ui/repo/packages/material-ui/src/index.d.ts --out design-systems/material-ui/out/",
@@ -40,6 +40,6 @@
         "tsconfig.json"
     ],
     "bin": {
-        "component-importer": "NODE_ENV='production' ./build/cli.js"
+        "component-importer": "./build/cli.js"
     }
 }
