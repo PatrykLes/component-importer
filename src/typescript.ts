@@ -25,16 +25,17 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
     }))
 
     const defaultConfig: ts.CompilerOptions = {
-        //rootDir: dir,
         target: ts.ScriptTarget.ESNext,
         allowSyntheticDefaultImports: true,
         jsx: ts.JsxEmit.Preserve,
-        typeRoots: [],
+        noEmit: true,
+        allowJs: true,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs,
     }
 
     const patterns = files.map(file => {
         const dir = path.dirname(file)
-        return path.join(dir, "**/*.{tsx,ts,jsx,d.ts}")
+        return path.join(dir, "**/*.{tsx,ts,jsx,d.ts,js}")
     })
     const rootNames = flatMap(patterns, pattern => glob.sync(pattern))
 
@@ -55,7 +56,6 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
             )
     }
 
-    console.log("Source Files Founds:", program.getSourceFiles().length)
     program.getTypeChecker() // to make sure the parent nodes are set
     for (const file of processed) {
         const sourceFile = program.getSourceFile(file.srcFile)
