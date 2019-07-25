@@ -40,6 +40,6 @@
         "tsconfig.json"
     ],
     "bin": {
-        "component-importer": "./build/cli.js"
+        "component-importer": "NODE_ENV='production' ./build/cli.js"
     }
 }
