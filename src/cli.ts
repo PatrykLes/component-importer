@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import commandLineArgs, { OptionDefinition } from "command-line-args"
 import fse from "fs-extra"
 import path from "path"
