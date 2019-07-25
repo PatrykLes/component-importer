@@ -179,13 +179,20 @@ const unionPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
  * Which add hundreds of useless properties. This attempts to keep only those that are actually useful.
  */
 function isValidProperty(symbol: ts.Symbol): boolean {
-    if (!isDeclaredAt(symbol, "@types/react")) {
-        return true
+    if (isDeclaredAt(symbol, "@types/react")) {
+        const propertiesToInclude = new Set(["disable", "defaultValue", "placeholder"])
+        return propertiesToInclude.has(symbol.name)
+    }
+    // Don't include accesibility fields
+    if (symbol.name.indexOf("aria-") !== -1) {
+        return false
+    }
+    // XXX temporarily exclude fields that can't be serialized as javascript identifiers
+    if (!/^[a-zA-Z]\w+$/.test(symbol.name)) {
+        return false
     }
 
-    const propertiesToInclude = new Set(["disable", "defaultValue", "placeholder"])
-
-    return propertiesToInclude.has(symbol.name)
+    return true
 }
 
 /**

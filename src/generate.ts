@@ -84,14 +84,14 @@ export async function emit({ packageName, components }: EmitOptions): Promise<Em
     return flatMap(components, comp => {
         return [
             {
-                type: "component",
-                fileName: comp.name + ".tsx",
-                outputSource: makePrettier(generate(packageName, comp)),
-            },
-            {
                 type: "inferredControls",
                 fileName: `inferredProps/${comp.name}.ts`,
                 outputSource: makePrettier(generateInferredPropertyControls(comp)),
+            },
+            {
+                type: "component",
+                fileName: comp.name + ".tsx",
+                outputSource: makePrettier(generate(packageName, comp)),
             },
         ]
     })

@@ -39,5 +39,7 @@
         "README.md",
         "tsconfig.json"
     ],
-    "bin": {}
+    "bin": {
+        "component-importer": "./build/cli.js"
+    }
 }

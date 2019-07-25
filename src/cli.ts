@@ -7,7 +7,9 @@ const argumentDefinitions: (OptionDefinition & { name: keyof CLIArguments })[] =
     { name: "packageName", type: String },
     { name: "tsconfig", type: String },
     { name: "index", type: String },
-    { name: "out", type: String },
+    { name: "out", type: String, defaultValue: "./code" },
+    { name: "force", type: Boolean, defaultValue: false },
+    { name: "help", type: Boolean, defaultValue: false },
 ]
 
 export interface CLIArguments {
@@ -15,29 +17,40 @@ export interface CLIArguments {
     tsconfig?: string
     packageName?: string
     out?: string
+    force?: boolean
+    help?: boolean
 }
 
 function printUsage() {
-    const lines = [
-        "Usage:",
-        "",
-        "    cli [packageName] [index] [tsconfig] [out-dir] ",
-        "",
-        "Where:",
-        "",
-        "    [index]: a path to the index (starting point) of the source code (usually under src/index.ts)",
-        "    [tsconfig]: a path to the tsconfig (optional)",
-        "    [packageName]: the package name to import e.g. @material-ui/core",
-        "    [out]: the output directory",
+    const usage = [
+        `Usage:
+
+    component-importer [--packageName] [--index] [--tsconfig] [--out] [--force]
+
+Where:
+
+    [index]       : (required) a path to the index (starting point) of the source code (usually under src/index.ts)
+    [tsconfig]    : (required) a path to the tsconfig (optional)
+    [packageName] : (required) the package name to import e.g. @material-ui/core
+    [out]         : (optional) the output directory.
+                    Defaults to "./code".
+    [force]       : (optional) re-writes component files, even if they already exist.
+                    Defaults to false.
+
+Example:
+
+    component-importer --packageName @material-ui/core --index "path/to/material-ui/src/index.tsx" --tsconfig "path/to/material-ui/tsconfig.json" --out "path/to/material-ui/src/index.tsx"
+
+`,
     ]
-    lines.forEach(line => console.log(line))
+    console.log(usage)
 }
 
 async function main() {
     const args = commandLineArgs(argumentDefinitions) as CLIArguments
-    console.log(args)
+    console.log("Arguments:", args)
 
-    if (!args.index || !args.packageName || !args.out) {
+    if (args.help || !args.index || !args.packageName || !args.out) {
         printUsage()
         return
     }
@@ -49,11 +62,16 @@ async function main() {
     })
 
     for (const outFile of outFiles) {
-        const file = path.join(args.out, outFile.fileName)
-        const dir = path.dirname(file)
-        console.log("Generating ", file)
-        fse.ensureDirSync(dir)
-        fse.writeFileSync(file, outFile.outputSource)
+        const resultingFilePath = path.join(args.out, outFile.fileName)
+        const resultingDirectory = path.dirname(resultingFilePath)
+
+        if (outFile.type === "component" && fse.existsSync(resultingFilePath) && !args.force) {
+            console.log("Skipping existing file ......", resultingFilePath)
+        } else {
+            console.log("Generating ..................", resultingFilePath)
+            fse.ensureDirSync(resultingDirectory)
+            fse.writeFileSync(resultingFilePath, outFile.outputSource)
+        }
     }
 }
 main()

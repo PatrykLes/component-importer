@@ -22,7 +22,7 @@ describe("compile | typescript", () => {
             it(`compiles ${file} correctly`, async () => {
                 const out = await compile({ packageName: "@foo/core", rootFiles: [file] })
 
-                expect(out[0]).toEqual({
+                expect(out[1]).toEqual({
                     type: "component",
                     fileName: "SimpleReactComponent.tsx",
                     outputSource: `import * as React from "react";
