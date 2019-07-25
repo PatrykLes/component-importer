@@ -23,8 +23,7 @@ export interface CLIArguments {
 }
 
 function printUsage() {
-    const usage = [
-        `Usage:
+    const usage = `Usage:
 
     component-importer [--packageName] [--index] [--tsconfig] [--out] [--force]
 
@@ -42,8 +41,8 @@ Example:
 
     component-importer --packageName @material-ui/core --index "path/to/material-ui/src/index.tsx" --tsconfig "path/to/material-ui/tsconfig.json" --out "path/to/material-ui/src/index.tsx"
 
-`,
-    ]
+`
+
     console.log(usage)
 }
 
