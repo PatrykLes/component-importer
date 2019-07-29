@@ -34,7 +34,6 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
 
     const config = tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig
 
-    console.log("creating program")
     const program = ts.createProgram({ rootNames, options: config })
 
     if (process.env.NODE_ENV !== "test") {
