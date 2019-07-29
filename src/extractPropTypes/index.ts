@@ -1,7 +1,9 @@
 import ts from "typescript"
 import { assert } from "../assert"
-import { isDeclaredAt } from "../findComponents/utils"
 import { PropType, PropTypeFinder } from "./types"
+import { isValidProperty } from "./isValidProperty"
+import { flatMap } from "../utils"
+import { removeDuplicates } from "./utils"
 
 function matchesSomeFlag(type: ts.Type | ts.Symbol, ...flags: ts.TypeFlags[]) {
     return flags.some(flag => (type.flags & flag) === flag)
@@ -168,32 +170,6 @@ const unionPropTypeFinder: PropTypeFinder = (propSymbol, propType) => {
 }
 
 /**
- * Many design systems have declarations like
- *
- * ```ts
- * declare const Button: React.ComponentClass<ButtonProps & JSX.IntrinsicElements["button"]>
- * ```
- *
- * Which add hundreds of useless properties. This attempts to keep only those that are actually useful.
- */
-function isValidProperty(symbol: ts.Symbol): boolean {
-    if (isDeclaredAt(symbol, "@types/react")) {
-        const propertiesToInclude = new Set(["disable", "defaultValue", "placeholder"])
-        return propertiesToInclude.has(symbol.name)
-    }
-    // Don't include accesibility fields
-    if (symbol.name.indexOf("aria-") !== -1) {
-        return false
-    }
-    // XXX temporarily exclude fields that can't be serialized as javascript identifiers
-    if (!/^[a-zA-Z]\w+$/.test(symbol.name)) {
-        return false
-    }
-
-    return true
-}
-
-/**
  * @param propsType the type of a react component's props.
  */
 export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): PropType[] {
@@ -212,25 +188,41 @@ export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): P
         unionPropTypeFinder,
     ]
 
-    return stringProperties.filter(isValidProperty).map(symbol => {
-        const { valueDeclaration, name: propTypeName } = symbol
-        const symbolType = checker.getTypeAtLocation(valueDeclaration)
-
-        for (const finder of finders) {
-            const result = finder(symbol, symbolType)
-
-            if (result && result.type !== "unsupported") {
-                // in case a finder returned unsupported, give another finder
-                // the chance to see if it can find something useful.
-                return result
-            }
+    const propTypes: PropType[] = flatMap(stringProperties, (symbol: ts.Symbol) => {
+        if (!symbol.getDeclarations()) {
+            const symbolType = checker.getTypeAtLocation(symbol.valueDeclaration)
+            return [{ symbol, symbolType }]
         }
 
-        return {
-            type: "unsupported",
-            name: propTypeName,
-        }
+        // XXX Sometimes properties can be declared on more than one location. In this case, the type checker
+        // is only able to correctly resolve the type by pointing to the individual declarations.
+        return symbol.getDeclarations().map(declaration => {
+            const symbolType = checker.getTypeAtLocation(declaration)
+            return { symbol, symbolType }
+        })
     })
+        .filter(({ symbol }) => isValidProperty(symbol))
+
+        .map(({ symbol, symbolType }) => {
+            const { name: propTypeName } = symbol
+
+            for (const finder of finders) {
+                const result = finder(symbol, symbolType)
+
+                if (result && result.type !== "unsupported") {
+                    // in case a finder returned unsupported, give another finder
+                    // the chance to see if it can find something useful.
+                    return result
+                }
+            }
+
+            return {
+                type: "unsupported",
+                name: propTypeName,
+            }
+        })
+
+    return removeDuplicates(propTypes)
 }
 
 export { PropType }

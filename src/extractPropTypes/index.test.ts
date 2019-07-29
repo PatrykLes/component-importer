@@ -1,5 +1,4 @@
 import { analyzeTypeScript } from "../typescript"
-import { readFileSync } from "fs"
 
 describe("extractPropTypes", () => {
     it("supports primitive types", async () => {

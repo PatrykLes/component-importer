@@ -158,13 +158,3 @@ export function findReactPropType(type: ts.Type, checker: ts.TypeChecker): ts.Ty
 
     return undefined
 }
-
-export function isDeclaredAt(symbol: ts.Symbol, moduleName: string) {
-    if (!symbol.getDeclarations()) {
-        return false
-    }
-    return symbol
-        .getDeclarations()
-        .map(declaration => declaration.getSourceFile().fileName)
-        .some(fileName => fileName.indexOf(`node_modules/${moduleName}`) !== -1)
-}

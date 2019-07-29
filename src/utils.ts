@@ -124,3 +124,35 @@ export function flatMap<T, K>(array: Iterable<T>, mapper: (item: T) => K[]) {
             return res
         }, [])
 }
+
+export function indexBy<T>(array: Iterable<T>, groupingFunction: (item: T) => string) {
+    const map: Record<string, T> = {}
+
+    for (const item of array) {
+        map[groupingFunction(item)] = item
+    }
+
+    return map
+}
+
+/**
+ * Meant to be used as a quick way to create comparator's for Array#sort
+ *
+ * Example:
+ *
+ * ```ts
+ * [{a:4}, {a:5}, {a:1}].sort(byKey(x => x.a))
+ * // will result in
+ * [{a:1}, {a:4}, {a:5}]
+ * ```
+ */
+export function byKey<T, K>(extractor: (k: T) => K) {
+    return (left: T, right: T) => {
+        const valueLeft = extractor(left)
+        const valueRight = extractor(right)
+        if (valueLeft === valueRight) {
+            return 0
+        }
+        return valueLeft < valueRight ? -1 : +1
+    }
+}
