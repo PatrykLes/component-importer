@@ -1,4 +1,4 @@
-import { compile } from "./compile"
+import { compile } from "../compile"
 
 describe("compile | typescript", () => {
     describe("compiles components", () => {

@@ -1,5 +1,5 @@
-import { analyzeTypeScript } from "./typescript"
-import { flatMap } from "./utils"
+import { analyzeTypeScript } from "../typescript"
+import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("blueprint", async () => {

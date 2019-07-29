@@ -1,4 +1,4 @@
-import { analyzeTypeScript } from "./typescript"
+import { analyzeTypeScript } from "../typescript"
 import { readFileSync } from "fs"
 
 describe("analyze | typescript", () => {
