@@ -8,6 +8,4 @@ const assertImpl: typeof assert =
           }
         : assert
 
-console.log("process.env", process.env.NODE_ENV)
-
 export { assertImpl as assert }
