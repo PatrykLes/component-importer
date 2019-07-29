@@ -6,10 +6,14 @@ Example utility that helps importing React components into Framer with basic sup
 
 To install run `yarn add @framerjs/component-importer`.
 
-The component importer exposes a few functions, the most useful one is the `compile` functions which
-takes a `CompileOptions` as input and returns an `EmitResult[]`.
+## Command Line
+
+Run `component-importer --help` for documentation on how to use the component-importer from the command-line.
 
 ### Example: writing a simple CLI
+
+The component importer exposes a few functions, the most useful one is the `compile` functions which
+takes a `CompileOptions` as input and returns an `EmitResult[]`.
 
 ```typescript
 import { compile } from "@framerjs/component-importer"
