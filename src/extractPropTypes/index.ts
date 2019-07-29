@@ -1,13 +1,11 @@
-import { assert } from "../assert"
 import ts from "typescript"
-import { PropType } from "../types"
-import { isDeclaredAt } from "./utils"
+import { assert } from "../assert"
+import { isDeclaredAt } from "../findComponents/utils"
+import { PropType, PropTypeFinder } from "./types"
 
 function matchesSomeFlag(type: ts.Type | ts.Symbol, ...flags: ts.TypeFlags[]) {
     return flags.some(flag => (type.flags & flag) === flag)
 }
-
-type PropTypeFinder = (propSymbol: ts.Symbol, propType: ts.Type) => PropType | undefined
 
 const enumPropTypeFinder: PropTypeFinder = (propSymbol: ts.Symbol, propType: ts.Type): PropType | undefined => {
     if (!propType.isUnion() || matchesSomeFlag(propType, ts.TypeFlags.Boolean)) {
@@ -234,3 +232,5 @@ export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): P
         }
     })
 }
+
+export { PropType }

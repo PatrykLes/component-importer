@@ -1,6 +1,6 @@
 import ts from "typescript"
 import { flatMap } from "../utils"
-import { extractPropTypes } from "./extractPropTypes"
+import { extractPropTypes } from "../extractPropTypes"
 import { ComponentFinder, ComponentFinderResult, ResultType } from "./types"
 import { isExported, findReactPropType } from "./utils"
 

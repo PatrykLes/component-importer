@@ -1,6 +1,7 @@
 import * as babel from "@babel/types"
 import * as ts from "typescript"
 import { printExpression, valueToTS } from "./utils"
+import { PropType } from "./extractPropTypes"
 
 export interface ProcessedFile {
     srcFile: string
@@ -43,51 +44,6 @@ export interface ComponentInfo {
     framerName?: string
     propertyControls?: PropertyControls
 }
-
-export type PropType =
-    | {
-          type: "boolean"
-          name: string
-          defaultValue?: boolean
-          title?: string
-      }
-    | {
-          type: "string"
-          name: string
-          defaultValue?: string
-          title?: string
-      }
-    | {
-          type: "color"
-          name: string
-          defaultValue?: string
-          title?: string
-      }
-    | {
-          type: "number"
-          name: string
-          min?: number
-          max?: number
-          step?: number
-          defaultValue?: number
-          title?: string
-      }
-    | {
-          type: "enum"
-          name: string
-          possibleValues: any[]
-          title?: string
-      }
-    | {
-          type: "array"
-          name: string
-          of: PropType
-          title?: string
-      }
-    | {
-          type: "unsupported"
-          name: string
-      }
 
 export interface TypeInfo {
     // XXX: This definition is likely incomplete

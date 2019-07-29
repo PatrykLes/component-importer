@@ -1,16 +1,9 @@
 import glob from "glob"
 import path from "path"
 import * as ts from "typescript"
-import { classComponentFinder } from "./ts/classComponentFinder"
-import { exportStarFinder } from "./ts/exportStarFinder"
-import { exportDeclarationFinder } from "./ts/exportDeclarationFinder"
-import { functionDeclarationFinder } from "./ts/functionDeclarationFinder"
-import { referenceComponentFinder } from "./ts/referenceComponentFinder"
-import { ComponentFinder, ResultType } from "./ts/types"
-import { variableStatementFinder } from "./ts/variableStatementFinder"
-import { ComponentInfo, ProcessedFile } from "./types"
+import { findComponents } from "./findComponents"
+import { ProcessedFile } from "./types"
 import { flatMap } from "./utils"
-import { aliasedSymbolFinder } from "./ts/aliasedSymbolFinder"
 
 /**
  * Analyzes a TypeScript source code and returns an array of processed files with the components that were found in the process.
@@ -68,33 +61,6 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
 
 function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile, program: ts.Program) {
     processedFile.components = Array.from(findComponents(sourceFile, program))
-}
-
-function* findComponents(sourceFile: ts.SourceFile, program: ts.Program): IterableIterator<ComponentInfo> {
-    const componentFinders: ComponentFinder[] = [
-        aliasedSymbolFinder,
-        classComponentFinder,
-        exportDeclarationFinder,
-        exportStarFinder,
-        functionDeclarationFinder,
-        referenceComponentFinder,
-        variableStatementFinder,
-    ]
-
-    const remainingStatements = Array.from(sourceFile.statements)
-
-    for (const node of remainingStatements) {
-        for (const componentFinder of componentFinders) {
-            for (const comp of componentFinder.extract(node, program)) {
-                if (comp.type === ResultType.ComponentInfo) {
-                    yield comp.componentInfo
-                }
-                if (comp.type === ResultType.SourceFile) {
-                    remainingStatements.push(...comp.sourceFile.statements)
-                }
-            }
-        }
-    }
 }
 
 function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {
