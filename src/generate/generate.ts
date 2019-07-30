@@ -1,11 +1,6 @@
 import prettier from "prettier"
-import { ComponentInfo, PropertyControl, EmitResult } from "./types"
-import { flatMap } from "./utils"
-import { string } from "prop-types"
-
-const prefixIdentifier = (prefix: string, identifier: string) => {
-    return `${prefix}${identifier.replace(/^./, s => s.toLowerCase())}`
-}
+import { ComponentInfo, EmitResult } from "../types"
+import { flatMap } from "../utils"
 
 /** Emits the code for a framer component */
 function generate(packageName: string, comp: ComponentInfo): string {
