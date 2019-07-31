@@ -7,7 +7,7 @@ function isDeclaredAt(symbol: ts.Symbol, moduleName: string) {
     return symbol
         .getDeclarations()
         .map(declaration => declaration.getSourceFile().fileName)
-        .some(fileName => fileName.indexOf(`node_modules/${moduleName}`) !== -1)
+        .every(fileName => fileName.indexOf(`node_modules/${moduleName}`) !== -1)
 }
 
 /**

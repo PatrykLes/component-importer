@@ -1,5 +1,4 @@
 import { analyzeTypeScript } from "../typescript"
-import fs from "fs"
 import { flatMap, indexBy, byKey } from "../utils"
 
 const propsAsPossibleValues: string[] = [
@@ -264,10 +263,12 @@ describe("integration-test", () => {
                 { name: "icon", type: "unsupported" },
                 { name: "label", type: "string" },
                 { name: "margin", type: "string" },
+                { name: "onClick", type: "unsupported" },
                 { name: "plain", type: "boolean" },
                 { name: "primary", type: "boolean" },
                 { name: "reverse", type: "boolean" },
                 { name: "target", possibleValues: ["_self", "_blank", "_parent", "_top"], type: "enum" },
+                { name: "type", possibleValues: ["button", "submit", "reset"], type: "enum" },
                 { name: "placeholder", type: "string" },
             ].sort(byKey(x => x.name)),
         )
@@ -276,11 +277,30 @@ describe("integration-test", () => {
             [
                 { name: "checked", type: "boolean" },
                 { name: "disabled", type: "boolean" },
+                { name: "id", type: "string" },
                 { name: "indeterminate", type: "boolean" },
                 { name: "label", type: "string" },
+                { name: "name", type: "string" },
+                { name: "onChange", type: "unsupported" },
                 { name: "placeholder", type: "string" },
                 { name: "reverse", type: "boolean" },
                 { name: "toggle", type: "boolean" },
+            ].sort(byKey(x => x.name)),
+        )
+
+        expect(componentsByName["TextArea"].propTypes.sort(byKey(x => x.name))).toEqual(
+            [
+                { name: "disabled", type: "boolean" },
+                { name: "fill", type: "boolean" },
+                { name: "focusIndicator", type: "boolean" },
+                { name: "id", type: "string" },
+                { name: "name", type: "string" },
+                { name: "onChange", type: "unsupported" },
+                { name: "placeholder", type: "string" },
+                { name: "plain", type: "boolean" },
+                { name: "resize", type: "enum", possibleValues: ["horizontal", "vertical"] },
+                { name: "size", type: "string" },
+                { name: "value", type: "string" },
             ].sort(byKey(x => x.name)),
         )
     })
