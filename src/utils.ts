@@ -135,6 +135,30 @@ export function indexBy<T>(array: Iterable<T>, groupingFunction: (item: T) => st
     return map
 }
 
+export function indexByRemovingKey<T extends Record<string, any>, K extends keyof T>(
+    array: Iterable<T>,
+    key: K,
+): Record<string, Omit<T, K>> {
+    const map: Record<string, Omit<T, K>> = {}
+
+    for (const item of array) {
+        const { [key]: groupingKey, ...rest } = item
+
+        map[groupingKey] = rest
+    }
+
+    return map
+}
+
+export function mapValues<T, K>(obj: Record<string, T>, mapper: (item: T) => K) {
+    const result: Record<string, K> = {}
+    for (const key of Object.keys(obj)) {
+        const value = obj[key]
+        result[key] = mapper(value)
+    }
+    return result
+}
+
 /**
  * Meant to be used as a quick way to create comparator's for Array#sort
  *
