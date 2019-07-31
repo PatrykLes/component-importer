@@ -1,4 +1,5 @@
 import fs from "fs"
+import path from "path"
 import { CompileOptions } from "./types"
 
 type Validator = (compilerOptions: any) => { valid: true } | { valid: false; message: string }
@@ -27,14 +28,18 @@ const validators = [
     keyValidator("out", t => typeof t === "string", "Expected 'out' to be a string"),
 ]
 
-export function parseOptions(path: string): CompileOptions {
-    const result = JSON.parse(fs.readFileSync(path).toString())
+export function parseOptions(configPath: string): CompileOptions {
+    if (!fs.existsSync(configPath)) {
+        throw new Error(`Unable to find importer.config.json at ${path.resolve(configPath)}.`)
+    }
+
+    const result = JSON.parse(fs.readFileSync(configPath).toString())
 
     for (const isValid of validators) {
         const validationRes = isValid(result)
 
         if (validationRes.valid === false) {
-            throw new Error(`Invalid Configuration at ${path}:\n\n${validationRes.message}`)
+            throw new Error(`Invalid Configuration at ${configPath}:\n\n${validationRes.message}`)
         }
     }
 
