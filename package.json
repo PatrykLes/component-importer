@@ -7,10 +7,11 @@
     "author": "Dan-el Khen <danelkhen@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "build": "yarn && yarn tsc",
+        "build": "rm -rf ./build yarn && yarn tsc && chmod +x ./build/cli.js",
         "cli": "node build/cli",
         "test": "jest",
         "test:blueprint": "yarn build && yarn cli --packageName @blueprintjs/core --tsconfig design-systems/blueprint/repo/packages/core/src/tsconfig.json --index design-systems/blueprint/repo/packages/core/src/index.ts --out design-systems/blueprint/out/",
+        "test:blueprint": "yarn build && yarn cli generate --config design-systems/blueprint/importer.config.json",
         "test:material": "yarn build && yarn cli --packageName @material-ui/core --tsconfig design-systems/material-ui/repo/packages/material-ui/tsconfig.json --index design-systems/material-ui/repo/packages/material-ui/src/index.d.ts --out design-systems/material-ui/out/",
         "test:grommet": "yarn build && yarn cli --packageName grommet --index design-systems/grommet/repo/src/js/index.d.ts --out design-systems/grommet/out",
         "test:ant-design": "yarn build && yarn cli --packageName antd --tsconfig design-systems/ant-design/repo/tsconfig.json --index design-systems/ant-design/repo/components/index.tsx --out design-systems/ant-design/out/",

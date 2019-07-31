@@ -24,7 +24,12 @@ describe("compile | typescript", () => {
 
         cases.forEach(file => {
             it(`compiles ${file} correctly`, async () => {
-                const out = await compile({ packageName: "@foo/core", rootFiles: [file] })
+                const out = await compile({
+                    packageName: "@foo/core",
+                    rootFiles: [file],
+                    additionalImports: [],
+                    components: {},
+                })
 
                 expect(out[1]).toEqual({
                     type: "component",

@@ -2,11 +2,8 @@ import { ComponentInfo, PropertyControl, PropertyControls } from "./types"
 import { upperCaseFirstLetter } from "./utils"
 
 /** Converts a component into a framer component by generated names and property controls */
-export function convert(comp: ComponentInfo) {
-    comp.componentName = `${comp.name}`
-    comp.framerName = comp.name
-
-    comp.propertyControls = new PropertyControls()
+export function convert(comp: ComponentInfo): ComponentInfo {
+    const propertyControls = new PropertyControls()
     for (const prop of comp.propTypes) {
         if (prop.type === "unsupported") {
             continue
@@ -35,6 +32,13 @@ export function convert(comp: ComponentInfo) {
             continue
         }
         pc.type = type
-        comp.propertyControls.add(pc)
+        propertyControls.add(pc)
+    }
+
+    return {
+        ...comp,
+        componentName: `${comp.name}`,
+        framerName: comp.name,
+        propertyControls,
     }
 }

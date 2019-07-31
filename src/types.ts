@@ -15,8 +15,16 @@ export interface ProcessedFile {
  * - `component`: expose a component's scaffold or starting template.
  */
 export type EmitResult =
+    | { type: "configuration"; fileName: string; outputSource: string }
     | { type: "inferredControls"; fileName: string; outputSource: string }
     | { type: "component"; fileName: string; outputSource: string }
+
+export type ComponentConfiguration = {
+    ignore: boolean
+    props?: {
+        [propName: string]: Omit<PropType, "name">
+    }
+}
 
 /**
  * The compiler's options.
@@ -35,6 +43,26 @@ export type CompileOptions = {
      * e.g. @mui/material-ui
      */
     packageName: string
+
+    /**
+     * An additional list of imports that will be added to every generated file. Useful for adding css imports.
+     *
+     * Example:
+     *
+     * ```typescript
+     * ['import "path/to/css"']
+     * ```
+     */
+    additionalImports: string[]
+
+    /**
+     * The location where the generated components will be written to.
+     */
+    out: string
+
+    components: {
+        [componentName: string]: ComponentConfiguration
+    }
 }
 
 export interface ComponentInfo {

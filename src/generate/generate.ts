@@ -3,7 +3,7 @@ import { ComponentInfo, EmitResult } from "../types"
 import { flatMap } from "../utils"
 
 /** Emits the code for a framer component */
-function generate(packageName: string, comp: ComponentInfo): string {
+function generate(packageName: string, comp: ComponentInfo, additionalImports: string[]): string {
     const { componentName, framerName, propertyControls } = comp
 
     const controls = propertyControls.items
@@ -17,6 +17,7 @@ function generate(packageName: string, comp: ComponentInfo): string {
     import * as System from "${packageName}"
     import { ControlType, PropertyControls, addPropertyControls } from "framer"
     import { controls, merge } from "./inferredProps/${componentName}"
+    ${additionalImports.join("\n")}
 
     const style: React.CSSProperties = {
       width: "100%",
@@ -71,9 +72,14 @@ function generateInferredPropertyControls(comp: ComponentInfo): string {
 export type EmitOptions = {
     packageName: string
     components: ComponentInfo[]
+    additionalImports: string[]
 }
 
-export async function emit({ packageName, components }: EmitOptions): Promise<EmitResult[]> {
+export async function emitComponents({
+    packageName,
+    components,
+    additionalImports,
+}: EmitOptions): Promise<EmitResult[]> {
     const makePrettier = (code: string) => prettier.format(code, { parser: "typescript" })
 
     return flatMap(components, comp => {
@@ -86,7 +92,7 @@ export async function emit({ packageName, components }: EmitOptions): Promise<Em
             {
                 type: "component",
                 fileName: comp.name + ".tsx",
-                outputSource: makePrettier(generate(packageName, comp)),
+                outputSource: makePrettier(generate(packageName, comp, additionalImports)),
             },
         ]
     })
