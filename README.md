@@ -1,38 +1,69 @@
-# ComponentImporter
+# component-importer
 
-Example utility that helps importing React components into Framer with basic support for TypeScript.
+The `component-importer` is a command line tool that makes it easy to import typescript-based React design systems into Framer X.
 
 ## Getting Started
 
-To install run `yarn add @framerjs/component-importer`.
+To install run `yarn global add @framerjs/component-importer`. This will install the global `component-importer` binary.
 
-## Command Line
+Type `component-importer --help` for detailed information on how to use the `component-importer`.
 
-Run `component-importer --help` for documentation on how to use the component-importer from the command-line.
+# Example 1: importing the [grommet](https://v2.grommet.io/) design system
 
-### Example: writing a simple CLI
+## Step 1: project setup
 
-The component importer exposes a few functions, the most useful one is the `compile` functions which
-takes a `CompileOptions` as input and returns an `EmitResult[]`.
+Create a Framer X [folder backed project](https://www.framer.com/support/using-framer-x/folder-backed-projects/):
 
-```typescript
-import { compile } from "@framerjs/component-importer"
+ - Create a new Framer X project
+ - Hold Option and click File › Save As
+ - In the save dialog, click the File Format dropdown and select Framer X (Folder)
+ - Click Save
 
-async function main() {
-    const outFiles = await compile({
-        rootFiles: ["my-package/src/index.tsx"],
-        packageName: "my-package",
-        tsConfigPath: "my-package/tsconfig.json",
-    })
+## Step 2: setup the importer.config.json
 
-    for (const outFile of outFiles) {
-        const file = path.join(args.out, outFile.fileName)
-        const dir = path.dirname(file)
-        console.log("Generating ", file)
-        fse.ensureDirSync(dir)
-        fse.writeFileSync(file, outFile.outputSource)
-    }
-}
+In order to configure the component importer you will need to setup a configuration file, usually at the root of your project.
+The `component-importer init` command will help you setup decent defaults.
 
-main()
+```bash
+# cd into the project created in the 'project setup' step.
+cd ~/my-project.framerfx
+
+# Add grommet and styled-components, since its a peerDependency of grommet
+yarn add grommet styled-components
+
+# Run the init command
+# The --importPath is just the name of the NPM package you want to import
+# The --index is a path to the root of the types, usually index.d.ts or index.tsx.
+component-importer init --importPath grommet --index node_modules/grommet/index.d.ts
 ```
+
+## Step 3: generate the components
+
+Now that all the configuration is done you can jsut run `component-importer generate`.
+It will use the `importer.config.json` from the previous step to import your design system's components.
+
+# Example 2: importing from a relative path
+
+## Step 1: project setup
+
+Create a Framer X [folder backed project](https://www.framer.com/support/using-framer-x/folder-backed-projects/).
+
+## Step 2: setup the importer.config.json
+
+In order to configure the component importer you will need to setup a configuration file, usually at the root of your project.
+The `component-importer init` command will help you setup decent defaults.
+
+```bash
+# cd into the project created in the 'project setup' step.
+cd ~/my-project.framerfx
+
+# Run the init command
+# The --importPath is just the name of the NPM package you want to import
+# The --index is a path to the root of the types, usually index.d.ts or index.tsx.
+component-importer init --importPath path/to/my-design-system --index path/to/my/design-system/index.tsx
+```
+
+## Step 3: generate the components
+
+Now that all the configuration is done you can just run `component-importer generate`.
+It will use the `importer.config.json` from the previous step to import your design system's components.
