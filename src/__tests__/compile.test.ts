@@ -37,16 +37,19 @@ describe("compile | typescript", () => {
                     outputSource: `import * as React from "react";
 import * as System from "@foo/core";
 import { ControlType, PropertyControls, addPropertyControls } from "framer";
-import { controls, merge } from \"./inferredProps/SimpleReactComponent\";
+import { controls, merge } from "./generated/SimpleReactComponent";
+import { withHOC } from "./withHOC";
 
 const style: React.CSSProperties = {
   width: "100%",
   height: "100%"
 };
 
-export function SimpleReactComponent(props) {
+const InnerSimpleReactComponent: React.SFC = props => {
   return <System.SimpleReactComponent {...props} style={style} />;
-}
+};
+
+export const SimpleReactComponent = withHOC(InnerSimpleReactComponent);
 
 SimpleReactComponent.defaultProps = {
   width: 150,

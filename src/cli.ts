@@ -16,17 +16,23 @@ type CliMainArguments = {
 }
 
 function printUsage() {
-    console.log(`Usage
+    console.log(`# Component Importer
+
+Commands:
+
+    # init: Sets up the importer.config.json configuration file
     component-importer init [...options]
+
+    # generate: Imports components & generates code based on an existing importer.config.json
     component-importer generate [...options]
 
-For help on the individual commands add the --help option
+For help on the individual commands add the --help option. Example: component-importer init --help
     `)
 }
 
 async function main() {
     const mainDefinitions: (OptionDefinition & { name: keyof CliMainArguments })[] = [
-        { name: "command", defaultOption: true, defaultValue: "generate" },
+        { name: "command", defaultOption: true },
     ]
     const mainOptions = commandLineArgs(mainDefinitions, { stopAtFirstUnknown: true }) as CliMainArguments
 

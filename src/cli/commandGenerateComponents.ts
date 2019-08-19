@@ -51,6 +51,8 @@ export async function commandGenerateComponents(argv: string[]) {
 
         if (outFile.type === "component" && fse.existsSync(resultingFilePath) && !args.force) {
             console.log("Skipping existing file ......", resultingFilePath)
+        } else if (outFile.type === "hoc" && fse.existsSync(resultingFilePath)) {
+            console.log("Skipping existing file ......", resultingFilePath)
         } else {
             console.log("Generating ..................", resultingFilePath)
             fse.ensureDirSync(resultingDirectory)

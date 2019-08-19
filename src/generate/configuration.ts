@@ -13,7 +13,10 @@ export function emitConfiguration(opts: EmitConfigurationOptions): EmitResult {
     const components = opts.components.map(({ name, propTypes }) => ({
         name,
         ignore: false,
-        props: indexByRemovingKey(propTypes, "name"),
+        // TODO: consider re-enabling this later on. Right now it doesn't make much sense because it
+        // results in pretty much just useless configuration duplication.
+        //
+        // props: indexByRemovingKey(propTypes, "name"),
     }))
 
     const componentsByName = indexByRemovingKey(components, "name")

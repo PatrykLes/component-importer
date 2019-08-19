@@ -18,6 +18,7 @@ export type EmitResult =
     | { type: "configuration"; fileName: string; outputSource: string }
     | { type: "inferredControls"; fileName: string; outputSource: string }
     | { type: "component"; fileName: string; outputSource: string }
+    | { type: "hoc"; fileName: string; outputSource: string }
 
 export type ComponentConfiguration = {
     ignore: boolean

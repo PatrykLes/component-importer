@@ -16,7 +16,8 @@ function generate(packageName: string, comp: ComponentInfo, additionalImports: s
     import * as React from "react"
     import * as System from "${packageName}"
     import { ControlType, PropertyControls, addPropertyControls } from "framer"
-    import { controls, merge } from "./inferredProps/${componentName}"
+    import { controls, merge } from "./generated/${componentName}"
+    import { withHOC } from "./withHOC"
     ${additionalImports.join("\n")}
 
     const style: React.CSSProperties = {
@@ -24,9 +25,11 @@ function generate(packageName: string, comp: ComponentInfo, additionalImports: s
       height: "100%",
     }
 
-    export function ${framerName}(props) {
+    const Inner${framerName}: React.SFC = props => {
       return <System.${componentName} {...props} style={style} />
     }
+
+    export const ${framerName} = withHOC(Inner${framerName});
 
     ${framerName}.defaultProps = {
       width: 150,
@@ -69,6 +72,21 @@ function generateInferredPropertyControls(comp: ComponentInfo): string {
     `
 }
 
+function generateHOC() {
+    return `
+    import * as React from "react"
+
+    export function withHOC(Component): React.SFC {
+        return (props: any) => {
+          return (
+              <Component {...props} />
+          );
+        };
+      }
+
+    `
+}
+
 export type EmitOptions = {
     packageName: string
     components: ComponentInfo[]
@@ -82,18 +100,28 @@ export async function emitComponents({
 }: EmitOptions): Promise<EmitResult[]> {
     const makePrettier = (code: string) => prettier.format(code, { parser: "typescript" })
 
-    return flatMap(components, comp => {
-        return [
-            {
-                type: "inferredControls",
-                fileName: `inferredProps/${comp.name}.ts`,
-                outputSource: makePrettier(generateInferredPropertyControls(comp)),
+    return [
+        ...flatMap(
+            components,
+            (comp: ComponentInfo): EmitResult[] => {
+                return [
+                    {
+                        type: "inferredControls",
+                        fileName: `generated/${comp.name}.ts`,
+                        outputSource: makePrettier(generateInferredPropertyControls(comp)),
+                    },
+                    {
+                        type: "component",
+                        fileName: comp.name + ".tsx",
+                        outputSource: makePrettier(generate(packageName, comp, additionalImports)),
+                    },
+                ]
             },
-            {
-                type: "component",
-                fileName: comp.name + ".tsx",
-                outputSource: makePrettier(generate(packageName, comp, additionalImports)),
-            },
-        ]
-    })
+        ),
+        {
+            type: "hoc",
+            fileName: "withHOC.tsx",
+            outputSource: makePrettier(generateHOC()),
+        },
+    ]
 }
