@@ -24,6 +24,8 @@ Create a Framer X [folder backed project](https://www.framer.com/support/using-f
 In order to configure the component importer you will need to setup a configuration file, usually at the root of your project.
 The `component-importer init` command will help you setup decent defaults.
 
+The general syntax is `component importer init <packageName>`, example `component-importer init @blueprintjs/core` will attempt to import the "@blueprintjs/core" package.
+
 ```bash
 # cd into the project created in the 'project setup' step.
 cd ~/my-project.framerfx
@@ -31,10 +33,7 @@ cd ~/my-project.framerfx
 # Add grommet and styled-components, since its a peerDependency of grommet
 yarn add grommet styled-components
 
-# Run the init command
-# The --importPath is just the name of the NPM package you want to import
-# The --index is a path to the root of the types, usually index.d.ts or index.tsx.
-component-importer init --importPath grommet --index node_modules/grommet/index.d.ts
+component-importer init grommet 
 ```
 
 ## Step 3: generate the components

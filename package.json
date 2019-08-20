@@ -1,13 +1,13 @@
 {
     "name": "@framerjs/component-importer",
-    "version": "0.0.18",
+    "version": "0.0.19",
     "main": "./build/index.js",
     "types": "./build/index.d.ts",
     "repository": "git@github.com:framer/ComponentImporter.git",
     "author": "Dan-el Khen <danelkhen@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "build": "rm -rf ./build yarn && yarn tsc && chmod +x ./build/cli.js",
+        "build": "rm -rf ./build && yarn && yarn tsc && chmod +x ./build/cli.js",
         "cli": "node build/cli",
         "test": "jest",
         "test:blueprint": "yarn build && yarn cli generate --config design-systems/blueprint/importer.config.json",

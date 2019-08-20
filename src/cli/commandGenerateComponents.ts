@@ -28,15 +28,7 @@ Example:
     console.log(usage)
 }
 
-export async function commandGenerateComponents(argv: string[]) {
-    const argumentDefinitions: (OptionDefinition & { name: keyof CliGenerateComponentsArguments })[] = [
-        { name: "config", type: String, defaultValue: "importer.config.json" },
-        { name: "force", type: Boolean, defaultValue: false },
-        { name: "help", type: Boolean, defaultValue: false },
-    ]
-
-    const args = commandLineArgs(argumentDefinitions, { argv }) as CliGenerateComponentsArguments
-
+export async function generateComponents(args: CliGenerateComponentsArguments) {
     if (args.help || !args.config) {
         printUsage()
         return
@@ -50,13 +42,25 @@ export async function commandGenerateComponents(argv: string[]) {
         const resultingDirectory = path.dirname(resultingFilePath)
 
         if (outFile.type === "component" && fse.existsSync(resultingFilePath) && !args.force) {
-            console.log("Skipping existing file ......", resultingFilePath)
+            console.log("⚠️  Skipping existing file ......", resultingFilePath)
         } else if (outFile.type === "hoc" && fse.existsSync(resultingFilePath)) {
-            console.log("Skipping existing file ......", resultingFilePath)
+            console.log("⚠️  Skipping existing file ......", resultingFilePath)
         } else {
-            console.log("Generating ..................", resultingFilePath)
+            console.log("✅ Generating ..................", resultingFilePath)
             fse.ensureDirSync(resultingDirectory)
             fse.writeFileSync(resultingFilePath, outFile.outputSource)
         }
     }
+}
+
+export async function commandGenerateComponents(argv: string[]) {
+    const argumentDefinitions: (OptionDefinition & { name: keyof CliGenerateComponentsArguments })[] = [
+        { name: "config", type: String, defaultValue: "importer.config.json" },
+        { name: "force", type: Boolean, defaultValue: false },
+        { name: "help", type: Boolean, defaultValue: false },
+    ]
+
+    const args = commandLineArgs(argumentDefinitions, { argv }) as CliGenerateComponentsArguments
+
+    generateComponents(args)
 }

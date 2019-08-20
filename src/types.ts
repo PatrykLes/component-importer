@@ -8,6 +8,13 @@ export interface ProcessedFile {
     components: ComponentInfo[]
 }
 
+export type EmitConfigurationResult = {
+    type: "configuration"
+    fileName: string
+    configuration: CompileOptions
+    outputSource: string
+}
+
 /**
  * The types of files emited by the compiler
  *
@@ -15,7 +22,7 @@ export interface ProcessedFile {
  * - `component`: expose a component's scaffold or starting template.
  */
 export type EmitResult =
-    | { type: "configuration"; fileName: string; outputSource: string }
+    | EmitConfigurationResult
     | { type: "inferredControls"; fileName: string; outputSource: string }
     | { type: "component"; fileName: string; outputSource: string }
     | { type: "hoc"; fileName: string; outputSource: string }

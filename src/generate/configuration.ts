@@ -1,4 +1,4 @@
-import { EmitResult, ComponentInfo, CompileOptions } from "../types"
+import { CompileOptions, ComponentInfo, EmitConfigurationResult } from "../types"
 import { indexByRemovingKey } from "../utils"
 
 type EmitConfigurationOptions = {
@@ -9,7 +9,7 @@ type EmitConfigurationOptions = {
     components: ComponentInfo[]
 }
 
-export function emitConfiguration(opts: EmitConfigurationOptions): EmitResult {
+export function emitConfiguration(opts: EmitConfigurationOptions): EmitConfigurationResult {
     const components = opts.components.map(({ name, propTypes }) => ({
         name,
         ignore: false,
@@ -33,6 +33,7 @@ export function emitConfiguration(opts: EmitConfigurationOptions): EmitResult {
     return {
         type: "configuration",
         fileName: "importer.config.json",
+        configuration,
         outputSource: JSON.stringify(configuration, null, 4),
     }
 }
