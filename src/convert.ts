@@ -18,10 +18,13 @@ export function convert(comp: ComponentInfo): ComponentInfo {
             type = "ControlType.Enum"
             pc.options = prop.possibleValues
             pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
+            pc.defaultValue = prop.possibleValues[0]
         } else if (prop.type === "string") {
             type = "ControlType.String"
+            pc.defaultValue = ""
         } else if (prop.type === "boolean") {
             type = "ControlType.Boolean"
+            pc.defaultValue = false
         } else if (prop.type === "number") {
             type = "ControlType.Number"
         } else if (prop.type === "array") {

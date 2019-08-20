@@ -108,6 +108,7 @@ export class PropertyControl {
     options: (string | number | boolean)[]
     optionTitles: string[]
     title: string
+    defaultValue?: any
     toEntry(): [string, any] {
         const props = { ...this }
         delete props.name
