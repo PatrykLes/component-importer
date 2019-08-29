@@ -12,10 +12,10 @@
         "esModuleInterop": true
     },
     "exclude": [
-       "build/",
+        "build/",
         "node_modules/",
         "src/__mocks__/",
         "design-systems/",
-        "src/**/*.test.ts",
+        "src/**/*.test.ts"
     ]
 }
