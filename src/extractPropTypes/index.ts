@@ -1,5 +1,5 @@
 import ts from "typescript"
-import { assert } from "../assert"
+import { strict as assert } from "assert"
 import { PropType, PropTypeFinder } from "./types"
 import { isValidProperty } from "./isValidProperty"
 import { flatMap } from "../utils"
