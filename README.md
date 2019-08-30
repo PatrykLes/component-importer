@@ -12,7 +12,7 @@ There's still one big problem though: production design systems are typically on
 
 ## The Component Importer: keeping design and engineering in sync
 
-The `component-importer` is a command line tool that analizes your production design system's source code and generates readable React code that can be loaded into visual design and prototyping tools like [Framer X](https://framer.com). Let's take a look at the generated code:
+The `component-importer` is a command line tool that analyzes your production design system's source code and generates readable React code that can be loaded by visual design and prototyping tools like [Framer X](https://framer.com). Let's take a look at the generated code:
 
 ```ts
 import * as React from "react" // <=== Section 1
@@ -30,13 +30,13 @@ addPropertyControls(Button, { // <=== Section 2
 })
 ```
 
-If you work with react you will quickly understand Sections 1. We're importing the `Button` component from the `baseui` NPM package, and wrapping it in a function. The real interesting part is in Section 3 where, by analizing the Button's source code, we generate [property controls](https://www.framer.com/api/property-controls/) for the button. This means you can now drag your button to the canvas and modify it using a GUI that everyone can understand:
+If you work with react you will quickly understand Sections 1. We're importing the `Button` component from the `baseui` NPM package, and wrapping it in a function. The real interesting part is in Section 2 where, by analizing the Button's source code, we generate [property controls](https://www.framer.com/api/property-controls/) for the button. This means you can now drag your button to the canvas and modify it using a GUI that everyone can understand:
 
 ![Import Button Example](assets/readme-import-button-example.gif)
 
 ## The Goal: Increasing Design System Adoption
 
-As a design system (DS) maintainer, your DS's value is proportional to its adoption. To be successful you will need to think not just about developing components, but also about making sure that they are well documented and convenient for your target audience, which will generally be engineers and designers. The `component-importer` tries to lower the barrier for designer adoption by making your DS instantly available.
+As a design system maintainer, your design system's value is proportional to its adoption. To be successful you will need to think not just about developing components, but also about making sure that they are well documented and convenient for your target audience, which will generally be engineers and designers. The `component-importer` tries to lower the barrier for designer adoption by making your design system instantly available.
 
 ## Getting Started
 
