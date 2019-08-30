@@ -99,6 +99,17 @@ Now you can run the following command for your design system of choice:
 component-importer init grommet
 ```
 
+## Examples
+
+Looking for real world usages of the `component-importer`?
+
+- [Grommet](https://v2.grommet.io/): A popular mobile first, themeable design system.
+  - [Source Code](https://github.com/framer/grommet.framerfx)
+  - [Framer X package](https://store.framer.com/package/fhur/grommet)
+- [Base Web](https://baseweb.design/): Uber's design system.
+  - [Source Code](https://github.com/framer/baseui.framerfx)
+  - Framer X package
+
 ## Learn More
 
 Looking to dive deeper into the `component-importer`? These guides are here to help:
