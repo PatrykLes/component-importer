@@ -5,7 +5,10 @@ import { isValidProperty } from "./isValidProperty"
 import { flatMap } from "../utils"
 import { removeDuplicates } from "./utils"
 
-function matchesSomeFlag(type: ts.Type | ts.Symbol, ...flags: ts.TypeFlags[]) {
+/**
+ * @returns true iff the given `type` contains at least on of the given `flags`.
+ */
+function matchesSomeFlag(type: ts.Type | ts.Symbol, ...flags: ts.TypeFlags[]): boolean {
     return flags.some(flag => (type.flags & flag) === flag)
 }
 
