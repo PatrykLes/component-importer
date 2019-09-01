@@ -79,21 +79,6 @@ export interface ComponentInfo {
     propertyControls?: PropertyControls
 }
 
-export interface TypeInfo {
-    // XXX: This definition is likely incomplete
-    // normalize bool/boolean (seems like one is used for typescript the other for babel)
-    name?: string
-    possibleValues?: any[]
-    isEnum?: boolean
-    properties?: PropertyInfo[]
-    rawType?: ts.Type | babel.FlowType
-}
-export interface PropertyInfo {
-    name: string
-    type: TypeInfo
-    doc?: string
-}
-
 export class PropertyControls {
     add(pc: PropertyControl) {
         this.items.push(pc)
