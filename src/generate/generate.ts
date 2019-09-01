@@ -4,7 +4,7 @@ import { flatMap } from "../utils"
 
 /** Emits the code for a framer component */
 function generate(packageName: string, comp: ComponentInfo, additionalImports: string[]): string {
-    const { componentName, propertyControls } = comp
+    const { name: componentName, propertyControls } = comp
 
     const controls = propertyControls.items
         .map(item => {

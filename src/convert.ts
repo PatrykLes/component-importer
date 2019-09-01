@@ -40,7 +40,6 @@ export function convert(comp: ComponentInfo): ComponentInfo {
 
     return {
         ...comp,
-        componentName: `${comp.name}`,
         propertyControls,
     }
 }

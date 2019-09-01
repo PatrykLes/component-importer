@@ -76,7 +76,6 @@ export type CompileOptions = {
 export interface ComponentInfo {
     name: string
     propTypes: PropType[]
-    componentName?: string
     propertyControls?: PropertyControls
 }
 
