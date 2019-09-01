@@ -4,7 +4,7 @@ import { flatMap } from "../utils"
 
 /** Emits the code for a framer component */
 function generate(packageName: string, comp: ComponentInfo, additionalImports: string[]): string {
-    const { componentName, framerName, propertyControls } = comp
+    const { componentName, propertyControls } = comp
 
     const controls = propertyControls.items
         .map(item => {
@@ -25,18 +25,18 @@ function generate(packageName: string, comp: ComponentInfo, additionalImports: s
       height: "100%",
     }
 
-    const Inner${framerName}: React.SFC = props => {
+    const Inner${componentName}: React.SFC = props => {
       return <System.${componentName} {...props} style={style} />
     }
 
-    export const ${framerName} = withHOC(Inner${framerName});
+    export const ${componentName} = withHOC(Inner${componentName});
 
-    ${framerName}.defaultProps = {
+    ${componentName}.defaultProps = {
       width: 150,
       height: 50,
     }
 
-    addPropertyControls(${framerName},{
+    addPropertyControls(${componentName},{
         ${controls}
     })
     `
