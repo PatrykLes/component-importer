@@ -103,11 +103,14 @@ component-importer init grommet
 
 Looking for real world usages of the `component-importer`?
 
-- [Grommet](https://v2.grommet.io/): A popular mobile first, themeable design system.
+- [Grommet](https://v2.grommet.io/): A mobile-first, themeable design system used by companies like IBM, Netflix and Sony.
   - [Source Code](https://github.com/framer/grommet.framerfx)
   - [Framer X package](https://store.framer.com/package/fhur/grommet)
 - [Base Web](https://baseweb.design/): Uber's design system.
   - [Source Code](https://github.com/framer/baseui.framerfx)
+  - Framer X package [TODO!]
+- [Office UI Fabric](https://developer.microsoft.com/en-us/fabric): Microsoft's design system.
+  - [Source Code](https://github.com/framer/office-ui-fabric.framerfx)
   - Framer X package [TODO!]
 
 ## Learn More
