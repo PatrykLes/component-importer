@@ -2,13 +2,13 @@
 
 ![](https://placehold.it/600x300)
 
-The `component-importer` is a command line tool that makes it easy to import TypeScript based React design systems into Framer X.
+The `component-importer` is a command line tool that makes it easy to import TypeScript-based React design systems into Framer X.
 
 ## Why Design Systems?
 
 Design Systems lower engineering costs by keeping a single source of truth for your company's visual language. Recognized as valuable tools, design systems have been successfully adopted by the industry's most sophisticated players like [Google](https://material.io/design/), [Microsoft](https://developer.microsoft.com/en-us/fabric#/) and [Uber](https://baseweb.design/). Even the [UK](https://design-system.service.gov.uk/components/) and [US](https://designsystem.digital.gov/) government have one!
 
-There's still one big problem though: production design systems are typically only accesible to technical designers, comfortable enough with the command line and familiar with web development tooling like Webpack, Typescript/Flow, React/Angular, etc. This means that designers often end up having to maintain their own copy which is expensive to keep in sync.
+There's still one big problem though: production design systems are typically only accesible to technical designers, comfortable enough with the command line and familiar with web development tooling like Webpack, TypeScript/Flow, React/Angular, etc. This means that designers often end up having to maintain their own copy which is expensive to keep in sync.
 
 ## The Component Importer: bridging the gap between design and engineering
 
@@ -50,7 +50,7 @@ Let's go through the process of importing the grommet design system from scratch
 
 ### **Step 1**: Project Setup
 
-Create a Framer X [folder backed project](https://www.framer.com/support/using-framer-x/folder-backed-projects/):
+Create a Framer X [folder-backed project](https://www.framer.com/support/using-framer-x/folder-backed-projects/):
 
  - Create a new Framer X project
  - Hold Option and click File › Save As
