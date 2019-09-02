@@ -3,8 +3,7 @@ import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("ant-design", async () => {
-        const rootDir = "design-systems/ant-design/repo/"
-        const result = await analyzeTypeScript([`${rootDir}/components/index.tsx`], `${rootDir}/tsconfig.json`)
+        const result = await analyzeTypeScript([`integration-test-data/antd/node_modules/antd/es/index.d.ts`])
 
         const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
 

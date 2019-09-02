@@ -1,5 +1,4 @@
 node_modules/
 build/
-generated/
-design-systems/
+integration-test-data/
 .DS_Store

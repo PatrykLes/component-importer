@@ -59,7 +59,7 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
 }
 
 function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile, program: ts.Program) {
-    processedFile.components = Array.from(findComponents(sourceFile, program))
+    processedFile.components = Array.from(findComponents(sourceFile, program)).filter(comp => comp.name.match(/^[A-Z]/))
 }
 
 function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {

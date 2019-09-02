@@ -3,8 +3,9 @@ import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("blueprint", async () => {
-        const rootDir = "design-systems/blueprint/repo/packages/core/src/"
-        const result = await analyzeTypeScript([`${rootDir}/index.ts`], `${rootDir}/tsconfig.json`)
+        const result = await analyzeTypeScript([
+            `integration-test-data/@blueprintjs/core/node_modules/@blueprintjs/core/lib/esm/index.d.ts`,
+        ])
 
         const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
 

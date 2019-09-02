@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-DIR="design-systems/material-ui"
-REPO="git@github.com:mui-org/material-ui.git"
-
-./scripts/import $DIR $REPO

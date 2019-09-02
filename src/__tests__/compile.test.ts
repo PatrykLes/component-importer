@@ -1,4 +1,5 @@
 import { compile } from "../compile"
+import { makePrettier } from "../utils"
 
 describe("compile | typescript", () => {
     describe("compiles components", () => {
@@ -31,37 +32,37 @@ describe("compile | typescript", () => {
                     components: {},
                 })
 
-                expect(out[1]).toEqual({
+                expect(out[0]).toEqual({
                     type: "component",
                     fileName: "SimpleReactComponent.tsx",
-                    outputSource: `import * as React from "react";
-import * as System from "@foo/core";
-import { ControlType, PropertyControls, addPropertyControls } from "framer";
-import { controls, merge } from "./generated/SimpleReactComponent";
-import { withHOC } from "./withHOC";
+                    outputSource: await makePrettier(`
+                        import * as React from "react";
+                        import * as System from "@foo/core";
+                        import { ControlType, PropertyControls, addPropertyControls } from "framer";
+                        import { withHOC } from "./withHOC";
 
-const style: React.CSSProperties = {
-  width: "100%",
-  height: "100%"
-};
+                        const style: React.CSSProperties = {
+                            width: "100%",
+                            height: "100%"
+                        };
 
-const InnerSimpleReactComponent: React.SFC = props => {
-  return <System.SimpleReactComponent {...props} style={style} />;
-};
+                        const InnerSimpleReactComponent: React.SFC = props => {
+                            return <System.SimpleReactComponent {...props} style={style} />;
+                        };
 
-export const SimpleReactComponent = withHOC(InnerSimpleReactComponent);
+                        export const SimpleReactComponent = withHOC(InnerSimpleReactComponent);
 
-SimpleReactComponent.defaultProps = {
-  width: 150,
-  height: 50
-};
+                        SimpleReactComponent.defaultProps = {
+                            width: 150,
+                            height: 50
+                        };
 
-addPropertyControls(SimpleReactComponent, {
-  text: merge(controls.text, {}),
-  num: merge(controls.num, {}),
-  bool: merge(controls.bool, {})
-});
-`,
+                        addPropertyControls(SimpleReactComponent, {
+                            text: { title: \"Text\", defaultValue: \"\", type: ControlType.String },
+                            num: { title: \"Num\", type: ControlType.Number },
+                            bool: { title: \"Bool\", defaultValue: false, type: ControlType.Boolean }
+                        });
+                    `),
                 })
             })
         })

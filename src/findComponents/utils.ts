@@ -110,12 +110,14 @@ export function findSourceFiles(program: ts.Program, pathNode: ts.StringLiteral)
             return !!sourceFile
         })
 
-    assert(
-        sourceFiles.length > 0,
-        `Failed to resolve import from pathNode ${pathNode.getText()} relative to ${fileName}. Tried the following combinations: \n${possibilities.join(
-            "\n",
-        )}`,
-    )
+    if (process.env.NODE_ENV !== "production") {
+        assert(
+            sourceFiles.length > 0,
+            `Failed to resolve import from pathNode ${pathNode.getText()} relative to ${fileName}. Tried the following combinations: \n${possibilities.join(
+                "\n",
+            )}`,
+        )
+    }
 
     return sourceFiles
 }

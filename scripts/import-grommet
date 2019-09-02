@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-DIR="design-systems/grommet"
-REPO="git@github.com:grommet/grommet.git"
-
-./scripts/import $DIR $REPO

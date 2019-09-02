@@ -4,14 +4,13 @@ import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("material-ui", async () => {
-        const rootDir = "design-systems/material-ui/repo/packages/material-ui"
-        const result = await analyzeTypeScript([`${rootDir}/src/index.d.ts`], `${rootDir}/tsconfig.json`)
+        const result = await analyzeTypeScript([
+            `integration-test-data/@material-ui/core/node_modules/@material-ui/core/index.d.ts`,
+        ])
 
         const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
 
         expect(componentNames).toEqual([
-            // XXX withTheme is a bug
-            "withTheme",
             "AppBar",
             "Avatar",
             "Backdrop",
@@ -115,6 +114,7 @@ describe("integration-test", () => {
             "TablePagination",
             "TableRow",
             "TableSortLabel",
+            "TextareaAutosize",
             "Tabs",
             "TextField",
             "Toolbar",

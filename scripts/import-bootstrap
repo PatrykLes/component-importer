@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-DIR="design-systems/bootstrap"
-REPO="git@github.com:react-bootstrap/react-bootstrap.git"
-
-./scripts/import $DIR $REPO

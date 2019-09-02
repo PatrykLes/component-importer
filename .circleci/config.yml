@@ -4,27 +4,15 @@
 #
 version: 2.1
 jobs:
-  test-components:
+  build-and-test:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
       - run: yarn
-      - run: ./scripts/import-ant-design
-      - run: yarn
-      - run: yarn test:ant-design
-      - run: ./scripts/import-blueprint
-      - run: yarn
-      - run: yarn test:blueprint
-      - run: ./scripts/import-grommet
-      - run: yarn
-      - run: yarn test:grommet
-      - run: ./scripts/import-material-ui
-      - run: yarn
-      - run: yarn test:material
       - run: yarn test
 workflows:
   version: 2.1
   component-test:
     jobs:
-      - test-components
+      - build-and-test

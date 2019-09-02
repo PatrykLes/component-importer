@@ -180,8 +180,7 @@ const propsAsPossibleValues: string[] = [
 
 describe("integration-test", () => {
     test("grommet", async () => {
-        const rootDir = "design-systems/grommet/repo/"
-        const result = await analyzeTypeScript([`${rootDir}/src/js/index.d.ts`])
+        const result = await analyzeTypeScript([`integration-test-data/grommet/node_modules/grommet/index.d.ts`])
 
         const components = flatMap(result, file => file.components)
         const componentsByName = indexBy(components, c => c.name)
