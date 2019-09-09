@@ -7,7 +7,6 @@
     "author": "Dan-el Khen <danelkhen@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "postinstall": "./scripts/import-all",
         "build": "rm -rf ./build && yarn && yarn tsc && chmod +x ./build/cli.js",
         "cli": "node build/cli",
         "test": "jest",
