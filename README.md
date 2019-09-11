@@ -2,43 +2,47 @@
 
 ![](https://placehold.it/600x300)
 
-The `component-importer` is a command line tool that makes it easy to import TypeScript-based React design systems into Framer X.
+The `component-importer` is a command line tool that makes it easy to import TypeScript-based React design systems into Framer X. It analyzes your production design system's source code and generates readable React components that can be loaded by [Framer X](https://framer.com).
 
-## Why design systems?
+Let's take a quick look at the generated code.
 
-Design Systems lower engineering costs by keeping a single source of truth for your company's visual language. Recognized as valuable tools, design systems have been successfully adopted by the industry's most sophisticated players like [Google](https://material.io/design/), [Microsoft](https://developer.microsoft.com/en-us/fabric#/) and [Uber](https://baseweb.design/). Even the [UK](https://design-system.service.gov.uk/components/) and [US](https://designsystem.digital.gov/) government have one!
-
-There's still one big problem though: production design systems are typically only accesible to technical designers, comfortable enough with the command line and familiar with web development tooling like Webpack, TypeScript/Flow, React/Angular, etc. This means that designers often end up having to maintain their own copy which is expensive to keep in sync.
-
-## The component importer: bridging the gap between design and engineering
-
-The `component-importer` is a command line tool that analyzes your production design system's source code and generates readable React components that can be loaded by visual design and prototyping tools like [Framer X](https://framer.com). Let's take a look at the generated code:
+#### Example: importing a button from the baseui design system
 
 ```ts
-import * as React from "react" // <=== Section 1
+import * as React from "react"
 import * as BaseUi from "baseui/button"
 import { addPropertyControls, ControlType } from "framer"
 
 function Button(props) {
-	return <BaseUi.Button {...props} />
+    return <BaseUi.Button {...props} />
 }
 
-addPropertyControls(Button, { // <=== Section 2
-	kind: { type: ControlType.Enum, defaultValue: "primary" },
-	label: { type: ControlType.String },
-	isLoading: { type: ControlType.Boolean, defaultValue: false },
+addPropertyControls(Button, { // <=== Inferred Property Controls
+    kind: {
+        type: ControlType.Enum,
+        defaultValue: "primary",
+        options: ["primary", "secondary"]
+    },
+    label: { type: ControlType.String },
+    isLoading: { type: ControlType.Boolean, defaultValue: false },
 })
 ```
 
-If you work with React you will quickly understand Sections 1: we're importing the `Button` component from the `baseui` NPM package, and wrapping it in a function.
-
-By analyzing the button component's source code, we generate [property controls](https://www.framer.com/api/property-controls/) for the button (see Section 2). This means you can now drag your button to the canvas and modify it using a GUI that everyone can understand:
+By analyzing the button component's TypeScript definitions, we can infer its [property controls](https://www.framer.com/api/property-controls/), similar to React Storybook's [knobs](https://github.com/storybookjs/storybook/tree/master/addons/knobs). This means you can now drag your button to the Framer X canvas and modify it using a GUI that everyone can understand:
 
 ![Import Button Example](assets/readme-import-button-example.gif)
 
-## The goal: increasing design system adoption
+## Why?
 
-As a design system maintainer, your design system's value is proportional to its adoption. To be successful you'll need to think beyond just developing components, but also about making sure that they are well documented and intuitive for everyone involved in the process - this can range from designers and engineers to product managers and content creators. The `component-importer` tries to lower the barrier of adoption by making your design system instantly available.
+Design Systems lower engineering costs by keeping a single source of truth for your company's visual language. They have been successfully adopted by the industry's most sophisticated players like [Google](https://material.io/design/), [Microsoft](https://developer.microsoft.com/en-us/fabric#/) and [Uber](https://baseweb.design/). Even the [UK](https://design-system.service.gov.uk/components/) and [US](https://designsystem.digital.gov/) government have one!
+
+There's still one big problem though: production design systems are typically only accesible to technical designers, comfortable enough with the command line and familiar with web development tooling like Webpack, TypeScript/Flow, React/Angular, etc. This means that designers often end up having to maintain their own copy which is expensive to keep in sync.
+
+The `component-importer` makes it possible to import your company's design system into Framer X so designers can start prototyping with components that behave just like they do in production.
+
+## Increasing design system adoption
+
+As a design system maintainer, your design system's value is proportional to its adoption. To be successful you'll need to think beyond just developing components, but also about making sure that they are well documented and intuitive for everyone involved in the process - this can range from designers and engineers to product managers and content creators. The `component-importer` tries to lower the barrier of adoption by making your production design system available for everyone.
 
 ## Getting started
 
@@ -117,9 +121,9 @@ Looking for projects using the `component-importer`?
 
 Looking to dive deeper into the `component-importer`? These guides are here to help:
 
-- [Configuration](#): Fine tuning the `importer.config.json`.
-- [Re-importing](#): How to keep your Framer X project in sync with your design system.
-- [Designer UX](#): Tips and tricks on making your design system more accessible for designers.
+- [The CLI](docs/cli.md): Detailed documentation on how to use the `component-importer`s CLI.
+- [Configuration](docs/configuration.md): Fine tuning the importer with the `importer.config.json`.
+- [Re-importing](docs/re-importing.md): How to keep your Framer X project in sync with your design system.
 
 ## External resources & articles
 
