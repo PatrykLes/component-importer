@@ -9,7 +9,7 @@
     "scripts": {
         "build": "rm -rf ./build && yarn && yarn tsc && chmod +x ./build/cli.js",
         "cli": "node build/cli",
-        "test": "jest",
+        "test": "scripts/import-all.bash && jest",
         "prepublishOnly": "yarn test && yarn build"
     },
     "dependencies": {
