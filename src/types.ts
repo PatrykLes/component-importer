@@ -1,7 +1,6 @@
-import * as babel from "@babel/types"
 import * as ts from "typescript"
-import { printExpression, valueToTS } from "./utils"
 import { PropType } from "./extractPropTypes"
+import { printExpression, valueToTS } from "./utils"
 
 export type EmitConfigurationResult = {
     type: "configuration"
@@ -72,7 +71,6 @@ export type CompileOptions = {
 export interface ComponentInfo {
     name: string
     propTypes: PropType[]
-    propertyControls?: PropertyControls
 }
 
 export class PropertyControls {

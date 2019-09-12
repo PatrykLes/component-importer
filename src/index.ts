@@ -1,5 +1,4 @@
 export { analyzeTypeScript } from "./typescript"
 export { ComponentInfo, EmitResult } from "./types"
 export { compile } from "./compile"
-export { convert } from "./convert"
 export { emitComponents, emitConfiguration } from "./generate"

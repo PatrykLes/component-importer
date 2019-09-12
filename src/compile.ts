@@ -1,4 +1,3 @@
-import { convert } from "./convert"
 import { PropType } from "./extractPropTypes"
 import { emitComponents } from "./generate"
 import { CompileOptions, ComponentConfiguration, ComponentInfo, EmitResult } from "./types"
@@ -50,11 +49,7 @@ export async function compile({
 
     const convertedComponents = components
         .map(comp => {
-            const componentWithOverrides = applyOverrides(comp, componentConfiguration[comp.name])
-            if (!componentWithOverrides) {
-                return undefined
-            }
-            return convert(componentWithOverrides)
+            return applyOverrides(comp, componentConfiguration[comp.name])
         })
         .filter(comp => !!comp)
 
