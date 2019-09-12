@@ -1,10 +1,8 @@
-import { OptionDefinition } from "command-line-args"
-import commandLineArgs from "command-line-args"
-import { flatMap } from "../utils"
-import { analyzeTypeScript } from "../typescript"
-import { emitConfiguration } from "../generate"
-import { existsSync, writeFileSync, readFileSync } from "fs"
+import commandLineArgs, { OptionDefinition } from "command-line-args"
+import { existsSync, readFileSync, writeFileSync } from "fs"
 import * as path from "path"
+import { emitConfiguration } from "../generate"
+import { analyzeTypeScript } from "../typescript"
 import { generateComponents } from "./commandGenerateComponents"
 
 type CliGenerateConfigurationArguments = {
@@ -104,9 +102,7 @@ export async function commandGenerateConfiguration(argv: string[]) {
         printInvalidIndex()
     }
 
-    const processedFiles = await analyzeTypeScript(index, tsconfig)
-
-    const components = flatMap(processedFiles, comp => comp.components)
+    const components = await analyzeTypeScript(index, tsconfig)
 
     const result = emitConfiguration({
         components,

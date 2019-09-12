@@ -2,8 +2,13 @@ import glob from "glob"
 import path from "path"
 import * as ts from "typescript"
 import { findComponents } from "./findComponents"
-import { ProcessedFile } from "./types"
+import { ComponentInfo } from "./types"
 import { flatMap } from "./utils"
+
+export interface ProcessedFile {
+    srcFile: string
+    components: ComponentInfo[]
+}
 
 /**
  * Analyzes a TypeScript source code and returns an array of processed files with the components that were found in the process.
@@ -11,7 +16,7 @@ import { flatMap } from "./utils"
  * @param files the "root" files to analize. Usually just pointing to the src/index.ts, src/index.tsx, src/index.d.ts is enough.
  * @param tsConfigPath the path to a tsconfig. If not present, a default tsconfig will be used instead.
  */
-export async function analyzeTypeScript(files: string[], tsConfigPath?: string): Promise<ProcessedFile[]> {
+export async function analyzeTypeScript(files: string[], tsConfigPath?: string): Promise<ComponentInfo[]> {
     const processed: ProcessedFile[] = files.map(t => ({
         components: [],
         srcFile: t,
@@ -52,10 +57,10 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
     for (const file of processed) {
         const sourceFile = program.getSourceFile(file.srcFile)
         if (!sourceFile) throw new Error(`File ${file.srcFile} not found.`)
-        console.log("SOURCE FILE", sourceFile.fileName)
         await analyze(sourceFile, file, program)
     }
-    return processed
+
+    return flatMap(processed, p => p.components)
 }
 
 function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile, program: ts.Program) {

@@ -4,11 +4,11 @@ import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("material-ui", async () => {
-        const result = await analyzeTypeScript([
+        const components = await analyzeTypeScript([
             `integration-test-data/@material-ui/core/node_modules/@material-ui/core/index.d.ts`,
         ])
 
-        const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
+        const componentNames = components.map(comp => comp.name)
 
         expect(componentNames).toEqual([
             "AppBar",

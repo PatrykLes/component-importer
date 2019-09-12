@@ -1,13 +1,12 @@
 import { analyzeTypeScript } from "../typescript"
-import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("blueprint", async () => {
-        const result = await analyzeTypeScript([
+        const components = await analyzeTypeScript([
             `integration-test-data/@blueprintjs/core/node_modules/@blueprintjs/core/lib/esm/index.d.ts`,
         ])
 
-        const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
+        const componentNames = components.map(comp => comp.name)
 
         expect(componentNames).toEqual([
             "AbstractComponent",

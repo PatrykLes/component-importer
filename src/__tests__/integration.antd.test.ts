@@ -1,11 +1,10 @@
 import { analyzeTypeScript } from "../typescript"
-import { flatMap } from "../utils"
 
 describe("integration-test", () => {
     test("ant-design", async () => {
-        const result = await analyzeTypeScript([`integration-test-data/antd/node_modules/antd/es/index.d.ts`])
+        const components = await analyzeTypeScript([`integration-test-data/antd/node_modules/antd/es/index.d.ts`])
 
-        const componentNames = flatMap(result, file => file.components).map(comp => comp.name)
+        const componentNames = components.map(comp => comp.name)
 
         expect(componentNames).toEqual([
             "Affix",

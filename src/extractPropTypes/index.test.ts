@@ -2,9 +2,9 @@ import { analyzeTypeScript } from "../typescript"
 
 describe("extractPropTypes", () => {
     it("supports primitive types", async () => {
-        const out = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.primitives.tsx"])
+        const components = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.primitives.tsx"])
 
-        expect(out[0].components[0].propTypes).toMatchObject([
+        expect(components[0].propTypes).toMatchObject([
             {
                 name: "regularNumber",
                 type: "number",
@@ -21,9 +21,9 @@ describe("extractPropTypes", () => {
     })
 
     it("supports enums", async () => {
-        const out = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.enums.tsx"])
+        const components = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.enums.tsx"])
 
-        expect(out[0].components[0].propTypes).toMatchObject([
+        expect(components[0].propTypes).toMatchObject([
             {
                 name: "regularNumberEnum",
                 type: "number",
@@ -39,9 +39,9 @@ describe("extractPropTypes", () => {
     })
 
     it("supports mixed enums", async () => {
-        const out = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.mixedEnums.tsx"])
+        const components = await analyzeTypeScript(["./src/__mocks__/propsTesterComponent.mixedEnums.tsx"])
 
-        expect(out[0].components[0].propTypes).toMatchObject([
+        expect(components[0].propTypes).toMatchObject([
             {
                 name: "mixedEnum",
                 type: "enum",

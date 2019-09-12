@@ -3,11 +3,6 @@ import * as ts from "typescript"
 import { printExpression, valueToTS } from "./utils"
 import { PropType } from "./extractPropTypes"
 
-export interface ProcessedFile {
-    srcFile: string
-    components: ComponentInfo[]
-}
-
 export type EmitConfigurationResult = {
     type: "configuration"
     fileName: string
@@ -29,6 +24,7 @@ export type EmitResult =
 
 export type ComponentConfiguration = {
     ignore: boolean
+    ignoredProps?: string[]
     props?: {
         [propName: string]: Omit<PropType, "name">
     }

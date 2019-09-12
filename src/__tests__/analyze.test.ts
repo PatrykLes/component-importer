@@ -26,12 +26,11 @@ describe("analyze | typescript", () => {
         cases.forEach(file => {
             const fileContents = readFileSync(file)
             it(`supports ${file} type imports:\n\n${fileContents}`, async () => {
-                const out = await analyzeTypeScript([file])
+                const components = await analyzeTypeScript([file])
 
-                expect(out.length).toEqual(1)
-                expect(out[0].components.length).toEqual(1)
+                expect(components.length).toEqual(1)
 
-                expect(out[0].components[0]).toMatchObject({
+                expect(components[0]).toMatchObject({
                     name: "SimpleReactComponent",
                     propTypes: [
                         { name: "text", type: "string" },

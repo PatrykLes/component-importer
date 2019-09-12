@@ -1,9 +1,8 @@
 import { convert } from "./convert"
-import { emitComponents } from "./generate"
-import { analyzeTypeScript } from "./typescript"
-import { flatMap } from "./utils"
-import { EmitResult, CompileOptions, ComponentConfiguration, ComponentInfo } from "./types"
 import { PropType } from "./extractPropTypes"
+import { emitComponents } from "./generate"
+import { CompileOptions, ComponentConfiguration, ComponentInfo, EmitResult } from "./types"
+import { analyzeTypeScript } from "./typescript"
 
 const applyOverrides = (
     component: ComponentInfo,
@@ -47,9 +46,7 @@ export async function compile({
 }: Pick<CompileOptions, "rootFiles" | "tsConfigPath" | "packageName" | "additionalImports" | "components">): Promise<
     EmitResult[]
 > {
-    const processedFiles = await analyzeTypeScript(rootFiles, tsConfigPath)
-
-    const components = flatMap(processedFiles, files => files.components)
+    const components = await analyzeTypeScript(rootFiles, tsConfigPath)
 
     const convertedComponents = components
         .map(comp => {
