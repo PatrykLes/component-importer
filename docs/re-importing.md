@@ -106,7 +106,7 @@ From **Rule 1** (New property controls are always added by default.) two things 
     // other configuration ommitted for brevity
     "components": {
         "Button": {
-            "ignoreProps": ["margins"] // <======= margins are ignored
+            "ignoredProps": ["margins"] // <======= margins are ignored
         }
      }
 }
@@ -123,13 +123,14 @@ addPropertyControls(Button, {
     },
     label: {
         type: ControlType.String,
-        defaultValue: "Label"
+        defaultValue: "Label" // <==== Existing property controls are left unmodified.
     },
     isLoading: {
         type: ControlType.Boolean,
         defaultValue: false
     },
-    disabled: {
+    // <==== The margins property control is no longer present since it was added to the `ignoredProps`.
+    disabled: {     // <==== The new disabled property control was added as expected.
         type: ControlType.Boolean,
         defaultValue: false
     }

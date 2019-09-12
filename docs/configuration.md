@@ -17,7 +17,7 @@ For the purpose of this guide we are going to assume that we're importing the `g
     "components": {
         "Button": {
             "ignore": false,
-            "ignoreProps": ["margin"]
+            "ignoredProps": ["margin"]
         },
         "Heading": {
             "ignore": false,
@@ -58,7 +58,7 @@ The `components`: object lets you add additional configuration on a per-componen
 
 - `ignore`: (`string`) If set to true, the `component-importer` will ignore this component, meaning it won't generate any code. This is useful for components that are not useful in the context of Framer X and you don't want them to be re-generated when you run the `component-importer`.
 
-- `ignoreProps`: (`string[]`) An array of props that will be excluded from code generation.
+- `ignoredProps`: (`string[]`) An array of props that will be excluded from code generation.
 
 #### `cssImports`
 

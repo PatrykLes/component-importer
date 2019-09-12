@@ -40,7 +40,7 @@ There's still one big problem though: production design systems are typically on
 
 The `component-importer` makes it possible to import your company's design system into Framer X so designers can start prototyping with components that behave just like they do in production.
 
-## Increasing design system adoption
+#### Increasing design system adoption
 
 As a design system maintainer, your design system's value is proportional to its adoption. To be successful you'll need to think beyond just developing components, but also about making sure that they are well documented and intuitive for everyone involved in the process - this can range from designers and engineers to product managers and content creators. The `component-importer` tries to lower the barrier of adoption by making your production design system available for everyone.
 
@@ -109,15 +109,16 @@ Looking for projects using the `component-importer`?
 
 - [Base Web](https://baseweb.design/): Uber's design system.
   - [Source Code](https://github.com/framer/baseui.framerfx)
-  - Framer X package [TODO!]
+  - [Framer X package](https://store.framer.com/package/fhur/baseui)
 - [Office UI Fabric](https://developer.microsoft.com/en-us/fabric): Microsoft's design system.
   - [Source Code](https://github.com/framer/office-ui-fabric.framerfx)
-  - Framer X package [TODO!]
 - [Grommet](https://v2.grommet.io/): A mobile-first, themeable design system used by companies like IBM, Netflix and Sony.
   - [Source Code](https://github.com/framer/grommet.framerfx)
   - [Framer X package](https://store.framer.com/package/fhur/grommet)
+- [Salesforce Lightning](https://github.com/salesforce/design-system-react)
+  - [Source Code](https://github.com/framer/salesforce-lightning.framerfx)
 
-## Learn more
+## Documentation
 
 Looking to dive deeper into the `component-importer`? These guides are here to help:
 
