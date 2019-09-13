@@ -29,26 +29,26 @@ describe("compile | typescript", () => {
                     packageName: "@foo/core",
                     rootFiles: [file],
                     additionalImports: [],
-                    components: {},
+                    components: {
+                        SimpleReactComponent: {
+                            ignore: false,
+                            path: "foo/bar/file.tsx",
+                        },
+                    },
                     out: "",
                 })
 
                 expect(out[0]).toEqual({
                     type: "component",
-                    fileName: "SimpleReactComponent.tsx",
+                    emitPath: "foo/bar/file.tsx",
                     outputSource: await makePrettier(`
                         import * as React from "react";
                         import * as System from "@foo/core";
                         import { ControlType, PropertyControls, addPropertyControls } from "framer";
                         import { withHOC } from "./withHOC";
 
-                        const style: React.CSSProperties = {
-                            width: "100%",
-                            height: "100%"
-                        };
-
-                        const InnerSimpleReactComponent: React.SFC = props => {
-                            return <System.SimpleReactComponent {...props} style={style} />;
+                        const InnerSimpleReactComponent = props => {
+                            return <System.SimpleReactComponent {...props} />;
                         };
 
                         export const SimpleReactComponent = withHOC(InnerSimpleReactComponent);

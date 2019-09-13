@@ -17,8 +17,7 @@ export type EmitConfigurationResult = {
  */
 export type EmitResult =
     | EmitConfigurationResult
-    | { type: "inferredControls"; fileName: string; outputSource: string }
-    | { type: "component"; fileName: string; outputSource: string }
+    | { type: "component"; emitPath: string; outputSource: string }
     | { type: "hoc"; fileName: string; outputSource: string }
 
 export type ComponentConfiguration = {
@@ -89,6 +88,11 @@ export type ComponentEmitInfo = ComponentInfo & {
      * If false, this component will not result in any generated code.
      */
     emit: boolean
+    /**
+     * The path where this component will be written to.
+     *
+     * Example: "code/buttons/PrimaryButton.tsx"
+     */
     emitPath: string
 }
 

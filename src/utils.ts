@@ -1,6 +1,7 @@
 import glob from "glob"
 import prettier from "prettier"
 import * as ts from "typescript"
+import * as path from "path"
 
 export function valueToTS(
     obj: any,
@@ -74,10 +75,23 @@ export function* descendants(node: ts.Node): IterableIterator<ts.Node> {
     }
 }
 
-export function changeExtension(file: string, ext: string): string {
-    var pos = file.lastIndexOf(".")
-    file = file.substr(0, pos < 0 ? file.length : pos) + ext
-    return file
+/**
+ * Adds the given extension to `file` unless `file` already has the given extension.
+ *
+ * Example:
+ *
+ * ```ts
+ * ensureExtension("foo.tsx", "tsx") // => "foo.tsx"
+ * ensureExtension("foo/bar","tsx")  // => "foo/bar.tsx"
+ * ```
+ */
+export function ensureExtension(file: string, extension: string): string {
+    // Appending a "." to the extension is required since extname returns ".png" instead of "png".
+    const dotExtension = extension.startsWith(".") ? extension : `.${extension}`
+    if (path.extname(file) === dotExtension) {
+        return file
+    }
+    return `${file}.${extension}`
 }
 
 export function globAsync(pattern: string, srcDir: string) {

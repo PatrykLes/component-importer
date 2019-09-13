@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
 import { CompileOptions, ComponentConfiguration } from "./types"
+import { ensureExtension } from "./utils"
 
 type Validator = (compilerOptions: any) => { valid: true } | { valid: false; message: string }
 
@@ -75,5 +76,7 @@ export function isComponentIgnored(opts: CompileOptions, componentName: string):
  * @returns the path where the given component will be compiled to.
  */
 export function getEmitPath(opts: CompileOptions, componentName: string): string {
-    return getComponentConfig(opts, componentName).path || opts.out
+    const resultingPath = getComponentConfig(opts, componentName).path || path.join(opts.out, componentName)
+
+    return ensureExtension(resultingPath, "tsx")
 }

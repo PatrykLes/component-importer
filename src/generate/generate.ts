@@ -61,13 +61,8 @@ function generate(packageName: string, comp: ComponentEmitInfo, additionalImport
     import { withHOC } from "./withHOC"
     ${additionalImports.join("\n")}
 
-    const style: React.CSSProperties = {
-      width: "100%",
-      height: "100%",
-    }
-
-    const Inner${componentName}: React.SFC = props => {
-      return <System.${componentName} {...props} style={style} />
+    const Inner${componentName} = props => {
+      return <System.${componentName} {...props}></System.${componentName}>
     }
 
     export const ${componentName} = withHOC(Inner${componentName});
@@ -114,7 +109,7 @@ export async function emitComponents({
         .map(comp => {
             return {
                 type: "component",
-                fileName: comp.name + ".tsx",
+                emitPath: comp.emitPath,
                 outputSource: makePrettier(generate(packageName, comp, additionalImports)),
             }
         })

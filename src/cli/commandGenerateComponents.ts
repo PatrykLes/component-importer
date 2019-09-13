@@ -28,6 +28,21 @@ Example:
     console.log(usage)
 }
 
+function generateFile(file: string, source: string, force: boolean) {
+    if (!fse.existsSync(file)) {
+        console.log("✅ Generating .....................", file)
+        fse.ensureDirSync(path.dirname(file))
+        fse.writeFileSync(file, source)
+    }
+    if (fse.existsSync(file) && force) {
+        console.log("⚠️  Rewriting file (--force)........", file)
+        fse.ensureDirSync(path.dirname(file))
+        fse.writeFileSync(file, source)
+    } else {
+        console.log("⚠️  Skipping existing file .........", file)
+    }
+}
+
 export async function generateComponents(args: CliGenerateComponentsArguments) {
     if (args.help || !args.config) {
         printUsage()
@@ -38,17 +53,19 @@ export async function generateComponents(args: CliGenerateComponentsArguments) {
     const outFiles = await compile(config)
 
     for (const outFile of outFiles) {
-        const resultingFilePath = path.join(config.out, outFile.fileName)
-        const resultingDirectory = path.dirname(resultingFilePath)
-
-        if (outFile.type === "component" && fse.existsSync(resultingFilePath) && !args.force) {
-            console.log("⚠️  Skipping existing file ......", resultingFilePath)
-        } else if (outFile.type === "hoc" && fse.existsSync(resultingFilePath)) {
-            console.log("⚠️  Skipping existing file ......", resultingFilePath)
+        if (outFile.type === "component") {
+            generateFile(outFile.emitPath, outFile.outputSource, !!args.force)
+        } else if (outFile.type === "hoc") {
+            const resultingFilePath = path.join(config.out, outFile.fileName)
+            generateFile(resultingFilePath, outFile.outputSource, !!args.force)
         } else {
-            console.log("✅ Generating ..................", resultingFilePath)
-            fse.ensureDirSync(resultingDirectory)
-            fse.writeFileSync(resultingFilePath, outFile.outputSource)
+            console.warn(
+                [
+                    `🐛 Unrecognized EmitResult type ${outFile.type}. `,
+                    `This likely means that that a new EmitResult `,
+                    `type was introduced but hasn't been correctly configured. `,
+                ].join(""),
+            )
         }
     }
 }
