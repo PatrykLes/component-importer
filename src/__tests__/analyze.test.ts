@@ -36,6 +36,7 @@ describe("analyze | typescript", () => {
                         { name: "text", type: "string" },
                         { name: "num", type: "number" },
                         { name: "bool", type: "boolean" },
+                        { name: "fancyColor", type: "string" },
                     ],
                 })
             })

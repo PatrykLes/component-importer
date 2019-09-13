@@ -1,8 +1,8 @@
 import prettier from "prettier"
-import { ComponentInfo, EmitResult, PropertyControls, PropertyControl } from "../types"
-import { flatMap, upperCaseFirstLetter } from "../utils"
+import { ComponentEmitInfo, EmitResult, PropertyControl, PropertyControls } from "../types"
+import { upperCaseFirstLetter, splitWords } from "../utils"
 
-function getPropertyControls(comp: ComponentInfo): PropertyControls {
+function getPropertyControls(comp: ComponentEmitInfo): PropertyControls {
     const propertyControls = new PropertyControls()
     for (const prop of comp.propTypes) {
         if (prop.type === "unsupported") {
@@ -17,21 +17,24 @@ function getPropertyControls(comp: ComponentInfo): PropertyControls {
         if (prop.type === "enum") {
             type = "ControlType.Enum"
             pc.options = prop.possibleValues
-            pc.optionTitles = pc.options.map(t => upperCaseFirstLetter(String(t)))
+            pc.optionTitles = pc.options.map(t => splitWords(String(t)).join(" "))
             pc.defaultValue = prop.possibleValues[0]
         } else if (prop.type === "string") {
             type = "ControlType.String"
-            pc.defaultValue = ""
+            pc.defaultValue = prop.defaultValue || ""
         } else if (prop.type === "boolean") {
             type = "ControlType.Boolean"
             pc.defaultValue = false
         } else if (prop.type === "number") {
             type = "ControlType.Number"
+        } else if (prop.type === "color") {
+            type = "ControlType.Color"
+            pc.defaultValue = prop.defaultValue || "#09F"
         } else if (prop.type === "array") {
             // XXX add support for arrays
             continue
         } else {
-            console.log("Skipping PropertyControl for", prop.name)
+            console.log("Skipping PropertyControl for", prop["name"])
             continue
         }
         pc.type = type
@@ -41,12 +44,12 @@ function getPropertyControls(comp: ComponentInfo): PropertyControls {
     return propertyControls
 }
 
-function formatComponentName(comp: ComponentInfo) {
+function formatComponentName(comp: ComponentEmitInfo) {
     return upperCaseFirstLetter(comp.name)
 }
 
 /** Emits the code for a framer component */
-function generate(packageName: string, comp: ComponentInfo, additionalImports: string[]): string {
+function generate(packageName: string, comp: ComponentEmitInfo, additionalImports: string[]): string {
     const propertyControls = getPropertyControls(comp)
 
     const componentName = formatComponentName(comp)
@@ -95,7 +98,7 @@ function generateHOC() {
 
 export type EmitOptions = {
     packageName: string
-    components: ComponentInfo[]
+    components: ComponentEmitInfo[]
     additionalImports: string[]
 }
 
@@ -106,19 +109,18 @@ export async function emitComponents({
 }: EmitOptions): Promise<EmitResult[]> {
     const makePrettier = (code: string) => prettier.format(code, { parser: "typescript" })
 
+    const emitResults: EmitResult[] = components
+        .filter(comp => comp.emit)
+        .map(comp => {
+            return {
+                type: "component",
+                fileName: comp.name + ".tsx",
+                outputSource: makePrettier(generate(packageName, comp, additionalImports)),
+            }
+        })
+
     return [
-        ...flatMap(
-            components,
-            (comp: ComponentInfo): EmitResult[] => {
-                return [
-                    {
-                        type: "component",
-                        fileName: comp.name + ".tsx",
-                        outputSource: makePrettier(generate(packageName, comp, additionalImports)),
-                    },
-                ]
-            },
-        ),
+        ...emitResults,
         {
             type: "hoc",
             fileName: "withHOC.tsx",

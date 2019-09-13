@@ -1,31 +1,40 @@
-import { PropType } from "./extractPropTypes"
+import { getEmitPath, isComponentIgnored, isPropIgnored } from "./compilerOptions"
 import { emitComponents } from "./generate"
-import { CompileOptions, ComponentConfiguration, ComponentInfo, EmitResult } from "./types"
+import {
+    applyA11yHeuristic,
+    applyColorHeuristic,
+    applyHrefHeuristic,
+    applyLabelHeuristic,
+    applyHeuristics,
+} from "./heuristics"
+import { CompileOptions, ComponentEmitInfo, ComponentInfo, EmitResult } from "./types"
 import { analyzeTypeScript } from "./typescript"
 
-const applyOverrides = (
-    component: ComponentInfo,
-    config: ComponentConfiguration | undefined,
-): ComponentInfo | undefined => {
-    if (!config) {
-        return component
-    }
-
-    if (config.ignore) {
-        return undefined
-    }
-
-    const newPropTypes = component.propTypes.map(propType => {
-        const propTypeOverrides = (config.props || {})[propType.name]
-        return {
-            ...propType,
-            ...propTypeOverrides,
-        }
-    }) as PropType[]
+function applyIgnoredProps(opts: CompileOptions, comp: ComponentEmitInfo): ComponentEmitInfo {
+    const filteredProps = comp.propTypes.filter(prop => {
+        return !isPropIgnored(opts, comp.name, prop.name)
+    })
 
     return {
-        ...component,
-        propTypes: newPropTypes,
+        ...comp,
+        propTypes: filteredProps,
+    }
+}
+
+function applyIgnoredComponent(opts: CompileOptions, comp: ComponentEmitInfo): ComponentEmitInfo {
+    return {
+        ...comp,
+        emit: !isComponentIgnored(opts, comp.name),
+    }
+}
+
+function applyEmitPath(opts: CompileOptions, comp: ComponentInfo): ComponentEmitInfo {
+    return {
+        ...comp,
+        // XXX assume that components emit by default. This implies an ordering constraint
+        // between applyEmitPath and applyIgnoredComponent
+        emit: true,
+        emitPath: getEmitPath(opts, comp.name),
     }
 }
 
@@ -36,22 +45,16 @@ const applyOverrides = (
  * 2. convert: converts the analized components into a "framer component" data structure
  * 3. emit: returns the output that will eventually be written to disc
  */
-export async function compile({
-    rootFiles,
-    tsConfigPath,
-    packageName,
-    additionalImports,
-    components: componentConfiguration,
-}: Pick<CompileOptions, "rootFiles" | "tsConfigPath" | "packageName" | "additionalImports" | "components">): Promise<
-    EmitResult[]
-> {
+export async function compile(opts: CompileOptions): Promise<EmitResult[]> {
+    const { rootFiles, tsConfigPath, packageName, additionalImports } = opts
     const components = await analyzeTypeScript(rootFiles, tsConfigPath)
 
     const convertedComponents = components
-        .map(comp => {
-            return applyOverrides(comp, componentConfiguration[comp.name])
-        })
-        .filter(comp => !!comp)
+        // applyEmitPath must be invoked before applyIgnoredComponent
+        .map(comp => applyEmitPath(opts, comp))
+        .map(comp => applyIgnoredComponent(opts, comp))
+        .map(comp => applyIgnoredProps(opts, comp))
+        .map(applyHeuristics)
 
     return emitComponents({
         packageName,

@@ -148,3 +148,48 @@ export function byKey<T, K>(extractor: (k: T) => K) {
         return valueLeft < valueRight ? -1 : +1
     }
 }
+
+/**
+ * Splits a string into words.
+ *
+ * Example:
+ *
+ * ```ts
+ * splitWords("helloFriend") === ["hello","Friend"]
+ * splitWords("fooBarBaz") === ["foo", "Bar", "Baz"]
+ * ```
+ */
+export function splitWords(str: string) {
+    const result: string[] = []
+    const remainingChars = str.split("")
+    let currentWord = remainingChars.shift() || ""
+
+    while (remainingChars.length > 0) {
+        const char = remainingChars.shift()
+        const previousChar = currentWord[currentWord.length - 1]
+
+        // Case 1: is a separator char
+        // Exmaple: aria-label
+        //              ^
+        if (/_|-/.test(char) && currentWord.length > 0) {
+            result.push(currentWord)
+            currentWord = ""
+        }
+        // Case 2: the current character is an uppercase character
+        //         and the previous character was lowercased
+        // Example: ariaLabel
+        //              ^
+        else if (/[A-Z]/.test(char) && /[a-z]/.test(previousChar)) {
+            result.push(currentWord)
+            currentWord = char
+        } else {
+            currentWord += char
+        }
+    }
+
+    if (currentWord.length > 0) {
+        result.push(currentWord)
+    }
+
+    return result
+}

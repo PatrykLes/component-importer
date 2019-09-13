@@ -22,11 +22,19 @@ export type EmitResult =
     | { type: "hoc"; fileName: string; outputSource: string }
 
 export type ComponentConfiguration = {
+    /**
+     * If set to true, code will not be generated for this component.
+     */
     ignore: boolean
+    /**
+     * The path where this component will be generated. If not specified will default to
+     * the `out` option.
+     */
+    path?: string
+    /**
+     * An array of property controls to exclude from code generation.
+     */
     ignoredProps?: string[]
-    props?: {
-        [propName: string]: Omit<PropType, "name">
-    }
 }
 
 /**
@@ -69,8 +77,19 @@ export type CompileOptions = {
 }
 
 export interface ComponentInfo {
+    /**
+     * The name of this component. e.g. Button.
+     */
     name: string
     propTypes: PropType[]
+}
+
+export type ComponentEmitInfo = ComponentInfo & {
+    /**
+     * If false, this component will not result in any generated code.
+     */
+    emit: boolean
+    emitPath: string
 }
 
 export class PropertyControls {

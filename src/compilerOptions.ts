@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { CompileOptions } from "./types"
+import { CompileOptions, ComponentConfiguration } from "./types"
 
 type Validator = (compilerOptions: any) => { valid: true } | { valid: false; message: string }
 
@@ -44,4 +44,36 @@ export function parseOptions(configPath: string): CompileOptions {
     }
 
     return result
+}
+
+const defaultComponentConfig: ComponentConfiguration = {
+    ignore: false,
+    ignoredProps: [],
+}
+
+function getComponentConfig(opts: CompileOptions, componentName: string): ComponentConfiguration {
+    return (opts.components || {})[componentName] || defaultComponentConfig
+}
+
+/**
+ * @returns true if the given property in the given component should be ignored for compilation.
+ */
+export function isPropIgnored(opts: CompileOptions, componentName: string, propName: string): boolean {
+    const ignoredProps = getComponentConfig(opts, componentName).ignoredProps || []
+
+    return ignoredProps.includes(propName)
+}
+
+/**
+ * @returns true if the given component should be ignored from compilation.
+ */
+export function isComponentIgnored(opts: CompileOptions, componentName: string): boolean {
+    return getComponentConfig(opts, componentName).ignore
+}
+
+/**
+ * @returns the path where the given component will be compiled to.
+ */
+export function getEmitPath(opts: CompileOptions, componentName: string): string {
+    return getComponentConfig(opts, componentName).path || opts.out
 }

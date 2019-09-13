@@ -30,6 +30,7 @@ describe("compile | typescript", () => {
                     rootFiles: [file],
                     additionalImports: [],
                     components: {},
+                    out: "",
                 })
 
                 expect(out[0]).toEqual({
@@ -58,9 +59,14 @@ describe("compile | typescript", () => {
                         };
 
                         addPropertyControls(SimpleReactComponent, {
-                            text: { title: \"Text\", defaultValue: \"\", type: ControlType.String },
+                            text: { title: \"Text\", defaultValue: \"text\", type: ControlType.String },
                             num: { title: \"Num\", type: ControlType.Number },
-                            bool: { title: \"Bool\", defaultValue: false, type: ControlType.Boolean }
+                            bool: { title: \"Bool\", defaultValue: false, type: ControlType.Boolean },
+                            fancyColor: {
+                                title: "FancyColor",
+                                defaultValue: "#09F",
+                                type: ControlType.Color
+                            }
                         });
                     `),
                 })
