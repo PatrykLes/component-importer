@@ -56,23 +56,8 @@ export async function makePrettier(code: string, file?: string): Promise<string>
     return code
 }
 
-export function getLiteralTypeText(node: ts.LiteralTypeNode) {
-    const literal = node.literal
-    if (ts.isLiteralExpression(literal)) return literal.text
-    return null
-}
-
 export function upperCaseFirstLetter(s: string): string {
     return (s && s[0].toUpperCase() + s.substr(1)) || ""
-}
-
-export function* descendants(node: ts.Node): IterableIterator<ts.Node> {
-    const stack = [node]
-    while (stack.length) {
-        const node = stack.pop()
-        yield node
-        stack.push(...node.getChildren())
-    }
 }
 
 /**
@@ -92,10 +77,6 @@ export function ensureExtension(file: string, extension: string): string {
         return file
     }
     return `${file}.${extension}`
-}
-
-export function globAsync(pattern: string, srcDir: string) {
-    return new Promise<string[]>(resolve => glob(pattern, { cwd: srcDir }, (err, files) => resolve(files)))
 }
 
 export function flatMap<T, K>(array: Iterable<T>, mapper: (item: T) => K[]) {
