@@ -94,6 +94,7 @@ export async function commandGenerateConfiguration(argv: string[]) {
 
     if (args.help || !args.importPath || !args.out) {
         printUsage()
+        return
     }
 
     const { tsconfig, importPath, index = findDefaultIndex(importPath) } = args

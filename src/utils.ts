@@ -5,7 +5,7 @@ import * as path from "path"
 
 export function valueToTS(
     obj: any,
-    replacer?: (key: string, value: any) => ts.Expression,
+    replacer?: (key: string | undefined, value: any) => ts.Expression,
     parentKey?: string,
 ): ts.Expression {
     if (replacer) {
@@ -160,7 +160,8 @@ export function splitWords(str: string) {
     let currentWord = remainingChars.shift() || ""
 
     while (remainingChars.length > 0) {
-        const char = remainingChars.shift()
+        // Char is guaranteed to be present because remainingChars.length is non-empty
+        const char = remainingChars.shift()!
         const previousChar = currentWord[currentWord.length - 1]
 
         // Case 1: is a separator char

@@ -9,6 +9,10 @@ export const classComponentFinder: ComponentFinder = {
             return []
         }
 
+        if (!node.name) {
+            return []
+        }
+
         if (!node.heritageClauses) return []
 
         const clause = node.heritageClauses.find(clause => clause.token === ts.SyntaxKind.ExtendsKeyword)
@@ -16,9 +20,14 @@ export const classComponentFinder: ComponentFinder = {
             return []
         }
 
-        const checker = program.getTypeChecker()
+        const typeNode = getFirstGenericArgument(clause)
 
-        const type = checker.getTypeFromTypeNode(getFirstGenericArgument(clause))
+        if (!typeNode) {
+            return []
+        }
+
+        const checker = program.getTypeChecker()
+        const type = checker.getTypeFromTypeNode(typeNode)
 
         return [
             {

@@ -42,15 +42,16 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
     const program = ts.createProgram({ rootNames, options: config })
 
     if (process.env.NODE_ENV !== "test") {
-        program
-            .getSemanticDiagnostics()
-            .forEach(diag =>
-                console.warn(
-                    diag.file.fileName,
-                    ts.getLineAndCharacterOfPosition(diag.file, diag.start),
-                    ts.flattenDiagnosticMessageText(diag.messageText, "\n"),
-                ),
+        program.getSemanticDiagnostics().forEach(diag => {
+            if (!diag.file) {
+                return
+            }
+            console.warn(
+                diag.file.fileName,
+                ts.getLineAndCharacterOfPosition(diag.file, diag.start!),
+                ts.flattenDiagnosticMessageText(diag.messageText, "\n"),
             )
+        })
     }
 
     program.getTypeChecker() // to make sure the parent nodes are set

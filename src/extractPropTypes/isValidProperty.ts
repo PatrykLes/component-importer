@@ -1,11 +1,11 @@
 import * as ts from "typescript"
 
 function isDeclaredAt(symbol: ts.Symbol, moduleName: string) {
-    if (!symbol.getDeclarations()) {
+    const declarations = symbol.getDeclarations()
+    if (!declarations) {
         return false
     }
-    return symbol
-        .getDeclarations()
+    return declarations
         .map(declaration => declaration.getSourceFile().fileName)
         .every(fileName => fileName.indexOf(`node_modules/${moduleName}`) !== -1)
 }

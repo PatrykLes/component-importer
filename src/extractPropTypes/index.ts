@@ -192,14 +192,15 @@ export function extractPropTypes(propsType: ts.Type, checker: ts.TypeChecker): P
     ]
 
     const propTypes: PropType[] = flatMap(stringProperties, (symbol: ts.Symbol) => {
-        if (!symbol.getDeclarations()) {
+        const declarations = symbol.getDeclarations()
+        if (!declarations) {
             const symbolType = checker.getTypeAtLocation(symbol.valueDeclaration)
             return [{ symbol, symbolType }]
         }
 
         // XXX Sometimes properties can be declared on more than one location. In this case, the type checker
         // is only able to correctly resolve the type by pointing to the individual declarations.
-        return symbol.getDeclarations().map(declaration => {
+        return declarations.map(declaration => {
             const symbolType = checker.getTypeAtLocation(declaration)
             return { symbol, symbolType }
         })

@@ -34,7 +34,7 @@ export function getFirstGenericArgument(type: ts.Node): ts.TypeNode | undefined 
  * (arg: SomeType) => JSX.Element
  * ```
  */
-export function getFunctionComponentParameter(type: ts.Type): ts.ParameterDeclaration {
+export function getFunctionComponentParameter(type: ts.Type): ts.ParameterDeclaration | undefined {
     if (!type.getCallSignatures() || type.getCallSignatures().length === 0) {
         return
     }
@@ -46,7 +46,7 @@ export function getFunctionComponentParameter(type: ts.Type): ts.ParameterDeclar
         !callSignature.getReturnType().getSymbol() ||
         callSignature
             .getReturnType()
-            .getSymbol()
+            .getSymbol()!
             .getName() !== "Element"
     ) {
         return
@@ -102,7 +102,7 @@ export function findSourceFiles(program: ts.Program, pathNode: ts.StringLiteral)
     const sourceFiles = possibilities
         .filter(filePath => fs.existsSync(filePath))
         .map(filePath => {
-            const sourceFile = program.getSourceFile(filePath)
+            const sourceFile = program.getSourceFile(filePath)!
 
             return sourceFile
         })
@@ -151,8 +151,8 @@ export function findReactPropType(type: ts.Type, checker: ts.TypeChecker): ts.Ty
 
     // Case 3: obtain the type argument from the type hierarchy
     // Type is class Foo extends React.Component<Props>
-    if (type.isClass() && type.getBaseTypes().length > 0) {
-        const typeArg = getFirstTypeArgument(type.getBaseTypes()[0])
+    if (type.isClass() && type.getBaseTypes()!.length > 0) {
+        const typeArg = getFirstTypeArgument(type.getBaseTypes()![0])
         if (typeArg) {
             return typeArg
         }
