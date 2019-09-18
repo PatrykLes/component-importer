@@ -189,3 +189,35 @@ export function splitWords(str: string) {
 
     return result
 }
+
+/**
+ * @return an array of all items in left that are not in right.
+ *
+ * Example:
+ *
+ * ```ts
+ * difference([1,2,3], [2,3]) // => [1]
+ * difference([2,3], [2,3]) // => []
+ * difference([2], [3]) // => [2]
+ * ```
+ */
+export function difference<T>(left: T[], right: T[]): Set<T> {
+    const rightSet = new Set(right)
+
+    const result: Set<T> = new Set<T>()
+    for (const item of left) {
+        if (!rightSet.has(item)) {
+            result.add(item)
+        }
+    }
+    return result
+}
+
+export function differenceBy<T, K, ID>(left: T[], leftIdFunc: (val: T) => ID, right: K[], rightIdFunc: (val: K) => ID) {
+    const leftIds = left.map(leftIdFunc)
+    const rightIds = right.map(rightIdFunc)
+
+    const diff = difference(leftIds, rightIds)
+
+    return left.filter(item => diff.has(leftIdFunc(item)))
+}
