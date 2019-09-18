@@ -9,7 +9,8 @@
         "strictNullChecks": false,
         "declaration": true,
         "moduleResolution": "node",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "removeComments": false
     },
     "exclude": [
         "build/",
