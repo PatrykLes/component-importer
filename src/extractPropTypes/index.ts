@@ -27,7 +27,7 @@ const enumPropTypeFinder: PropTypeFinder = (propSymbol: ts.Symbol, propType: ts.
                 return literalType.value
             }
             assert.fail(`Unexpected literalType: ${literalType.flags}`)
-        })
+        }) as string[]
 
     if (possibleValues.length === 0) {
         return {

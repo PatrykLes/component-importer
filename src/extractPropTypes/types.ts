@@ -1,23 +1,22 @@
 import ts from "typescript"
 
+export type Primitive = string | boolean | number | undefined | null
+
 export type PropType =
     | {
           type: "boolean"
           name: string
           defaultValue?: boolean
-          title?: string
       }
     | {
           type: "string"
           name: string
           defaultValue?: string
-          title?: string
       }
     | {
           type: "color"
           name: string
           defaultValue?: string
-          title?: string
       }
     | {
           type: "number"
@@ -26,19 +25,18 @@ export type PropType =
           max?: number
           step?: number
           defaultValue?: number
-          title?: string
       }
     | {
           type: "enum"
           name: string
-          possibleValues: any[]
-          title?: string
+          possibleValues: Primitive[]
+          defaultValue?: Primitive
       }
     | {
           type: "array"
           name: string
           of: PropType
-          title?: string
+          defaultValue?: Primitive[]
       }
     | {
           type: "unsupported"
