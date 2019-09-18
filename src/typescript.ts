@@ -22,24 +22,13 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
         srcFile: t,
     }))
 
-    const defaultConfig: ts.CompilerOptions = {
-        target: ts.ScriptTarget.ESNext,
-        allowSyntheticDefaultImports: true,
-        jsx: ts.JsxEmit.Preserve,
-        noEmit: true,
-        allowJs: true,
-        moduleResolution: ts.ModuleResolutionKind.NodeJs,
-    }
-
     const patterns = files.map(file => {
         const dir = path.dirname(file)
         return path.join(dir, "**/*.{tsx,ts,jsx,d.ts,js}")
     })
     const rootNames = flatMap(patterns, pattern => glob.sync(pattern))
 
-    const config = tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig
-
-    const program = ts.createProgram({ rootNames, options: config })
+    const program = createProgram({ rootNames, tsConfigPath })
 
     if (process.env.NODE_ENV !== "test") {
         program.getSemanticDiagnostics().forEach(diag => {
@@ -57,7 +46,12 @@ export async function analyzeTypeScript(files: string[], tsConfigPath?: string):
     program.getTypeChecker() // to make sure the parent nodes are set
     for (const file of processed) {
         const sourceFile = program.getSourceFile(file.srcFile)
-        if (!sourceFile) throw new Error(`File ${file.srcFile} not found.`)
+        if (!sourceFile)
+            throw new Error(
+                `File ${
+                    file.srcFile
+                } not found. If you're importing an NPM package, make sure the package has been installed by running yarn add <package name>, alternatively make sure you've ran yarn install.`,
+            )
         await analyze(sourceFile, file, program)
     }
 
@@ -68,32 +62,55 @@ function analyze(sourceFile: ts.SourceFile, processedFile: ProcessedFile, progra
     processedFile.components = Array.from(findComponents(sourceFile, program)).filter(comp => comp.name.match(/^[A-Z]/))
 }
 
-function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {
-    const originalWorkingDirectory = process.cwd()
-    try {
-        process.chdir(path.dirname(tsConfigPath))
-
-        const parseConfigHost: ts.ParseConfigHost = {
-            fileExists: ts.sys.fileExists,
-            readFile: ts.sys.readFile,
-            readDirectory: ts.sys.readDirectory,
-            useCaseSensitiveFileNames: true,
-        }
-
-        const configFileName = ts.findConfigFile(path.dirname(tsConfigPath), ts.sys.fileExists, "tsconfig.json")
-
-        const configFile = ts.readConfigFile(configFileName, ts.sys.readFile)
-        const parsedConfigFile = ts.parseJsonConfigFileContent(configFile.config, parseConfigHost, "./")
-
-        if (parsedConfigFile.errors.length > 0) {
-            for (const diagnostic of parsedConfigFile.errors) {
-                console.warn(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"))
-            }
-            process.exit(1)
-        }
-
-        return parsedConfigFile.options
-    } finally {
-        process.chdir(originalWorkingDirectory)
+export function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {
+    const parseConfigHost: ts.ParseConfigHost = {
+        fileExists: ts.sys.fileExists,
+        readFile: ts.sys.readFile,
+        readDirectory: ts.sys.readDirectory,
+        useCaseSensitiveFileNames: true,
     }
+
+    const configFileName = ts.findConfigFile(path.dirname(tsConfigPath), ts.sys.fileExists, "tsconfig.json")
+
+    const configFile = ts.readConfigFile(configFileName, ts.sys.readFile)
+    const parsedConfigFile = ts.parseJsonConfigFileContent(
+        configFile.config,
+        parseConfigHost,
+        path.dirname(tsConfigPath),
+    )
+
+    if (parsedConfigFile.errors.length > 0) {
+        for (const diagnostic of parsedConfigFile.errors) {
+            console.error(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"))
+        }
+        throw new Error(`Configuration file at ${tsConfigPath} resulted in errors.`)
+    }
+
+    return { ...parsedConfigFile.options, removeComments: false }
+}
+
+export function createFramerXProgram(projectRoot: string): ts.Program {
+    const tsConfigPath = path.join(projectRoot, "tsconfig.json")
+    const options = parseTsConfig(tsConfigPath)
+    const components = glob.sync(path.join(projectRoot, "code/**/*.tsx"))
+
+    return ts.createProgram({
+        rootNames: components,
+        options,
+    })
+}
+
+export function createProgram({ tsConfigPath, rootNames }: { tsConfigPath?: string; rootNames: string[] }) {
+    const defaultConfig: ts.CompilerOptions = {
+        target: ts.ScriptTarget.ESNext,
+        allowSyntheticDefaultImports: true,
+        jsx: ts.JsxEmit.Preserve,
+        noEmit: true,
+        allowJs: true,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    }
+
+    const config = tsConfigPath ? parseTsConfig(tsConfigPath) : defaultConfig
+
+    return ts.createProgram({ rootNames, options: config })
 }

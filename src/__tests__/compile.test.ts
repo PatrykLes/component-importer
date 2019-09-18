@@ -36,39 +36,50 @@ describe("compile | typescript", () => {
                         },
                     },
                     out: "",
+                    projectRoot: ".",
                 })
 
                 expect(out[0]).toEqual({
                     type: "component",
                     emitPath: "foo/bar/file.tsx",
                     outputSource: await makePrettier(`
-                        import * as React from "react";
-                        import * as System from "@foo/core";
-                        import { ControlType, PropertyControls, addPropertyControls } from "framer";
-                        import { withHOC } from "./withHOC";
+import * as React from "react";
+import * as System from "@foo/core";
+import { ControlType, PropertyControls, addPropertyControls } from "framer";
+import { withHOC } from "./withHOC";
 
-                        const InnerSimpleReactComponent = props => {
-                            return <System.SimpleReactComponent {...props} />;
-                        };
+const InnerSimpleReactComponent = props => {
+    return <System.SimpleReactComponent {...props} />;
+};
 
-                        export const SimpleReactComponent = withHOC(InnerSimpleReactComponent);
+export const SimpleReactComponent = withHOC(InnerSimpleReactComponent);
 
-                        SimpleReactComponent.defaultProps = {
-                            width: 150,
-                            height: 50
-                        };
+SimpleReactComponent.defaultProps = {
+    width: 150,
+    height: 50
+};
 
-                        addPropertyControls(SimpleReactComponent, {
-                            text: { title: \"Text\", defaultValue: \"text\", type: ControlType.String },
-                            num: { title: \"Num\", type: ControlType.Number },
-                            bool: { title: \"Bool\", defaultValue: false, type: ControlType.Boolean },
-                            fancyColor: {
-                                title: "FancyColor",
-                                defaultValue: "#09F",
-                                type: ControlType.Color
-                            }
-                        });
-                    `),
+addPropertyControls(SimpleReactComponent, {
+    text: {
+        title: "Text",
+        type: ControlType.String,
+        defaultValue: "text",
+    },
+    num: {
+        title: "Num",
+        type: ControlType.Number,
+    },
+    bool: {
+        title: "Bool",
+        type: ControlType.Boolean,
+    },
+    fancyColor: {
+        title: "Fancy color",
+        type: ControlType.Color,
+        defaultValue: "#09F"
+    }
+});
+`),
                 })
             })
         })

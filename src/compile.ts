@@ -1,14 +1,10 @@
+import fs from "fs"
 import { getEmitPath, isComponentIgnored, isPropIgnored } from "./compilerOptions"
-import { emitComponents } from "./generate"
-import {
-    applyA11yHeuristic,
-    applyColorHeuristic,
-    applyHrefHeuristic,
-    applyLabelHeuristic,
-    applyHeuristics,
-} from "./heuristics"
+import { emitComponents, emitMerge } from "./generate"
+import { applyHeuristics } from "./heuristics"
 import { CompileOptions, ComponentEmitInfo, ComponentInfo, EmitResult } from "./types"
-import { analyzeTypeScript } from "./typescript"
+import { analyzeTypeScript, createFramerXProgram } from "./typescript"
+import { createPrettierFormatter, partitionBy } from "./utils"
 
 function applyIgnoredProps(opts: CompileOptions, comp: ComponentEmitInfo): ComponentEmitInfo {
     const filteredProps = comp.propTypes.filter(prop => {
@@ -46,19 +42,28 @@ function applyEmitPath(opts: CompileOptions, comp: ComponentInfo): ComponentEmit
  * 3. emit: returns the output that will eventually be written to disc
  */
 export async function compile(opts: CompileOptions): Promise<EmitResult[]> {
-    const { rootFiles, tsConfigPath, packageName, additionalImports } = opts
+    const { rootFiles, tsConfigPath, packageName, additionalImports, prettierrc, projectRoot } = opts
+    const formatter = await createPrettierFormatter(prettierrc)
     const components = await analyzeTypeScript(rootFiles, tsConfigPath)
+    const framerProjectProgram = createFramerXProgram(projectRoot)
 
-    const convertedComponents = components
+    const allComponents = components
         // applyEmitPath must be invoked before applyIgnoredComponent
         .map(comp => applyEmitPath(opts, comp))
         .map(comp => applyIgnoredComponent(opts, comp))
         .map(comp => applyIgnoredProps(opts, comp))
         .map(applyHeuristics)
+        .filter(comp => comp.emit)
 
-    return emitComponents({
+    const [componentsToMerge, componentsToEmit] = partitionBy(allComponents, comp => fs.existsSync(comp.emitPath))
+
+    const mergeResults = emitMerge({ formatter, framerProjectProgram, components: componentsToMerge })
+    const emitResults = emitComponents({
+        formatter,
         packageName,
-        components: convertedComponents,
+        components: componentsToEmit,
         additionalImports,
     })
+
+    return mergeResults.concat(emitResults)
 }

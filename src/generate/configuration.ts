@@ -1,4 +1,4 @@
-import { CompileOptions, ComponentInfo, EmitConfigurationResult } from "../types"
+import { CompileOptions, ComponentInfo, EmitConfigurationResult, ComponentConfiguration } from "../types"
 import { indexByRemovingKey } from "../utils"
 
 type EmitConfigurationOptions = {
@@ -10,18 +10,14 @@ type EmitConfigurationOptions = {
 }
 
 export function emitConfiguration(opts: EmitConfigurationOptions): EmitConfigurationResult {
-    const components = opts.components.map(({ name, propTypes }) => ({
+    const components = opts.components.map(({ name }) => ({
         name,
         ignore: false,
-        // TODO: consider re-enabling this later on. Right now it doesn't make much sense because it
-        // results in pretty much just useless configuration duplication.
-        //
-        // props: indexByRemovingKey(propTypes, "name"),
     }))
 
-    const componentsByName = indexByRemovingKey(components, "name")
+    const componentsByName: Record<string, ComponentConfiguration> = indexByRemovingKey(components, "name")
 
-    const configuration: CompileOptions = {
+    const configuration: Omit<CompileOptions, "projectRoot"> = {
         packageName: opts.packageName,
         tsConfigPath: opts.tsconfigPath,
         rootFiles: opts.rootFiles,

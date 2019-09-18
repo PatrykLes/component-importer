@@ -8,12 +8,6 @@ type Validator = (compilerOptions: any) => { valid: true } | { valid: false; mes
 const keyValidator = (key: string, predicate: (x: any) => boolean, message: string): Validator => {
     return (options: any) => {
         const value = options[key]
-        if (!value) {
-            return {
-                valid: false,
-                message: `Missing key ${key}`,
-            }
-        }
         if (!predicate(value)) {
             return { valid: false, message }
         }
@@ -25,8 +19,9 @@ const validators = [
     keyValidator("packageName", t => typeof t === "string", "Expected 'packageName' to be a string"),
     keyValidator("rootFiles", t => Array.isArray(t) && t.length > 0, "Expected 'rootFiles' to be a non empty array"),
     keyValidator("additionalImports", t => Array.isArray(t), "Expected 'additionalImports' to be an array of strings"),
-    keyValidator("components", t => t && Object.keys(t).length > 0, "Expected 'components' to be a non object."),
+    keyValidator("components", t => t && Object.keys(t).length > 0, "Expected 'components' to be an object."),
     keyValidator("out", t => typeof t === "string", "Expected 'out' to be a string"),
+    keyValidator("prettierrc", t => t === undefined || typeof t === "string", "Expected 'prettierrc' to be a string"),
 ]
 
 export function parseOptions(configPath: string): CompileOptions {
@@ -44,7 +39,7 @@ export function parseOptions(configPath: string): CompileOptions {
         }
     }
 
-    return result
+    return { ...result, projectRoot: path.dirname(configPath) }
 }
 
 const defaultComponentConfig: ComponentConfiguration = {

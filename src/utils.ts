@@ -2,37 +2,7 @@ import glob from "glob"
 import prettier from "prettier"
 import * as ts from "typescript"
 import * as path from "path"
-
-export function valueToTS(
-    obj: any,
-    replacer?: (key: string | undefined, value: any) => ts.Expression,
-    parentKey?: string,
-): ts.Expression {
-    if (replacer) {
-        const replaced = replacer(parentKey, obj)
-        if (replaced !== undefined) {
-            return replaced
-        }
-    }
-    if (obj == null) return ts.createNull()
-    if (typeof obj == "object") {
-        if (obj instanceof Array) {
-            const items = obj.map(t => valueToTS(t, replacer))
-            const node = ts.createArrayLiteral(items)
-            return node
-        }
-        const items = []
-        for (const [key, value] of Object.entries(obj)) {
-            const valueExp = valueToTS(value, replacer, key)
-            if (valueExp == null) continue
-            const prop = ts.createPropertyAssignment(key, valueExp)
-            items.push(prop)
-        }
-        const node = ts.createObjectLiteral(items)
-        return node
-    }
-    return ts.createLiteral(obj)
-}
+import { Formatter } from "./types"
 
 export function printNode(node: ts.Node, hint: ts.EmitHint): string {
     const file = ts.createSourceFile("ggg", "", ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
@@ -61,6 +31,19 @@ export async function makePrettier(code: string, file?: string): Promise<string>
         console.log(err)
     }
     return code
+}
+
+export async function createPrettierFormatter(prettierrc?: string): Promise<Formatter> {
+    const config: prettier.Options = prettierrc ? await prettier.resolveConfig(prettierrc) : { parser: "typescript" }
+
+    return (code: string) => {
+        try {
+            return prettier.format(code, config)
+        } catch (error) {
+            console.log("Failed to format code", error)
+            return code
+        }
+    }
 }
 
 export function upperCaseFirstLetter(s: string): string {
@@ -227,4 +210,17 @@ export function differenceBy<T, K, ID>(left: T[], leftIdFunc: (val: T) => ID, ri
     const diff = difference(leftIds, rightIds)
 
     return left.filter(item => diff.has(leftIdFunc(item)))
+}
+
+export function partitionBy<T>(items: T[], predicate: (item: T) => boolean): [T[], T[]] {
+    const whenTrue = []
+    const whenFalse = []
+    for (const item of items) {
+        if (predicate(item)) {
+            whenTrue.push(item)
+        } else {
+            whenFalse.push(item)
+        }
+    }
+    return [whenTrue, whenFalse]
 }
