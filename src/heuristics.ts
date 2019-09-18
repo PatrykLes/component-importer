@@ -8,6 +8,7 @@ export function applyColorHeuristic<T extends ComponentInfo>(comp: T): T {
             return {
                 ...propType,
                 type: "color",
+                defaultValue: "#09F",
             }
         }
         return propType
@@ -91,6 +92,22 @@ export function applyHtmlBlacklistHeuristic<T extends ComponentInfo>(comp: T): T
     }
 }
 
+export function applyBooleanHeuristic<T extends ComponentInfo>(comp: T): T {
+    const updatedPropTypes: PropType[] = comp.propTypes.map(propType => {
+        if (propType.type === "boolean" && (propType.defaultValue === null || propType.defaultValue === undefined)) {
+            return {
+                ...propType,
+                defaultValue: false,
+            }
+        }
+        return propType
+    })
+    return {
+        ...comp,
+        propTypes: updatedPropTypes,
+    }
+}
+
 /**
  * Applies all heuristics to the given component.
  */
@@ -101,6 +118,7 @@ export function applyHeuristics<T extends ComponentInfo>(comp: T): T {
         applyLabelHeuristic,
         applyA11yHeuristic,
         applyHtmlBlacklistHeuristic,
+        applyBooleanHeuristic,
     ]
     return heuristics.reduce((comp, heuristic) => heuristic(comp), comp)
 }
