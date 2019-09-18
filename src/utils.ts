@@ -34,13 +34,20 @@ export function valueToTS(
     return ts.createLiteral(obj)
 }
 
-export function printExpression(node: ts.Node) {
+export function printNode(node: ts.Node, hint: ts.EmitHint): string {
     const file = ts.createSourceFile("ggg", "", ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
-    const printer = ts.createPrinter({
-        newLine: ts.NewLineKind.LineFeed,
-    })
-    const result = printer.printNode(ts.EmitHint.Expression, node, file)
-    return result
+    const printer = ts.createPrinter(
+        {
+            newLine: ts.NewLineKind.LineFeed,
+            removeComments: false,
+        },
+        {},
+    )
+    return printer.printNode(hint, node, file)
+}
+
+export function printExpression(node: ts.Node) {
+    return printNode(node, ts.EmitHint.Expression)
 }
 
 /** Formats the given code using prettier, if an optional file is sent, the config for prettier will be resolved from there */
