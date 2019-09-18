@@ -1,4 +1,4 @@
-import { applyA11yHeuristic, applyHrefHeuristic, applyLabelHeuristic } from "../heuristics"
+import { applyA11yHeuristic, applyHrefHeuristic, applyLabelHeuristic, applyBooleanHeuristic } from "../heuristics"
 
 describe("heuristics", () => {
     test("applyA11yHeuristic", () => {
@@ -54,5 +54,14 @@ describe("heuristics", () => {
             { name: "placeholder", type: "string", defaultValue: "placeholder" },
             { name: "somethingElse", type: "string" },
         ])
+    })
+
+    test("applyBooleanHeuristic", () => {
+        const comp = applyBooleanHeuristic({
+            name: "A",
+            propTypes: [{ name: "text", type: "boolean" }],
+        })
+
+        expect(comp.propTypes).toEqual([{ name: "text", type: "boolean", defaultValue: false }])
     })
 })
