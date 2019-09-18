@@ -137,3 +137,29 @@ Want to learn more about design systems?
 - [Driving Adoption](https://segment.com/blog/driving-adoption-of-a-design-system/)
   Got a design system, but nobody is using it? Jeroen from segment.io explains what it took to convince other engineers to adopt [Evergreen](https://evergreen.segment.com/components/) 💗.
 
+# Local Development
+
+Are you working on the `component-importer`? These commands will help you get started,
+
+#### How to build?
+
+```bash
+yarn run build
+```
+
+#### How to run tests?
+
+```bash
+yarn run test
+```
+
+#### How to test the importer locally?
+
+```bash
+yarn build
+# creates a symbolic link to the current build of the component importer.
+ln -s "$(realpath build/cli.js)" /usr/local/bin/importer
+
+# You can now run anywhere in your file system
+importer --help
+```
