@@ -2,6 +2,33 @@
 
 ### Changes
 
+## Version: v0.0.25
+
+### Changes
+
+#### Feature
+
+ - [4864c76](https://github.com/framer/component-importer/commit/4864c76): implemented code merging
+ - [3469ae2](https://github.com/framer/component-importer/commit/3469ae2): Added local development description to README
+ - [f9fa306](https://github.com/framer/component-importer/commit/f9fa306): generalized printExpression into printNode
+ - [9303894](https://github.com/framer/component-importer/commit/9303894): implemented difference and differenceBy utils
+ - [e6cfda5](https://github.com/framer/component-importer/commit/e6cfda5): don't remove comments in tsconfig.json
+ - [69b4cf7](https://github.com/framer/component-importer/commit/69b4cf7): added applyBooleanHeuristic and defaultValue for color heuristic
+ - [15d5140](https://github.com/framer/component-importer/commit/15d5140): Add support for `path` in importer.config.json
+
+#### Documentation
+
+ - [7401081](https://github.com/framer/component-importer/commit/7401081): removed increasing adoption section
+ - [6529645](https://github.com/framer/component-importer/commit/6529645): replace placeholder with containers image
+ - [93261ef](https://github.com/framer/component-importer/commit/93261ef): added library use and re-importing section
+
+#### Maintenance
+
+ - [2912eb6](https://github.com/framer/component-importer/commit/2912eb6): removed unused PropType#title and created type Primitive
+ - [598365c](https://github.com/framer/component-importer/commit/598365c): added tests for applyBooleanHeuristic
+ - [b8df39f](https://github.com/framer/component-importer/commit/b8df39f): added stricter null checks
+ - [7adfdcd](https://github.com/framer/component-importer/commit/7adfdcd): dropped unused utils
+
 ## Version: v0.0.24
 
 ### Changes
@@ -10,18 +37,22 @@
 
  - [d1bdfce](https://github.com/framer/component-importer/commit/d1bdfce): added heuristics support
  - [f853db6](https://github.com/framer/component-importer/commit/f853db6): added markdown to .editorconfig
+
 #### Fix
 
  - [7408b21](https://github.com/framer/component-importer/commit/7408b21): run import-all before running tests
+
 #### Documentation
 
  - [72f7875](https://github.com/framer/component-importer/commit/72f7875): documentation improvements
  - [cf5f6e6](https://github.com/framer/component-importer/commit/cf5f6e6): added configuration and re-importing guides
+
 #### Maintenance
 
  - [a38b4d2](https://github.com/framer/component-importer/commit/a38b4d2): removed src/convert.ts and moved to emitComponents
  - [1ac282d](https://github.com/framer/component-importer/commit/1ac282d): analyzeTypeScript now returns ComponentInfo[] instead of SourceFile[]
  - [c9f6981](https://github.com/framer/component-importer/commit/c9f6981): dropped old test:<> methods
+
 ## Version: v0.0.23
 
 ### Changes
@@ -29,6 +60,7 @@
 #### Feature
 
  - [cd3d78b](https://github.com/framer/component-importer/commit/cd3d78b): expose emitComponents and convert
+
 ## Version: v0.0.22
 
 ### Changes
@@ -36,6 +68,7 @@
 #### Fix
 
  - [18f9d3a](https://github.com/framer/component-importer/commit/18f9d3a): dropped postinstall script
+
 ## Version: v0.0.21
 
 ### Changes
@@ -50,6 +83,7 @@
  - [8518c49](https://github.com/framer/component-importer/commit/8518c49): updated readme, fixed typos
  - [1285d73](https://github.com/framer/component-importer/commit/1285d73): readme improvements
  - [fe03a49](https://github.com/framer/component-importer/commit/fe03a49): improved readme
+
 #### Maintenance
 
  - [e955a7c](https://github.com/framer/component-importer/commit/e955a7c): cleaned up test setup
@@ -60,6 +94,7 @@
  - [d777f21](https://github.com/framer/component-importer/commit/d777f21): removed src/assert, call 'assert' directly
  - [415da0d](https://github.com/framer/component-importer/commit/415da0d): cleaned up indentation in tsconfig.json
  - [bc8c849](https://github.com/framer/component-importer/commit/bc8c849): bumped typescript to 3.6.2
+
 ## Version: v0.0.20
 
 ### Changes
@@ -69,12 +104,15 @@
  - [899a5cf](https://github.com/framer/component-importer/commit/899a5cf): improved documentation and failure modes
  - [c6e7c7b](https://github.com/framer/component-importer/commit/c6e7c7b): add support values for string, enum and boolean types
  - [2726ef3](https://github.com/framer/component-importer/commit/2726ef3): added withHOC support and improved the CLI docs
+
 #### Documentation
 
  - [5574caa](https://github.com/framer/component-importer/commit/5574caa): improved README.md in preparation for beta release
+
 #### Maintenance
 
  - [870e56f](https://github.com/framer/component-importer/commit/870e56f): updated react
+
 ## Version: 0.0.18
 
 ### Changes
@@ -83,12 +121,15 @@
 
  - [96ba900](https://github.com/framer/component-importer/commit/96ba900): added importer.config.json emit target
  - [a50a785](https://github.com/framer/component-importer/commit/a50a785): added indexByRemovingKey and mapValues to utils
+
 #### Fix
 
  - [0763d4c](https://github.com/framer/component-importer/commit/0763d4c): only exclude properties that are ONLY declared in react
+
 #### Maintenance
 
  - [0c55b7a](https://github.com/framer/component-importer/commit/0c55b7a): created generate folder
+
 ## Version: 0.0.17
 
 ### Changes
@@ -96,6 +137,7 @@
 #### Feature
 
  - [795830c](https://github.com/framer/component-importer/commit/795830c): improved prop detection for properties with multiple declarations
+
 ## Version: 0.0.16
 
 ### Changes
@@ -104,15 +146,18 @@
 
  - [e136b8b](https://github.com/framer/component-importer/commit/e136b8b): added more tests to compile.test.ts
  - [ed755f9](https://github.com/framer/component-importer/commit/ed755f9): added additional properties to PropType
+
 #### Fix
 
  - [d64d27b](https://github.com/framer/component-importer/commit/d64d27b): removed accidentally added file
+
 #### Maintenance
 
  - [4b54818](https://github.com/framer/component-importer/commit/4b54818): removed useless console.log line
  - [1034e7e](https://github.com/framer/component-importer/commit/1034e7e): moved tests to src/__tests__
  - [8c47a49](https://github.com/framer/component-importer/commit/8c47a49): moved component finders into findComponents module and extractPropTypes into own module
  - [334af11](https://github.com/framer/component-importer/commit/334af11): remove console.log NODE_ENV call
+
 ## Version: 0.0.15
 
 ### Changes
@@ -120,6 +165,7 @@
 #### Fix
 
  - [5b3c925](https://github.com/framer/component-importer/commit/5b3c925): improved component resolution for .d.ts files
+
 ## Version: 0.0.14
 
 ### Changes
@@ -127,6 +173,7 @@
 #### Fix
 
  - [1942a89](https://github.com/framer/component-importer/commit/1942a89): fixed NODE_ENV not loading properly
+
 ## Version: 0.0.13
 
 ### Changes
@@ -134,6 +181,7 @@
 #### Fix
 
  - [50d42f0](https://github.com/framer/component-importer/commit/50d42f0): add NODE_ENV to compoent-importer bin
+
 ## Version: 0.0.12
 
 ### Changes
@@ -141,6 +189,7 @@
 #### Fix
 
  - [141408f](https://github.com/framer/component-importer/commit/141408f): don't print usage array, just string
+
 ## Version: 0.0.11
 
 ### Changes
@@ -148,6 +197,7 @@
 #### Fix
 
  - [326578a](https://github.com/framer/component-importer/commit/326578a): added shebang to src/cli
+
 ## Version: 0.0.10
 
 ### Changes
@@ -159,6 +209,7 @@
 #### Feature
 
  - [9435eb1](https://github.com/framer/component-importer/commit/9435eb1): added component-importer bin
+
 ## Version: 0.0.8
 
 ### Changes
@@ -184,10 +235,12 @@
  - [e0420e6](https://github.com/framer/component-importer/commit/e0420e6): added extra config to .editorconfig
  - [fe49380](https://github.com/framer/component-importer/commit/fe49380): added basic jest setup
  - [8aa472b](https://github.com/framer/component-importer/commit/8aa472b): added .editorconfig
+
 #### Fix
 
  - [23a7004](https://github.com/framer/component-importer/commit/23a7004): fixed ordering of primitive unions
  - [cf27272](https://github.com/framer/component-importer/commit/cf27272): exclude design-systems from tsconfig
+
 #### Maintenance
 
  - [2156c16](https://github.com/framer/component-importer/commit/2156c16): minor cleanup
@@ -197,6 +250,7 @@
  - [1a6e07b](https://github.com/framer/component-importer/commit/1a6e07b): moved ComponentFinder into src/ts
  - [0955f6b](https://github.com/framer/component-importer/commit/0955f6b): swapped let -> const in typescript.ts
  - [3186504](https://github.com/framer/component-importer/commit/3186504): added tests around finding components
+
 #### Other
 
  - [fe36aed](https://github.com/framer/component-importer/commit/fe36aed): Add CircleCI config to run tests

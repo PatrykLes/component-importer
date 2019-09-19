@@ -117,6 +117,8 @@ function printChangelog(changelog: Changelog[]) {
             for (const { hash, commitString } of filteredChanges) {
                 lines.push(` - [${hash}](https://github.com/framer/component-importer/commit/${hash}): ${commitString}`)
             }
+
+            lines.push("")
         }
     }
 
