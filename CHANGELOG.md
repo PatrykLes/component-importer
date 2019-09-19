@@ -24,6 +24,7 @@
 
 #### Maintenance
 
+ - [f68dbc9](https://github.com/framer/component-importer/commit/f68dbc9): bump lodash from 4.17.11 to 4.17.15 (#1)
  - [2912eb6](https://github.com/framer/component-importer/commit/2912eb6): removed unused PropType#title and created type Primitive
  - [598365c](https://github.com/framer/component-importer/commit/598365c): added tests for applyBooleanHeuristic
  - [b8df39f](https://github.com/framer/component-importer/commit/b8df39f): added stricter null checks

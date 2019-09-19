@@ -29,7 +29,7 @@ function parseCommitString(
     if (/^v?\d+\.\d+\.\d+$/.test(rawCommitString)) {
         return { type: "Publish", commitString: rawCommitString }
     }
-    const match = rawCommitString.match(/^(\w+):(.*)$/)
+    const match = rawCommitString.match(/^([\w\(\)]+):(.*)$/)
     if (match) {
         const commitTypeString = match[1]
         const parsedCommitString = match[2]
