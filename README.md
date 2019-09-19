@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/%40framerjs%2Fcomponent-importer.svg)](https://badge.fury.io/js/%40framerjs%2Fcomponent-importer) [![Join the Community](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/framer/bug-reports)
 
-![](https://placehold.it/600x300)
+![](assets/containers.jpg)
 
 The `component-importer` is a command line tool that makes it easy to import TypeScript-based React design systems into Framer X. It analyzes your production design system's source code and generates readable React components that can be loaded by [Framer X](https://framer.com).
 
