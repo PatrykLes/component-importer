@@ -184,3 +184,10 @@ ln -s "$(realpath build/cli.js)" /usr/local/bin/importer
 # You can now run anywhere in your file system
 importer --help
 ```
+
+#### How can I publish a new verison of the `component-importer`
+
+1. Run `yarn publish` and pick a new version. Keep the version at 0.0.X until we reach a stable state.
+
+2. Run `yarn changelog` to re-write the changelog.
+
