@@ -1,5 +1,7 @@
 # Component Importer
 
+[![npm version](https://badge.fury.io/js/%40framerjs%2Fcomponent-importer.svg)](https://badge.fury.io/js/%40framerjs%2Fcomponent-importer) [![Join the Community](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/framer/bug-reports)
+
 ![](https://placehold.it/600x300)
 
 The `component-importer` is a command line tool that makes it easy to import TypeScript-based React design systems into Framer X. It analyzes your production design system's source code and generates readable React components that can be loaded by [Framer X](https://framer.com).
@@ -46,7 +48,13 @@ As a design system maintainer, your design system's value is proportional to its
 
 ## Getting started
 
-To install run `yarn global add @framerjs/component-importer`. This will globally install the `component-importer` executable.
+To install run:
+
+```
+yarn global add @framerjs/component-importer
+```
+
+This will globally install the `component-importer` executable.
 
 ### Example: importing the [Base Web](https://baseweb.design/) design system
 
@@ -61,7 +69,7 @@ Create a Framer X [folder-backed project](https://www.framer.com/support/using-f
  - In the save dialog, click the File Format dropdown and select "Framer X (Folder)"
  - Click Save
 
-**NOTE**: `.framerfx` projects are regular NPM projects. Go to your favorite text editor and try to open the folder we just created. The contents should look something like this:
+**NOTE**: `.framerfx` projects are regular NPM projects. Go to your favorite text editor and try to open the folder we just created. The contents will look something like this:
 
 ```
 build/
@@ -75,7 +83,7 @@ tsconfig.json
 yarn.lock
 ```
 
-As you can see, it's a good ol' NPM package with its `package.json` and `node_modules`. It also has a `tsconfig.json` file as Framer X supports TypeScript by default.
+As you can see, it's a good ol' NPM package with its `package.json` and `node_modules`. It also has a `tsconfig.json` file as Framer X supports TypeScript by default. By convention, all code components live in the `code/` folder.
 
 ### **Step 2**: add dependencies
 
@@ -91,16 +99,33 @@ yarn add baseui
 
 ### **Step 3**: run the `component-importer`
 
-In order to configure the component importer you will need to setup a configuration file, usually at the root of your project.
+In order to configure the component importer you will need to setup a configuration file at the root of your project.
 
-The `component-importer init` command will help you setup the appropriate defaults for your project.
+The `component-importer init` command will help you setup appropriate defaults for your project.
 
 The general syntax is `component importer init <packageName>`, an example being `component-importer init @blueprintjs/core` which will attempt to import the `@blueprintjs/core` package into your Framer X project.
 
 Now you can run the following command for your design system of choice:
 
 ```bash
+# Make sure to run this command at the root of your Framer X project.
 component-importer init baseui
+```
+
+After the command has run successfully you should see two changes:
+
+0. An `importer.config.json` file will be created at the root of your project. This file stores the configuration for the component importer. You can read more configuring the importer [here](docs/configuration.md).
+0. The `code/` folder is now filled with react components.
+
+### **Step 4**: Tweaking the generated components and keeping in sync with your design system
+
+Production design systems are meant to be consumed by engineers, not design tools, so you will need to spend some time adjusting the generated code. This will generally mean removing components that don't make much sense inside of Framer X and adjusting the UX of your property controls.
+
+You can use the `generate` command to re-run the component importer and get the latest changes from the upstream design system. The importer uses a simple mechanism for resolving conflicts which you can read more about [here](docs/re-importing.md).
+
+```bash
+# Make sure to run this command at the root of your Framer X project.
+component-importer generate
 ```
 
 ## Examples
@@ -122,9 +147,9 @@ Looking for projects using the `component-importer`?
 
 Looking to dive deeper into the `component-importer`? These guides are here to help:
 
-- [The CLI](docs/cli.md): Detailed documentation on how to use the `component-importer`s CLI.
 - [Configuration](docs/configuration.md): Fine tuning the importer with the `importer.config.json`.
 - [Re-importing](docs/re-importing.md): How to keep your Framer X project in sync with your design system.
+- [Library](docs/library.md): (**Experimental**) how to use the component importer as a TypeScript library.
 
 ## External resources & articles
 
