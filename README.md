@@ -42,10 +42,6 @@ There's still one big problem though: production design systems are typically on
 
 The `component-importer` makes it possible to import your company's design system into Framer X so designers can start prototyping with components that behave just like they do in production.
 
-#### Increasing design system adoption
-
-As a design system maintainer, your design system's value is proportional to its adoption. To be successful you'll need to think beyond just developing components, but also about making sure that they are well documented and intuitive for everyone involved in the process - this can range from designers and engineers to product managers and content creators. The `component-importer` tries to lower the barrier of adoption by making your production design system available for everyone.
-
 ## Getting started
 
 To install run:
