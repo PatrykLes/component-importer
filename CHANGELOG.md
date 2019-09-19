@@ -1,7 +1,3 @@
-## Version: undefined
-
-### Changes
-
 ## Version: v0.0.25
 
 ### Changes
@@ -198,10 +194,6 @@
 #### Fix
 
  - [326578a](https://github.com/framer/component-importer/commit/326578a): added shebang to src/cli
-
-## Version: 0.0.10
-
-### Changes
 
 ## Version: 0.0.9
 

@@ -75,10 +75,12 @@ function parseChangelog(lines: GitLogLine[]) {
 
     for (const line of lines) {
         if (line.type === "Publish") {
-            changelog.push({
-                version: currentVersion,
-                changes: linesInVersion,
-            })
+            if (linesInVersion.length > 0) {
+                changelog.push({
+                    version: currentVersion,
+                    changes: linesInVersion,
+                })
+            }
             currentVersion = line.commitString
             linesInVersion = []
         } else if (currentVersion) {
