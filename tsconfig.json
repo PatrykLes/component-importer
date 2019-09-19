@@ -17,6 +17,7 @@
         "node_modules/",
         "src/__mocks__/",
         "integration-test-data/",
-        "src/**/*.test.ts"
+        "src/**/*.test.ts",
+        "scripts/"
     ]
 }
