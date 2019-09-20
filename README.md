@@ -8,15 +8,15 @@ The `component-importer` is a command line tool that makes it easy to import Typ
 
 Let's take a quick look at the generated code.
 
-#### Example: importing a button from the baseui design system
+#### Example: importing a button from the office-ui-fabric-react design system
 
 ```ts
 import * as React from "react"
-import * as BaseUi from "baseui/button"
+import * as Fabric from "office-ui-fabric-react"
 import { addPropertyControls, ControlType } from "framer"
 
 function Button(props) {
-    return <BaseUi.Button {...props} />
+    return <Fabric.Button {...props} />
 }
 
 addPropertyControls(Button, { // <=== Inferred Property Controls
@@ -52,9 +52,9 @@ yarn global add @framerjs/component-importer
 
 This will globally install the `component-importer` executable.
 
-### Example: importing the [Base Web](https://baseweb.design/) design system
+### Example: importing the [Fabric UI](https://developer.microsoft.com/en-us/fabric#/get-started/web) design system
 
-Let's go through the process of importing the Base Web design system from scratch.
+Let's go through the process of importing the Fabric UI design system from scratch.
 
 ### **Step 1**: project setup
 
@@ -83,14 +83,14 @@ As you can see, it's a good ol' NPM package with its `package.json` and `node_mo
 
 ### **Step 2**: add dependencies
 
-Before we import Base Web, we will first need to add it as a dependency:
+Before we import Fabric UI, we will first need to add it as a dependency:
 
 ```bash
 # cd into the project created in the previous step.
 cd ~/my-project.framerfx
 
-# Base Web's npm package name is `baseui`
-yarn add baseui
+# Fabric UI's npm package name is `office-ui-fabric-react`
+yarn add office-ui-fabric-react
 ```
 
 ### **Step 3**: run the `component-importer`
@@ -105,19 +105,19 @@ Now you can run the following command for your design system of choice:
 
 ```bash
 # Make sure to run this command at the root of your Framer X project.
-component-importer init baseui
+component-importer init office-ui-fabric-react
 ```
 
 After the command has run successfully you should see two changes:
 
-0. An `importer.config.json` file will be created at the root of your project. This file stores the configuration for the component importer. You can read more configuring the importer [here](docs/configuration.md).
-0. The `code/` folder is now filled with react components.
+1. An `importer.config.json` file will be created at the root of your project. This file stores the configuration for the component importer. You can read more configuring the importer [here](docs/configuration.md).
+1. The `code/` folder is now filled with react components.
 
 ### **Step 4**: Tweaking the generated components and keeping in sync with your design system
 
-Production design systems are meant to be consumed by engineers, not design tools, so you will need to spend some time adjusting the generated code. This will generally mean removing components that don't make much sense inside of Framer X and adjusting the UX of your property controls.
+Production design systems are meant to be consumed by engineers, not design tools, so you will need to spend some time adjusting the generated code. This will generally mean removing components that don't make much sense inside of Framer X and adjusting the UX of the generated property controls.
 
-You can use the `generate` command to re-run the component importer and get the latest changes from the upstream design system. The importer uses a simple mechanism for resolving conflicts which you can read more about [here](docs/re-importing.md).
+You can use the `generate` command to re-run the component importer and get the latest changes from the upstream design system. The importer uses a simple mechanism for resolving & merging conflicts which you can read more about [here](docs/re-importing.md).
 
 ```bash
 # Make sure to run this command at the root of your Framer X project.
