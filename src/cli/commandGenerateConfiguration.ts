@@ -38,15 +38,26 @@ function printUsage() {
     console.log(`# Initialization Command
 
 Description:
-    Creates the importer.config.json configuration file.
+    Creates the importer.config.json configuration and generates code components.
 
 Usage:
 
-    component-importer init [--importPath] [--index] [--tsconfig] [--help] [--force]
+    component-importer init <importPath> [--index] [--tsconfig] [--help] [--force]
+
+Examples:
+
+    # To import the https://material-ui.com/ library run:
+    component-importer init material @material-ui/core
+
+    # To import https://baseweb.design/getting-started/setup/
+    component-importer init baseui
+
+    # To import from source
+    component-importer init "../../relative/path" --index path/to/index.tsx --tsconfig path/to/tsconfig.json
 
 Where:
 
-    [importPath]   : If you're importing from node_modules, use the package name. E.g. @material-ui/core.
+    <importPath>   : If you're importing from node_modules, use the package name. E.g. @material-ui/core.
                      If you're importing from a relative path, then use the path to the component you want to import. E.g. path/to/my-design-system/src/index.tsx.
     [index]        : (optional) A path to the the index.tsx, index.d.ts or index.ts of your application.
                      If not passed, will try to infer it based on the package.json's types or typings key.
