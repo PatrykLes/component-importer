@@ -1,3 +1,19 @@
+## Version: v0.0.26
+
+### Changes
+
+#### Fix
+
+ - [5744ae1](https://github.com/framer/component-importer/commit/5744ae1): Fixed documentation for component-importer init --help
+
+#### Documentation
+
+ - [9bb58f1](https://github.com/framer/component-importer/commit/9bb58f1): improved configuration documentation
+ - [ef3b913](https://github.com/framer/component-importer/commit/ef3b913): updated changelog
+ - [96de13f](https://github.com/framer/component-importer/commit/96de13f): updated changelog
+ - [e8c12d6](https://github.com/framer/component-importer/commit/e8c12d6): Added section on publishing and changelog
+ - [c87d35f](https://github.com/framer/component-importer/commit/c87d35f): updated changelog
+
 ## Version: v0.0.25
 
 ### Changes
