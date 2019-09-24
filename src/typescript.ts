@@ -83,7 +83,6 @@ export function parseTsConfig(tsConfigPath: string): ts.CompilerOptions {
         for (const diagnostic of parsedConfigFile.errors) {
             console.error(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"))
         }
-        throw new Error(`Configuration file at ${tsConfigPath} resulted in errors.`)
     }
 
     return { ...parsedConfigFile.options, removeComments: false }
