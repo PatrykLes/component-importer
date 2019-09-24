@@ -1,3 +1,15 @@
+## Version: v0.0.27
+
+### Changes
+
+#### Fix
+
+ - [cd3779a](https://github.com/framer/component-importer/commit/cd3779a): don't throw when parsing the tsconfig.json
+
+#### Documentation
+
+ - [a391d4c](https://github.com/framer/component-importer/commit/a391d4c): updated changelog
+
 ## Version: v0.0.26
 
 ### Changes
