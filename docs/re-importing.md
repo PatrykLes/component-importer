@@ -7,7 +7,7 @@ In order to minimize the amount of time spent keeping your Framer X package in s
 Re-importing is a problem that can be divided into 3 sub-problems:
 
 1. How to make sure new components are added?
-1. How to prevent removed components from being re-importer?
+1. How to prevent removed components from being re-imported?
 1. How to ensure my changes are preserved after re-importing?
 
 Let's look at each one individually:
@@ -16,7 +16,7 @@ Let's look at each one individually:
 
 You've updated your design system to the latest and greatest version and there's a bunch of new components that you want to import. The `component-importer` will automatically detect new components and generate code for them, so you don't need any additional configuration 🎉.
 
-### How to prevent removed components from being re-importer?
+### How to prevent removed components from being re-imported?
 
 Let imagine that you've imported a design system with 10 components, but only ended up using 5. If you run the `component-importer` again, it will find those new components and re-generate them, which is most likely not what you wanted. To prevent this from happening you can mark components to be ignored in the `importer.config.json` as follows:
 
