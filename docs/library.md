@@ -1,12 +1,12 @@
 # Using the Component Importer as a Typescript Library
 
-Although the most common way of using the component importer is as a CLI, it can also be used as a library.
+Although the most common way of using the `component-importer` is as a CLI, it can also be used as a library.
 
 **Note**: This is an experimental feature. Expect breaking API changes.
 
 ## Finding react components in a TypeScript project
 
-You can use the `analyzeTypeScript` funciton to retrieve an array of react components with
+You can use the `analyzeTypeScript` function to retrieve an array of react components with
 their properties from a typescript declaration file (`.d.ts`).
 
 ```ts
@@ -25,13 +25,13 @@ async function printReactComponents() {
 }
 ```
 
-You could then use this output to, for example, generate a documentation site.
+You can then use this output to, for example, generate a documentation site.
 
 ## Generating Code Components
 
 The `compile` function can be used to analyze a TypeScript project and generate Framer code components.
 
-This example shows you can to implement a very program that generates Framer X code components for the `baseui` design system.
+This example shows you how to implement a very simple program that generates Framer X code components for the `baseui` design system.
 
 ```ts
 import { compile } from "@framerjs/component-importer"
