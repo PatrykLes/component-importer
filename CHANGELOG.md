@@ -1,3 +1,25 @@
+## Version: v0.0.30
+
+### Changes
+
+#### Feature
+
+ - [78a66d1](https://github.com/framer/component-importer/commit/78a66d1): added yml to .editorconfig
+ - [0989366](https://github.com/framer/component-importer/commit/0989366): Adds Flow / propTypes support
+
+#### Fix
+
+ - [93995fb](https://github.com/framer/component-importer/commit/93995fb): typos in docs/library.md
+ - [a9814d1](https://github.com/framer/component-importer/commit/a9814d1): typos in docs/re-importing.md
+
+#### Documentation
+
+ - [577fbee](https://github.com/framer/component-importer/commit/577fbee): updated changelog
+
+#### Maintenance
+
+ - [e0ccc36](https://github.com/framer/component-importer/commit/e0ccc36): removed react from devDependencies
+
 ## Version: v0.0.27
 
 ### Changes
