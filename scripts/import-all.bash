@@ -45,3 +45,4 @@ import-design-system "@material-ui/core" "4.4.0"
 # See
 # import-design-system "baseui" "8.17.1"
 import-design-system "office-ui-fabric-react" "7.29.0"
+import-design-system "@salesforce/design-system-react" "0.10.13"

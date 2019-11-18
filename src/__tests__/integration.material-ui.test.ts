@@ -1,6 +1,4 @@
-import { analyzeTypeScript } from "../typescript"
-import fs from "fs"
-import { flatMap } from "../utils"
+import { analyzeTypeScript } from "../analyze"
 
 describe("integration-test", () => {
     test("material-ui", async () => {

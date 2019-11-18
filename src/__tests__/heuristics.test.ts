@@ -1,3 +1,4 @@
+import { PropTypeName } from "../analyze/extractPropTypes/types"
 import { applyA11yHeuristic, applyHrefHeuristic, applyLabelHeuristic, applyBooleanHeuristic } from "../heuristics"
 
 describe("heuristics", () => {
@@ -5,13 +6,13 @@ describe("heuristics", () => {
         const comp = applyA11yHeuristic({
             name: "A",
             propTypes: [
-                { name: "aria-hidden", type: "string" },
-                { name: "ariaHidden", type: "string" },
-                { name: "a11yField", type: "string" },
-                { name: "ariaDescription", type: "string" },
-                { name: "ariaHidden", type: "boolean" },
-                { name: "splitButtonAriaLabel", type: "string" },
-                { name: "arial", type: "string" },
+                { name: "aria-hidden", type: PropTypeName.string },
+                { name: "ariaHidden", type: PropTypeName.string },
+                { name: "a11yField", type: PropTypeName.string },
+                { name: "ariaDescription", type: PropTypeName.string },
+                { name: "ariaHidden", type: PropTypeName.boolean },
+                { name: "splitButtonAriaLabel", type: PropTypeName.string },
+                { name: "arial", type: PropTypeName.string },
             ],
         })
 
@@ -21,7 +22,7 @@ describe("heuristics", () => {
     test("applyHrefHeuristic", () => {
         const comp = applyHrefHeuristic({
             name: "A",
-            propTypes: [{ name: "href", type: "string" }, { name: "nonHref", type: "string" }],
+            propTypes: [{ name: "href", type: PropTypeName.string }, { name: "nonHref", type: PropTypeName.string }],
         })
 
         expect(comp.propTypes).toEqual([
@@ -41,10 +42,10 @@ describe("heuristics", () => {
         const comp = applyLabelHeuristic({
             name: "A",
             propTypes: [
-                { name: "text", type: "string" },
-                { name: "label", type: "string" },
-                { name: "placeholder", type: "string" },
-                { name: "somethingElse", type: "string" },
+                { name: "text", type: PropTypeName.string },
+                { name: "label", type: PropTypeName.string },
+                { name: "placeholder", type: PropTypeName.string },
+                { name: "somethingElse", type: PropTypeName.string },
             ],
         })
 
@@ -59,7 +60,7 @@ describe("heuristics", () => {
     test("applyBooleanHeuristic", () => {
         const comp = applyBooleanHeuristic({
             name: "A",
-            propTypes: [{ name: "text", type: "boolean" }],
+            propTypes: [{ name: "text", type: PropTypeName.boolean }],
         })
 
         expect(comp.propTypes).toEqual([{ name: "text", type: "boolean", defaultValue: false }])

@@ -1,14 +1,15 @@
-import { PropType } from "./extractPropTypes"
+import { PropType } from "./analyze/extractPropTypes"
 import { ComponentInfo } from "./types"
 import { splitWords } from "./utils"
+import { PropTypeName } from "./analyze/extractPropTypes/types"
 
 export function applyColorHeuristic<T extends ComponentInfo>(comp: T): T {
     const updatedPropTypes: PropType[] = comp.propTypes.map(propType => {
         if (/color/i.test(propType.name) && propType.type === "string") {
             return {
                 ...propType,
-                type: "color",
-                defaultValue: "#09F",
+                type: PropTypeName.color,
+                defaultValue: typeof propType.defaultValue === "undefined" ? "#09F" : propType.defaultValue,
             }
         }
         return propType
@@ -27,7 +28,7 @@ export function applyLabelHeuristic<T extends ComponentInfo>(comp: T): T {
         if (/label|text|title|placeholder|description/i.test(propType.name) && propType.type === "string") {
             return {
                 ...propType,
-                defaultValue: propType.name,
+                defaultValue: typeof propType.defaultValue === "undefined" ? propType.name : propType.defaultValue,
             }
         }
         return propType
@@ -46,7 +47,8 @@ export function applyHrefHeuristic<T extends ComponentInfo>(comp: T): T {
         if (propType.name.toLowerCase() === "href" && propType.type === "string") {
             return {
                 ...propType,
-                defaultValue: "https://framer.com",
+                defaultValue:
+                    typeof propType.defaultValue === "undefined" ? "https://framer.com" : propType.defaultValue,
             }
         }
         return propType

@@ -1,8 +1,7 @@
 import ts from "typescript"
-import { CompileOptions, ComponentEmitInfo, EmitResult, Formatter } from "../types"
-import { differenceBy, makePrettier, printNode } from "../utils"
+import { ComponentEmitInfo, EmitResult, Formatter } from "../types"
+import { differenceBy, printNode } from "../utils"
 import { createPropertyControlPropertyAssignments } from "./conversion"
-import { createFramerXProgram } from "../typescript"
 
 type PropertyAssignments = ts.ObjectLiteralExpression & {
     properties: ts.NodeArray<ts.PropertyAssignment & { name: ts.Identifier }>

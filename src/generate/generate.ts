@@ -1,6 +1,6 @@
 import prettier from "prettier"
 import { ComponentEmitInfo, EmitResult, Formatter } from "../types"
-import { printExpression, upperCaseFirstLetter } from "../utils"
+import { printExpression, upperCaseFirstLetter, resolveComponentImportPath } from "../utils"
 import { createPropertyControlObjectExpression } from "./conversion"
 
 function formatComponentName(comp: ComponentEmitInfo) {
@@ -53,18 +53,27 @@ function generateHOC() {
 export type EmitOptions = {
     formatter: Formatter
     packageName: string
+    outDir: string
     components: ComponentEmitInfo[]
     additionalImports: string[]
 }
 
-export function emitComponents({ formatter, packageName, components, additionalImports }: EmitOptions): EmitResult[] {
+export function emitComponents({
+    formatter,
+    packageName,
+    outDir,
+    components,
+    additionalImports,
+}: EmitOptions): EmitResult[] {
+    const importPath = resolveComponentImportPath(packageName, outDir)
+
     const emitResults: EmitResult[] = components
         .filter(comp => comp.emit)
         .map(comp => {
             return {
                 type: "component",
                 emitPath: comp.emitPath,
-                outputSource: formatter(generate(packageName, comp, additionalImports)),
+                outputSource: formatter(generate(importPath, comp, additionalImports)),
             }
         })
 

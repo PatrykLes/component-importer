@@ -3,8 +3,9 @@ import { getEmitPath, isComponentIgnored, isPropIgnored } from "./compilerOption
 import { emitComponents, emitMerge } from "./generate"
 import { applyHeuristics } from "./heuristics"
 import { CompileOptions, ComponentEmitInfo, ComponentInfo, EmitResult } from "./types"
-import { analyzeTypeScript, createFramerXProgram } from "./typescript"
-import { createPrettierFormatter, partitionBy } from "./utils"
+import { analyzeTypeScript, createFramerXProgram } from "./analyze/typescript"
+import { analyzeFlow, analyzePlainJavaScript } from "./analyze"
+import { createPrettierFormatter, partitionBy, findFilesAtImportPath } from "./utils"
 
 function applyIgnoredProps(opts: CompileOptions, comp: ComponentEmitInfo): ComponentEmitInfo {
     const filteredProps = comp.propTypes.filter(prop => {
@@ -37,14 +38,43 @@ function applyEmitPath(opts: CompileOptions, comp: ComponentInfo): ComponentEmit
 /**
  * Runs all the compilers steps, namely
  *
- * 1. analize: finds react components in a source tree
+ * 1. analyze: finds react components in a source tree
  * 2. convert: converts the analized components into a "framer component" data structure
  * 3. emit: returns the output that will eventually be written to disc
  */
 export async function compile(opts: CompileOptions): Promise<EmitResult[]> {
-    const { rootFiles, tsConfigPath, packageName, additionalImports, prettierrc, projectRoot } = opts
+    const {
+        mode,
+        rootFiles,
+        tsConfigPath,
+        packageName,
+        additionalImports,
+        prettierrc,
+        projectRoot,
+        out,
+        ignore,
+        include,
+        verbose,
+    } = opts
     const formatter = await createPrettierFormatter(prettierrc)
-    const components = await analyzeTypeScript(rootFiles, tsConfigPath)
+    let components: ComponentInfo[]
+    switch (mode) {
+        case "flow": {
+            const files = findFilesAtImportPath(packageName, include, ignore)
+            components = await analyzeFlow(files, { verbose })
+            break
+        }
+        case "plain": {
+            const files = findFilesAtImportPath(packageName, include, ignore)
+            components = await analyzePlainJavaScript(files, { verbose })
+            break
+        }
+        case "typescript":
+        default: {
+            components = await analyzeTypeScript(rootFiles, tsConfigPath)
+        }
+    }
+
     const framerProjectProgram = createFramerXProgram(projectRoot)
 
     const allComponents = components
@@ -61,6 +91,7 @@ export async function compile(opts: CompileOptions): Promise<EmitResult[]> {
     const emitResults = emitComponents({
         formatter,
         packageName,
+        outDir: out,
         components: componentsToEmit,
         additionalImports,
     })

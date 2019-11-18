@@ -1,4 +1,4 @@
-import { analyzeTypeScript } from "../typescript"
+import { analyzeTypeScript } from "../analyze"
 
 describe("integration-test", () => {
     test("ant-design", async () => {

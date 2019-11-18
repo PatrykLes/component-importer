@@ -1,4 +1,4 @@
-import { PropType } from "./extractPropTypes"
+import { PropType } from "./analyze/extractPropTypes"
 
 export type Formatter = (str: string) => string
 
@@ -41,6 +41,12 @@ export type ComponentConfiguration = {
  */
 export type CompileOptions = {
     /**
+     * The mode the importer will operate in.
+     * Can be one of `typescript`, `flow`, or `plain` (`propTypes`). Defaults to `typescript`.
+     */
+    mode?: "typescript" | "flow" | "plain"
+
+    /**
      * The set of root files from which the compiler will start traversing the source code.
      * Usually this is a single file `src/index.d.ts`, `src/index.tsx` or `src/index.ts`
      */
@@ -80,6 +86,18 @@ export type CompileOptions = {
     components: {
         [componentName: string]: ComponentConfiguration
     }
+
+    /**
+     * A list of glob patterns to ignore when scanning through files
+     */
+    ignore?: string[]
+
+    /**
+     * A glob pattern that will match files that contain React components
+     */
+    include?: string
+
+    verbose?: boolean
 }
 
 export interface ComponentInfo {

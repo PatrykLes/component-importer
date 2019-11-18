@@ -1,5 +1,5 @@
-import { analyzeTypeScript } from "../typescript"
-import { flatMap, indexBy, byKey } from "../utils"
+import { analyzeTypeScript } from "../analyze"
+import { indexBy, byKey } from "../utils"
 
 const propsAsPossibleValues: string[] = [
     "symbol",

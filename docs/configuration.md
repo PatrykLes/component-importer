@@ -9,11 +9,12 @@ For the purpose of this guide we are going to assume that we're importing the `g
 ```json
 {
     "packageName": "grommet",
+    "mode": "typescript",
     "rootFiles": [
         "node_modules/grommet/index.d.ts",
     ],
     "out": "code/",
-    "cssImports": ["import/path/to/main.css"],
+    "additionalImports": ["import/path/to/main.css"],
     "components": {
         "Button": {
             "ignore": false,
@@ -31,11 +32,19 @@ For the purpose of this guide we are going to assume that we're importing the `g
 
 #### `packageName`
 
-The `packageName` is the name of the NPM package of the design system to be imported. That package must be present in your Framer X project's `node_modules`, so make sure it was previously added (For example by running `yarn add grommet`).
+The `packageName` is the name of the NPM package of the design system to be imported. The package must be present in your Framer X project's `node_modules`, so make sure it was previously added (e.g. by running `yarn add grommet`). The value of `packageName` can also be a path to a directory that will be scanned for React components.
+
+#### `mode`
+
+The `mode` describes the flavor of JavaScript used in the design system you're importing. Can be one of `typescript`, `flow`, or `plain` for `propTypes` support in vanilla JavaScript. The default is `typescript`.
 
 #### `rootFiles`
 
-The `rootFiles` is an array of strings that point to the package's TypeScript definitions.
+The `rootFiles` is an array of strings that point to the package's TypeScript definitions. Only required when `mode` is `typescript`.
+
+#### `additionalImports`
+
+A list of additional files to import. Use this field to add CSS files that load custom fonts, or if your components are styled through a global CSS file. Each file in the list will get its own `import` statement at the top of the HOC that wraps every component (you can find it in the generated `code/withHOC.tsx`). 
 
 #### `out`
 
@@ -62,6 +71,37 @@ The `components`: object lets you add additional configuration on a per-componen
 
 - `ignoredProps`: (`string[]`) An array of props that will be excluded from code generation.
 
+#### `include` (only available in `plain` and `flow` mode)
 
+The `include` field specifies a glob pattern that will be used to scan for files that might contain React components:
 
+```json
+{
+    "include": "**/*.{js,jsx}",
+    ...
+}
+```
 
+In `flow` mode, the component importer will also look at files with the `.flow` extension.
+
+#### `ignore` (only available in `plain` and `flow` mode)
+
+A list of glob patterns that match directories and files that will not be analyzed when looking for React components. You'd typically want to include tests, documentation examples, etc. in this list. The default list is:
+
+```json
+{
+    "ignore": [
+        "**/node_modules/**",
+        "**/stories/**",
+        "**/__mocks__/**",
+        "**/__examples__/**",
+        "**/__tests__/**",
+        "**/__docs__/**",
+        "**/*.test.{js,jsx}",
+        "**/*-test.{js,jsx}",
+        "**/*.spec.{js,jsx}",
+        "**/*-spec.{js,jsx}"
+    ],
+    ...
+}
+```

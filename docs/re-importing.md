@@ -22,6 +22,7 @@ Let imagine that you've imported a design system with 10 components, but only en
 
 ```js
 {
+  "mode": "typescript",
   "packageName": "grommet",
   "rootFiles": [
     "node_modules/grommet/index.d.ts",
@@ -38,7 +39,7 @@ Let imagine that you've imported a design system with 10 components, but only en
       "ignore": true  // <========= this component should not be re-generated in the future.
     },
   },
-  "cssImports": ["import/path/to/main.css"],
+  "additionalImports": ["import/path/to/main.css"],
 }
 ```
 

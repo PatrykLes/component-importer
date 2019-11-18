@@ -1,5 +1,5 @@
 import ts from "typescript"
-import { Primitive, PropType } from "../extractPropTypes/types"
+import { Primitive, PropType } from "../analyze/extractPropTypes/types"
 import { ComponentInfo } from "../types"
 import { splitWords, upperCaseFirstLetter } from "../utils"
 
@@ -54,7 +54,7 @@ function createPropertyControlExpression(prop: PropType): ts.ObjectLiteralExpres
     )
 
     // PropertyControl#defaultValue
-    if (prop.defaultValue) {
+    if ("defaultValue" in prop && typeof prop.defaultValue !== "undefined" && prop.defaultValue !== null) {
         properties.push(createProp("defaultValue", prop.defaultValue))
     }
 

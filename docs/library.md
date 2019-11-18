@@ -1,19 +1,39 @@
-# Using the Component Importer as a Typescript Library
+# Using the Component Importer as a TypeScript Library
 
 Although the most common way of using the `component-importer` is as a CLI, it can also be used as a library.
 
 **Note**: This is an experimental feature. Expect breaking API changes.
 
-## Finding react components in a TypeScript project
+## Finding React components in a project
 
-You can use the `analyzeTypeScript` function to retrieve an array of react components with
-their properties from a typescript declaration file (`.d.ts`).
+You can use the `analyzeTypeScript`, `analyzeFlow` and `analyzePlainJavaScript` functions to retrieve an array of React components with
+their properties.
+
+For example, to extract component definitions from a `.d.ts` file:
 
 ```ts
 import { analyzeTypeScript } from "@framerjs/component-importer"
 
 async function printReactComponents() {
     const components = await analyzeTypeScript(["path/to/index.d.ts"])
+
+    for (const comp of components) {
+        console.log("Component:", comp.name)
+
+        for (const prop of comp.propTypes) {
+            console.log(`Found property ${prop.name} with type ${prop.type}`)
+        }
+    }
+}
+```
+
+If TypeScript definitions are not available, you can analyze files that have Flow type definitions with `analyzeFlow`, or fall back to plain `propTypes` support:
+
+```ts
+import { analyzePlainJavaScript } from "@framerjs/component-importer"
+
+async function printReactComponents() {
+    const components = await analyzePlainJavaScript(["path/to/component1.js", "path/to/component2.js"])
 
     for (const comp of components) {
         console.log("Component:", comp.name)

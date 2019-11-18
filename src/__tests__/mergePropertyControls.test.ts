@@ -1,21 +1,22 @@
 import { updatePropertyControls } from "../generate/merge"
 
 import { createPrettierFormatter } from "../utils"
-import { createProgram } from "../typescript"
+import { createProgram } from "../analyze/typescript"
+import { PropTypeName } from "../analyze/extractPropTypes/types"
 
 const formatter = createPrettierFormatter(".prettierrc.json")
 
 describe("updatePropertyControls", () => {
     test("new properties are added", async () => {
-        const file = "src/__mocks__/propertyControlMerging.tsx"
+        const file = "src/__mocks__/typescript/propertyControlMerging.tsx"
         const program = createProgram({ rootNames: [file] })
 
         const sourceFile = program.getSourceFile(file)
 
         const updatedSourceFile = await updatePropertyControls(await formatter, sourceFile, {
             propTypes: [
-                { type: "boolean", name: "newBooleanField" },
-                { type: "string", name: "newStringField", defaultValue: "asd" },
+                { type: PropTypeName.boolean, name: "newBooleanField" },
+                { type: PropTypeName.string, name: "newStringField", defaultValue: "asd" },
             ],
         })
 
@@ -51,7 +52,7 @@ addPropertyControls(SimpleReactComponent, {
     })
 
     test("existing properties are preserved", async () => {
-        const file = "src/__mocks__/propertyControlMerging.tsx"
+        const file = "src/__mocks__/typescript/propertyControlMerging.tsx"
         const program = createProgram({ rootNames: [file] })
 
         const sourceFile = program.getSourceFile(file)

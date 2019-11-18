@@ -1,8 +1,62 @@
 import glob from "glob"
+import fs from "fs"
+import util from "util"
 import prettier from "prettier"
 import * as ts from "typescript"
 import * as path from "path"
+import { namedTypes as t } from "ast-types"
+import { NodePath } from "ast-types/lib/node-path"
 import { Formatter } from "./types"
+
+export const defaultPlainIgnorePatterns = [
+    "**/node_modules/**",
+    "**/stories/**",
+    "**/__mocks__/**",
+    "**/__examples__/**",
+    "**/__tests__/**",
+    "**/__docs__/**",
+    "**/*.test.{js,jsx}",
+    "**/*-test.{js,jsx}",
+    "**/*.spec.{js,jsx}",
+    "**/*-spec.{js,jsx}",
+]
+
+export const defaultFlowIgnorePatterns = [
+    "**/node_modules/**",
+    "**/stories/**",
+    "**/__mocks__/**",
+    "**/__examples__/**",
+    "**/__tests__/**",
+    "**/__docs__/**",
+    "**/*.test.{js,jsx,flow}",
+    "**/*-test.{js,jsx,flow}",
+    "**/*.spec.{js,jsx,flow}",
+    "**/*-spec.{js,jsx,flow}",
+]
+
+export const defaultPlainIncludePattern = "**/*.{js,jsx}"
+
+export const defaultFlowIncludePattern = "**/*.{js,jsx,flow}"
+
+const defaultPrettierConfig: prettier.Options = {
+    parser: "typescript",
+    tabWidth: 4,
+    printWidth: 120,
+    trailingComma: "all",
+    semi: false,
+}
+
+export function getNameOrValue(path: NodePath, raw?: boolean): string {
+    const node = path.node
+    switch (node.type) {
+        case (t.Identifier as any).name:
+            return node.name
+        case (t.Literal as any).name:
+            return raw ? node.raw : node.value
+        default:
+            throw new TypeError("Argument must be an Identifier or a Literal")
+    }
+}
 
 export function printNode(node: ts.Node, hint: ts.EmitHint): string {
     const file = ts.createSourceFile("ggg", "", ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX)
@@ -23,8 +77,7 @@ export function printExpression(node: ts.Node) {
 /** Formats the given code using prettier, if an optional file is sent, the config for prettier will be resolved from there */
 export async function makePrettier(code: string, file?: string): Promise<string> {
     try {
-        const options = (file && (await prettier.resolveConfig(file))) || {}
-        options.parser = "typescript"
+        const options: prettier.Options = (file && (await prettier.resolveConfig(file))) || defaultPrettierConfig
         const prettyCode = prettier.format(code, options)
         return prettyCode
     } catch (err) {
@@ -34,7 +87,7 @@ export async function makePrettier(code: string, file?: string): Promise<string>
 }
 
 export async function createPrettierFormatter(prettierrc?: string): Promise<Formatter> {
-    const config: prettier.Options = prettierrc ? await prettier.resolveConfig(prettierrc) : { parser: "typescript" }
+    const config: prettier.Options = prettierrc ? await prettier.resolveConfig(prettierrc) : defaultPrettierConfig
 
     return (code: string) => {
         try {
@@ -44,6 +97,78 @@ export async function createPrettierFormatter(prettierrc?: string): Promise<Form
             return code
         }
     }
+}
+
+export function findFilesAtImportPath(
+    importPath: string,
+    globPattern = defaultPlainIncludePattern,
+    globIgnore = defaultPlainIgnorePatterns,
+): string[] {
+    if (fs.existsSync(importPath)) {
+        const stat = fs.statSync(importPath)
+
+        // Single file case
+        if (stat.isFile()) {
+            return [importPath]
+        }
+
+        // Directory case
+        if (stat.isDirectory()) {
+            const patternWithImportPath = path.join(importPath, globPattern)
+            const ignoreWithImportPath = globIgnore.map(p => path.join(importPath, p))
+            return glob.sync(patternWithImportPath, { ignore: ignoreWithImportPath })
+        }
+    }
+
+    // Node module name case
+    if (isModulePath(importPath)) {
+        const modulePath = `./node_modules/${importPath}`
+        const patternWithModulePath = path.join(modulePath, globPattern)
+        const ignoreWithModulePath = globIgnore.map(p => path.join(modulePath, p))
+
+        return glob.sync(patternWithModulePath, { ignore: ignoreWithModulePath })
+    }
+
+    return []
+}
+
+export function isModulePath(importPath: string) {
+    const modulePath = `./node_modules/${importPath}`
+    return fs.existsSync(modulePath) && fs.statSync(modulePath).isDirectory()
+}
+
+/**
+ * Returns the path that will be used in the `import * as System from "[importPath]"` statement.
+ * If the original import path was a module, or an absolute path, it will be preserved.
+ * Otherwise, a relative path from the `outDir` to the original path will be generated.
+ */
+
+export function resolveComponentImportPath(importPath: string, outDir: string) {
+    if (isModulePath(importPath) || path.isAbsolute(importPath)) {
+        return importPath
+    }
+
+    return path.relative(outDir, importPath)
+}
+
+export function findDefaultIndex(importPath: string): string[] {
+    const root = path.join("node_modules", importPath)
+    const packageJsonPath = path.join(root, "package.json")
+    if (!fs.existsSync(packageJsonPath)) {
+        return []
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString())
+
+    // According to https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html
+    // type definitions live either at:
+    //
+    // - package.json:types
+    // - package.json:typings
+    // - /index.d.ts
+    const localPathToTypes = packageJson.typings || packageJson.types || "index.d.ts"
+
+    return [path.join(root, localPathToTypes)]
 }
 
 export function upperCaseFirstLetter(s: string): string {

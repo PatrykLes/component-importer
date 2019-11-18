@@ -1,10 +1,19 @@
-# Component Importer
+<p align="center">
+  <img src="assets/component-importer-logo.png" width="176" height="170" alt="Component Importer" />
+</p>
+
+<div align="center">
+    <h1>Component Importer</h1>
+    <h3>Tooling to import your production <br> design system into Framer</h3>
+</div>
+
+<br>
 
 [![npm version](https://badge.fury.io/js/%40framerjs%2Fcomponent-importer.svg)](https://badge.fury.io/js/%40framerjs%2Fcomponent-importer) [![Join the Community](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/framer/bug-reports)
 
-![](assets/containers.jpg)
 
-The `component-importer` is a command line tool that makes it easy to import TypeScript-based React design systems into Framer X. It analyzes your production design system's source code and generates readable React components that can be loaded by [Framer X](https://framer.com).
+
+The `component-importer` is a command-line tool that makes it easy to import React-based design systems into Framer X. It analyzes your production design system's source code and generates readable React components that can be loaded by [Framer X](https://framer.com). It currently supports components written in TypeScript, Flow or vanilla JavaScript (via PropTypes).
 
 Let's take a quick look at the generated code.
 
@@ -40,7 +49,7 @@ Design Systems lower engineering costs by keeping a single source of truth for y
 
 There's still one big problem though: production design systems are typically only accesible to technical designers, comfortable enough with the command line and familiar with web development tooling like Webpack, TypeScript/Flow, React/Angular, etc. This means that designers often end up having to maintain their own copy which is expensive to keep in sync.
 
-The `component-importer` makes it possible to import your company's design system into Framer X so designers can start prototyping with components that behave just like they do in production.
+The `component-importer` makes it possible to import your company's design system into Framer X, so designers can start prototyping with components that behave just like they do in production.
 
 ## Getting started
 
@@ -99,23 +108,27 @@ In order to configure the component importer you will need to setup a configurat
 
 The `component-importer init` command will help you setup appropriate defaults for your project.
 
-The general syntax is `component importer init <packageName>`, an example being `component-importer init @blueprintjs/core` which will attempt to import the `@blueprintjs/core` package into your Framer X project.
+The general syntax is `component-importer init <packageName>`. For example, `component-importer init @blueprintjs/core` will try to import the `@blueprintjs/core` package into your Framer X project.
+
+Note that by default, the component importer will run in TypeScript mode and expect to find a type definitions file in the package you've pointed it to. If your components are written in a different flavor of JavaScript, you can use the `--mode` argument to pick a different mode. The available modes are:
+* `--mode flow` for Flow-typed components
+* `--mode plain` for components written in plain JavaScript with props described in a static `propTypes` property on the exported component.
 
 Now you can run the following command for your design system of choice:
 
 ```bash
-# Make sure to run this command at the root of your Framer X project.
+# Make sure to run this command at the root of your Framer X project
 component-importer init office-ui-fabric-react
 ```
 
-After the command has run successfully you should see two changes:
+After the command has run successfully, you should see two changes:
 
-1. An `importer.config.json` file will be created at the root of your project. This file stores the configuration for the component importer. You can read more configuring the importer [here](docs/configuration.md).
-1. The `code/` folder is now filled with react components.
+1. An `importer.config.json` file will be created at the root of your project. This file stores the configuration for the component importer. You can read more about configuring the importer [here](docs/configuration.md).
+1. The `code/` folder is now filled with React components.
 
 ### **Step 4**: Tweaking the generated components and keeping in sync with your design system
 
-Production design systems are meant to be consumed by engineers, not design tools, so you will need to spend some time adjusting the generated code. This will generally mean removing components that don't make much sense inside of Framer X and adjusting the UX of the generated property controls.
+Production design systems are meant to be consumed by engineers, not design tools, so you will need to spend some time adjusting the generated code. This means removing components that don't make much sense inside of Framer X and adjusting the UX of the generated property controls.
 
 You can use the `generate` command to re-run the component importer and get the latest changes from the upstream design system. The importer uses a simple mechanism for resolving & merging conflicts which you can read more about [here](docs/re-importing.md).
 
@@ -130,12 +143,12 @@ Looking for projects using the `component-importer`?
 
 - [Base Web](https://baseweb.design/): Uber's design system.
   - [Source Code](https://github.com/framer/baseui.framerfx)
-  - [Framer X package](https://store.framer.com/package/fhur/baseui)
+  - [Framer X package](https://packages.framer.com/package/lily/baseui)
 - [Office UI Fabric](https://developer.microsoft.com/en-us/fabric): Microsoft's design system.
   - [Source Code](https://github.com/framer/office-ui-fabric.framerfx)
 - [Grommet](https://v2.grommet.io/): A mobile-first, themeable design system used by companies like IBM, Netflix and Sony.
   - [Source Code](https://github.com/framer/grommet.framerfx)
-  - [Framer X package](https://store.framer.com/package/fhur/grommet)
+  - [Framer X package](https://packages.framer.com/package/fhur/grommet)
 - [Salesforce Lightning](https://github.com/salesforce/design-system-react)
   - [Source Code](https://github.com/framer/salesforce-lightning.framerfx)
 
@@ -185,7 +198,7 @@ ln -s "$(realpath build/cli.js)" /usr/local/bin/importer
 importer --help
 ```
 
-#### How can I publish a new verison of the `component-importer`
+#### How can I publish a new version of the `component-importer`
 
 1. Run `yarn publish` and pick a new version. Keep the version at 0.0.X until we reach a stable state.
 

@@ -2,3 +2,4 @@ node_modules/
 build/
 integration-test-data/
 .DS_Store
+yarn-error.log

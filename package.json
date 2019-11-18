@@ -1,6 +1,6 @@
 {
     "name": "@framerjs/component-importer",
-    "version": "0.0.27",
+    "version": "0.0.29-alpha.2",
     "main": "./build/index.js",
     "types": "./build/index.d.ts",
     "repository": "git@github.com:framer/ComponentImporter.git",
@@ -14,10 +14,12 @@
         "prepublishOnly": "yarn test && yarn build"
     },
     "dependencies": {
+        "ast-types": "^0.13.2",
         "command-line-args": "^5.1.1",
         "fs-extra": "^8.0.1",
         "glob": "^7.1.4",
         "prettier": "^1.17.1",
+        "react-docgen": "https://github.com/framer/react-docgen.git#semver:~5.0.0-beta",
         "typescript": "^3.6.2"
     },
     "devDependencies": {
